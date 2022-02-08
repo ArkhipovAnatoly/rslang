@@ -24,6 +24,20 @@
     "rules": {
         "no-debugger": "off",
         "no-console": 0,
-        "@typescript-eslint/no-explicit-any": "error"
+        "@typescript-eslint/no-explicit-any": "error",
+        "jsx-a11y/label-has-associated-control": [
+            2,
+            {
+                "labelAttributes": ["label"],
+                "controlComponents": ["Input"],
+                "depth": 3
+            }
+        ],
+        "react/function-component-definition": [
+            0,
+            {
+                "namedComponents": "function-declaration"
+            }
+        ]
     }
 }
