@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '../../../GlobalContext';
-import Service, { DataUserCreateResponse } from '../../../Service';
+import Service, { DataUserCreateResponse, DataUserLoginResponse } from '../../../Service';
 import PreLoaderCircle from '../../Preloader/PreLoaderCircle';
 
 const Registration = () => {
@@ -60,21 +60,21 @@ const Registration = () => {
         setRegistrationStatusMessage('');
         setDisabled(true);
         setLoader(true);
-        const response = (await Service.createUser({ name, email, password })) as DataUserCreateResponse;
+        const responseRegistration = (await Service.createUser({ name, email, password })) as DataUserCreateResponse;
 
-        setTimeout(() => {
-            setLoader(false);
-            setDisabled(false);
-            if (!response) {
-                setSuccess(false);
-                setRegistrationStatusMessage(`Пользователь с ${email} уже зарегестрирован!`);
-            } else {
-                setSuccess(true);
-                setRegistrationStatusMessage(`Вы успешно зарегестрировались!`);
-                setUserId(response.id);
-                // navigate('/');
-            }
-        }, 3000);
+        setLoader(false);
+        setDisabled(false);
+        if (!responseRegistration) {
+            setSuccess(false);
+            setRegistrationStatusMessage(`Пользователь с ${email} уже зарегистрирован!`);
+        } else {
+            setSuccess(true);
+            setRegistrationStatusMessage(`Вы успешно зарегистрировались!`);
+            const responseLogin = (await Service.loginUser({ email, password })) as DataUserLoginResponse;
+            setUserId(responseLogin.userId);
+            localStorage.setItem('token', responseLogin.token);
+            navigate('/');
+        }
     };
 
     return (
