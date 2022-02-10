@@ -34,6 +34,21 @@ export type DataUserLoginResponse = {
     name: string;
 };
 
+export type DataUserWord = {
+    userId: string;
+    wordId: string;
+};
+
+export type DataCreateUserWordResponse = {
+    id: string;
+    difficulty: string;
+    optional: {
+        testFieldString: 'string';
+        testFieldBoolean: boolean;
+    };
+    wordId: string;
+};
+
 class Service {
     private static baseUrl = 'https://learn-english-words-app.herokuapp.com';
 
@@ -77,6 +92,51 @@ class Service {
             const response = await fetch(`${this.baseUrl}/words?group=${group}&page=${page}`);
             const words: DataWord[] = await response.json();
             return words;
+        } catch (error) {
+            console.log(error);
+        }
+        return undefined;
+    }
+
+    public static async createUserWord(
+        wordData: DataUserWord,
+        token: string,
+        word: object
+    ): Promise<DataCreateUserWordResponse | undefined> {
+        const { userId, wordId } = wordData;
+        try {
+            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(word),
+            });
+            const content = await rawResponse.json();
+            return content;
+        } catch (error) {
+            console.log(error);
+        }
+        return undefined;
+    }
+
+    public static async getUserWords(
+        word: DataUserWord,
+        token: string
+    ): Promise<DataCreateUserWordResponse[] | undefined> {
+        const { userId } = word;
+        try {
+            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            });
+            const content = await rawResponse.json();
+            return content;
         } catch (error) {
             console.log(error);
         }
