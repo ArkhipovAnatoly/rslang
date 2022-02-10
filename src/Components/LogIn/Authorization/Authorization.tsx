@@ -50,21 +50,19 @@ const Authorization = () => {
         setLoginStatusMessage('');
         setDisabled(true);
         setLoader(true);
-        const response = (await Service.loginUser({ email, password })) as DataUserLoginResponse;
+        const responseLogin = (await Service.loginUser({ email, password })) as DataUserLoginResponse;
 
-        setTimeout(() => {
-            setLoader(false);
-            setDisabled(false);
-            if (!response) {
-                setSuccess(false);
-                setLoginStatusMessage(`Неверный Email или пароль!`);
-            } else {
-                setSuccess(true);
-                setLoginStatusMessage(`Вы успешно авторизовались!`);
-                localStorage.setItem('token', response.token);
-                // navigate('/');
-            }
-        }, 3000);
+        setLoader(false);
+        setDisabled(false);
+        if (!responseLogin) {
+            setSuccess(false);
+            setLoginStatusMessage(`Неверный Email или пароль!`);
+        } else {
+            setSuccess(true);
+            setLoginStatusMessage(`Вы успешно авторизовались!`);
+            localStorage.setItem('token', responseLogin.token);
+            navigate('/');
+        }
     };
     return (
         <div className="wrapper-form" aria-hidden onClick={closeFormHandler}>
