@@ -61,7 +61,11 @@ const Authorization = () => {
             setSuccess(true);
             setLoginStatusMessage(`Вы успешно авторизовались!`);
             localStorage.setItem('token', responseLogin.token);
-            navigate('/');
+            localStorage.setItem('userId', responseLogin.userId);
+            localStorage.setItem('name', responseLogin.name);
+            setTimeout(() => {
+                navigate('/');
+            }, 1500);
         }
     };
     return (
