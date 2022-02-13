@@ -1,0 +1,355 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import ReactPaginate from 'react-paginate';
+import MediaQuery from 'react-responsive';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import Service, { DataWord } from '../../Service';
+import PreLoaderProgress from '../Preloader/PreLoaderProgress';
+import BookItem from './BookItem';
+
+type DataParams = {
+    group: string;
+    page: string;
+};
+
+const Book = () => {
+    const { group, page } = useParams<DataParams>();
+    const navigator = useNavigate();
+    const [forcePage, setForcePage] = useState<number>(0);
+    const [words, setWords] = useState<DataWord[]>([]);
+    const [groupInfo, setGroupInfo] = useState<string>('Слова уровня A1');
+    const [loader, setLoader] = useState<boolean>(false);
+    const [offsetY, setOffsetY] = useState<number>(0);
+    const [visible, setVisible] = useState<boolean>(false);
+    const [isAuth, setIsAuth] = useState<boolean>(false);
+    const [levelInfo, setLevelInfo] = useState<string>('Beginner');
+    const [textColor, setTextColor] = useState<string>('');
+    const [colorLearnedPage, setColorLearnedPage] = useState<string>('');
+    const [activePaginationClass, setActivePaginationClass] = useState<string>('');
+
+    useMemo(() => {
+        switch (group) {
+            case '1':
+            case '2':
+                setTextColor('purple');
+                break;
+            case '3':
+            case '4':
+                setTextColor('orange');
+                break;
+            case '5':
+            case '6':
+                setTextColor('blue');
+                break;
+            default:
+                break;
+        }
+    }, [group]);
+
+    const fetchHardWords = useCallback(
+        async (userId: string, token: string) => {
+            if (group === '7') {
+                setLoader(true);
+                const hardWords = (await Service.aggregatedWords(
+                    {
+                        userId,
+                        group: '',
+                        page: '',
+                        wordsPerPage: '20',
+                        filter: `{"$and":[{"userWord.difficulty":"hard", "userWord.optional.testFieldString":"test"}]}`,
+                    },
+                    token
+                )) as DataWord[];
+                if (typeof hardWords === 'number') {
+                    setIsAuth(false);
+                    localStorage.clear();
+                    navigator('/authorization');
+                    return;
+                }
+                setWords(hardWords);
+                setLoader(false);
+            }
+        },
+        [group, navigator]
+    );
+    useEffect(() => {
+        if (isAuth) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            fetchHardWords(userId, token);
+        }
+    }, [isAuth, fetchHardWords]);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token') as string;
+        const userId = localStorage.getItem('userId') as string;
+        if (token !== null && userId !== null) {
+            setIsAuth(true);
+        } else {
+            setIsAuth(false);
+        }
+        setForcePage(+(page as string) - 1);
+    }, [page]);
+
+    const fetchPartialWords = useCallback(async () => {
+        setLoader(true);
+
+        const wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
+        setWords(wordsPartial);
+        setLoader(false);
+    }, [group, page]);
+
+    useEffect(() => {
+        fetchPartialWords();
+    }, [fetchPartialWords]);
+
+    useEffect(() => {
+        switch (group) {
+            case '1':
+                setGroupInfo('Cлова уровня A1');
+                setLevelInfo('Beginner');
+                break;
+            case '2':
+                setGroupInfo('Cлова уровня A2');
+                setLevelInfo('Elementary');
+                break;
+            case '3':
+                setGroupInfo('Cлова уровня B1');
+                setLevelInfo('Intermediate');
+                break;
+            case '4':
+                setGroupInfo('Слова уровня B2');
+                setLevelInfo('Upper Intermediate');
+                break;
+            case '5':
+                setGroupInfo('Слова уровня C1');
+                setLevelInfo('Advanced');
+                break;
+            case '6':
+                setGroupInfo('Слова уровня C2');
+                setLevelInfo('Proficiency');
+                break;
+            case '7':
+                setGroupInfo('Сложные слова');
+                setLevelInfo('');
+                break;
+            default:
+                break;
+        }
+    }, [group]);
+
+    const showUpButton = useCallback(() => {
+        if (offsetY > 1500) {
+            setVisible(true);
+        } else {
+            setVisible(false);
+        }
+    }, [offsetY]);
+    useEffect(() => {
+        showUpButton();
+    }, [showUpButton]);
+
+    const handlerGroup = (event: React.MouseEvent) => {
+        const { dataset } = event.target as HTMLDivElement;
+        if (!dataset.group) return;
+        const currentGroup = dataset.group;
+        switch (currentGroup) {
+            case '1':
+                setGroupInfo('Cлова уровня A1');
+                setLevelInfo('Beginner');
+                break;
+            case '2':
+                setGroupInfo('Cлова уровня A2');
+                setLevelInfo('Elementary');
+                break;
+            case '3':
+                setGroupInfo('Cлова уровня B1');
+                setLevelInfo('Intermediate');
+                break;
+            case '4':
+                setGroupInfo('Слова уровня B2');
+                setLevelInfo('Upper Intermediate');
+                break;
+            case '5':
+                setGroupInfo('Слова уровня C1');
+                setLevelInfo('Advanced');
+                break;
+            case '6':
+                setGroupInfo('Слова уровня C2');
+                setLevelInfo('Proficiency');
+                break;
+            case '7':
+                setGroupInfo('Сложные слова');
+                break;
+            default:
+                break;
+        }
+        navigator(`/book/${currentGroup}/1`);
+    };
+
+    const handlerPageClick = (selectedItem: { selected: number }) => {
+        setForcePage(selectedItem.selected);
+        navigator(`/book/${group}/${selectedItem.selected + 1}`);
+    };
+    function scrollCalc() {
+        const offsetTop = window.scrollY;
+        setOffsetY(offsetTop);
+    }
+    window.addEventListener('scroll', scrollCalc);
+
+    const setColorPage = useCallback(
+        (color: string) => {
+            if (color !== '') {
+                setColorLearnedPage(color);
+                setActivePaginationClass('active learned');
+            } else {
+                setColorLearnedPage('');
+                setActivePaginationClass('active');
+            }
+        },
+        [setColorLearnedPage]
+    );
+
+    return (
+        <div id="wrapper">
+            <nav>
+                <div id="top" className="nav-wrapper blue">
+                    <MediaQuery minWidth={528}>
+                        <Link to="/" className="brand-logo">
+                            RS-Lang
+                        </Link>
+                    </MediaQuery>
+
+                    <ul id="nav-mobile" className="right">
+                        <li>
+                            <Link to="/">Главная</Link>
+                        </li>
+                        <li>
+                            <a href="sass.html">Игры</a>
+                        </li>
+
+                        <li>{isAuth ? localStorage.getItem('name') : <Link to="/registration">Войти</Link>}</li>
+                    </ul>
+                </div>
+            </nav>
+            <a
+                style={{ display: visible ? 'block' : 'none' }}
+                href="#top"
+                className="btn-floating btn-large waves-effect waves-light red"
+            >
+                <i className="material-icons">arrow_upward</i>
+            </a>
+            <div className="group" aria-hidden onClick={handlerGroup}>
+                <div className="group-item" data-group="1">
+                    Уровень A1 - Beginner
+                </div>
+                <div className="group-item" data-group="2">
+                    Уровень A2 - Elementary
+                </div>
+                <div className="group-item" data-group="3">
+                    Уровень B1 - Intermediate
+                </div>
+                <div className="group-item" data-group="4">
+                    Уровень B2 - Upper Intermediate
+                </div>
+                <div className="group-item" data-group="5">
+                    Уровень C1 - Advanced
+                </div>
+                <div className="group-item" data-group="6">
+                    Уровень C2 - Proficiency
+                </div>
+                <div style={{ display: isAuth ? 'flex' : 'none' }} className="group-item" data-group="7">
+                    &quot;Сложные слова&quot;
+                </div>
+            </div>
+            <div style={{ display: group === '7' ? 'none' : 'flex' }} className="paginate">
+                <ReactPaginate
+                    onPageChange={handlerPageClick}
+                    nextLabel=">"
+                    pageRangeDisplayed={5}
+                    marginPagesDisplayed={3}
+                    forcePage={forcePage}
+                    pageCount={30}
+                    previousLabel="<"
+                    pageClassName="waves-effect"
+                    pageLinkClassName="page-link"
+                    previousClassName="waves-effect"
+                    previousLinkClassName="page-link"
+                    nextClassName="waves-effect"
+                    nextLinkClassName="page-link"
+                    breakLabel="..."
+                    breakClassName="waves-effect"
+                    breakLinkClassName="page-link"
+                    containerClassName="pagination"
+                    activeClassName={activePaginationClass}
+                />
+            </div>
+            <PreLoaderProgress show={loader} />
+            <div id="container" style={{ display: !loader ? 'block' : 'none' }}>
+                <div className="wrapper-flag" onClick={handlerGroup} aria-hidden>
+                    <div className="flag" data-group="1">
+                        <span className="flag-text">Уровень A1</span>
+                    </div>
+                    <div className="flag" data-group="2">
+                        {' '}
+                        <span className="flag-text">Уровень A2</span>
+                    </div>
+                    <div className="flag" data-group="3">
+                        {' '}
+                        <span className="flag-text">Уровень B1</span>
+                    </div>
+                    <div className="flag" data-group="4">
+                        {' '}
+                        <span className="flag-text">Уровень B2</span>{' '}
+                    </div>
+                    <div className="flag" data-group="5">
+                        {' '}
+                        <span className="flag-text">Уровень C1</span>{' '}
+                    </div>
+                    <div className="flag" data-group="6">
+                        {' '}
+                        <span className="flag-text">Уровень C2</span>
+                    </div>
+                    <div style={{ display: isAuth ? 'block' : 'none' }} className="flag" data-group="7">
+                        {' '}
+                        <span className="flag-text">Сложные</span>
+                    </div>
+                </div>
+                <section className="open-book">
+                    <h2 style={{ color: textColor }} className="chapter-title">
+                        {words.length ? groupInfo : 'Здесь пока ничего нет...'}
+                    </h2>
+                    <h2
+                        style={{ display: group !== '7' ? 'inline-block' : 'none', color: colorLearnedPage }}
+                        className="chapter-title"
+                    >
+                        {words.length ? levelInfo : ''}
+                    </h2>
+                    <article>
+                        {words.map((word) => (
+                            <BookItem
+                                key={word.id || word._id}
+                                id={word.id || (word._id as string)}
+                                word={word.word}
+                                image={word.image}
+                                audio={word.audio}
+                                audioMeaning={word.audioMeaning}
+                                audioExample={word.audioExample}
+                                textMeaning={word.textMeaning}
+                                textExample={word.textExample}
+                                transcription={word.transcription}
+                                wordTranslate={word.wordTranslate}
+                                textMeaningTranslate={word.textMeaningTranslate}
+                                textExampleTranslate={word.textExampleTranslate}
+                                group={group as string}
+                                page={page as string}
+                                callback={setColorPage}
+                            />
+                        ))}
+                    </article>
+                </section>
+            </div>
+        </div>
+    );
+};
+
+export default Book;

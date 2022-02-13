@@ -1,12 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useGlobalContext } from '../../../GlobalContext';
 import Service, { DataUserCreateResponse, DataUserLoginResponse } from '../../../Service';
 import PreLoaderCircle from '../../Preloader/PreLoaderCircle';
 
 const Registration = () => {
     const navigate = useNavigate();
-    const { setUserId } = useGlobalContext();
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -14,10 +12,8 @@ const Registration = () => {
     const [registrationStatusMessage, setRegistrationStatusMessage] = useState<string>('');
     const [loader, setLoader] = useState<boolean>(false);
     const [success, setSuccess] = useState<boolean>(false);
-
     const refEmail = useRef<HTMLInputElement>(null);
     const refPassword = useRef<HTMLInputElement>(null);
-
     const closeFormHandler = (event: React.MouseEvent) => {
         if ((event.target as HTMLDivElement).classList.contains('wrapper-form')) {
             navigate('/');
@@ -71,9 +67,12 @@ const Registration = () => {
             setSuccess(true);
             setRegistrationStatusMessage(`Вы успешно зарегистрировались!`);
             const responseLogin = (await Service.loginUser({ email, password })) as DataUserLoginResponse;
-            setUserId(responseLogin.userId);
+            localStorage.setItem('userId', responseLogin.userId);
             localStorage.setItem('token', responseLogin.token);
-            navigate('/');
+            localStorage.setItem('name', responseLogin.name);
+            setTimeout(() => {
+                navigate('/');
+            }, 1500);
         }
     };
 

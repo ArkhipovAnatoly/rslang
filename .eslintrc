@@ -38,6 +38,8 @@
             {
                 "namedComponents": "function-declaration"
             }
-        ]
+        ],
+        "react/jsx-no-constructed-context-values": 0,
+        "no-underscore-dangle": ["error", { "allow": ["_id"] }]
     }
 }
