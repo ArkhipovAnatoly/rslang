@@ -270,7 +270,7 @@ const Book = () => {
                     &quot;Сложные слова&quot;
                 </div>
             </div>
-            <div style={{ display: group === '7' ? 'none' : 'flex' }} className="paginate">
+            <div style={{ display: group === '7' || loader ? 'none' : 'flex' }} className="paginate">
                 <ReactPaginate
                     onPageChange={handlerPageClick}
                     nextLabel=">"
