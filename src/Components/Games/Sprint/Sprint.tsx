@@ -46,7 +46,7 @@ const Sprint = () => {
             <Header />
             <div className="card">
                 <div className="card-content">
-                    <div className="content">
+                    <div className="game-content">
                         <h1>Игра Спринт</h1>
                         <h2>Выберите уровень сложности</h2>
                         <div className="groups" aria-hidden onClick={handlerGroup}>

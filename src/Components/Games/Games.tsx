@@ -5,6 +5,7 @@ import Footer from '../Home/Footer';
 
 const Games = () => (
     <div className="games-page">
+      
         {/* <nav>
       <div id="top" className="nav-wrapper blue">
         <ul id="nav-mobile" className="right">
@@ -19,7 +20,9 @@ const Games = () => (
     </nav> */}
         <Header />
         <div className="cards">
+          
             <div className="card">
+              
                 <div className="card-image waves-effect waves-block waves-light">
                     <img className="image" src={require('./images/2.png')} alt="audio game" />
                 </div>
@@ -59,6 +62,7 @@ const Games = () => (
             </div>
         </div>
         <Footer />
+        
     </div>
 );
 
