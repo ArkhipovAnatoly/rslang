@@ -1,8 +1,29 @@
-.content {
+.game-content {
     width: 600px;
+    border-radius: 1%;
+    background: #f9f9f9;
+    box-shadow: 0 1px 0 #fff inset;
+    margin: 0 auto;
+    padding: 25px 0 0;
+    position: relative;
+    text-align: center;
+    text-shadow: 0 1px 0 #fff;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-blend-mode: soft-light;
+    background-position: center;
+    animation: form-show 0.2s;
 }
 
-.content h2 {
+.game-content h1 {
+    position: relative;
+    color: #7e7e7e;
+    font: bold 26px 'Neucha', cursive;
+    line-height: 20px;
+    margin: 10px 0 30px;
+}
+
+.game-content h2 {
     position: relative;
     color: #7e7e7e;
     font: bold 20px 'Neucha', cursive;
@@ -22,6 +43,7 @@
     font-size: 20px;
     cursor: pointer;
     border-radius: 20px;
+    margin-bottom: 30px;
 }
 
 .level:nth-child(1) {
@@ -86,7 +108,10 @@
 
 .answer {
     width: 130px;
-    background-color: gainsboro;
+    height: 35px;
+    padding: 5px;
+    background-color: rgb(7 3 94 / 60%);
+    color: white;
     cursor: pointer;
     border-radius: 20px;
 }
@@ -110,3 +135,5 @@
     cursor: pointer;
     font: bold 20px 'Neucha', cursive;
 }
+
+

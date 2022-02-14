@@ -104,33 +104,41 @@ const AudioGame = () => {
         <div className="games-page">
             <Header />
             <div className="card">
+           
                 <div className="card-content">
-                    <div className="content">
-                        <h1>Игра Аудиовызов</h1>
-                        <h2>Выберите уровень сложности</h2>
-                        <div className="groups" aria-hidden onClick={handlerGroup}>
-                            <span className="level" data-group="1">
-                                A1
-                            </span>
-                            <span className="level" data-group="2">
-                                A2
-                            </span>
-                            <span className="level" data-group="3">
-                                B1
-                            </span>
-                            <span className="level" data-group="4">
-                                B2
-                            </span>
-                            <span className="level" data-group="5">
-                                C1
-                            </span>
-                            <span className="level" data-group="6">
-                                C2
-                            </span>
+                
+                    <div className="game-content">
+                      {showMain  && (
+                        <div aria-hidden onClick={() => {
+                          setShowMain(!showMain);
+                      }}>
+                          <h1>Игра Аудиовызов</h1>
+                          <h2>Выберите уровень сложности</h2>
+                          <div className="groups" aria-hidden onClick={handlerGroup}>
+                              <span className="level" data-group="1">
+                                  A1
+                              </span>
+                              <span className="level" data-group="2">
+                                  A2
+                              </span>
+                              <span className="level" data-group="3">
+                                  B1
+                              </span>
+                              <span className="level" data-group="4">
+                                  B2
+                              </span>
+                              <span className="level" data-group="5">
+                                  C1
+                              </span>
+                              <span className="level" data-group="6">
+                                  C2
+                              </span>
+                          </div>
                         </div>
+
                         <div className="btn-start" aria-hidden onClick={generateWordsToGuess}>
                             Начать игру
-                        </div>
+                        </div> 
                         {show && (
                             <div className="game-container">
                                 <div className="audio-question">
@@ -162,6 +170,7 @@ const AudioGame = () => {
                                     aria-hidden
                                     onClick={() => {
                                         setShow(!show);
+                                        setShowMain(!showMain);
                                     }}
                                 >
                                     Закончить игру
@@ -172,6 +181,7 @@ const AudioGame = () => {
                 </div>
             </div>
             <Footer />
+          
         </div>
     );
 };
