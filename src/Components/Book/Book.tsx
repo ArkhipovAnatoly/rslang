@@ -101,7 +101,7 @@ const Book = () => {
     useEffect(() => {
         fetchPartialWords();
     }, [fetchPartialWords]);
-
+    
     useEffect(() => {
         switch (group) {
             case '1':
@@ -224,7 +224,7 @@ const Book = () => {
                             <Link to="/">Главная</Link>
                         </li>
                         <li>
-                            <a href="sass.html">Игры</a>
+                            <Link to="/games">Игры</Link>
                         </li>
 
                         <li>{isAuth ? localStorage.getItem('name') : <Link to="/registration">Войти</Link>}</li>
