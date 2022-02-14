@@ -76,7 +76,7 @@ const AudioGame = () => {
         if (!dataset.answer) return;
         const variantWordId = dataset.answer;
         if (variantWordId === correctWordId) {
-            console.log('You are rigth');
+            console.log('You are right!!!');
         } else {
             console.log('You are wrong');
         }
