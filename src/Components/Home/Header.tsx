@@ -25,11 +25,11 @@ const Header = () => {
         </li>
         <li ><Link to="/games">Игры</Link>
           <ul>
-            <li><Link to="audioGame/level/1">Аудиовызов</Link></li>
-            <li><Link to="sprint/level/1">Спринт</Link></li>
+            <li><Link to="/audioGame/level/1">Аудиовызов</Link></li>
+            <li><Link to="/sprint/level/1">Спринт</Link></li>
           </ul>
           </li>
-        <li><Link to="/">Статистика</Link></li>
+        <li><Link to="/statistics">Статистика</Link></li>
         <li><Link to="/authorization">Войти</Link></li>
       </ul>
     </nav>

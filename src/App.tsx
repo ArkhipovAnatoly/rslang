@@ -10,6 +10,7 @@ import Games from './Components/Games/Games';
 import AudioGame from './Components/Games/AudioGame/AudioGame';
 import Sprint from './Components/Games/Sprint/Sprint';
 import Home from './Components/Home/Home';
+import Statistics from './Components/Statistics/Statistics';
 
 function App() {
     return (
@@ -23,6 +24,8 @@ function App() {
                     <Route path="/games" element={<Games />} />
                     <Route path="/audioGame/level/:currentGroup" element={<AudioGame />} />
                     <Route path="/sprint/level/:currentGroup" element={<Sprint />} />
+                    <Route path="/statistics" element={<Statistics/>} />
+
                 </Routes>
             </GlobalContextProvider>
         </Router>

@@ -3,10 +3,10 @@ import ReactPaginate from 'react-paginate';
 // import MediaQuery from 'react-responsive';
 import { useNavigate, useParams } from 'react-router-dom';
 import Service, { DataWord } from '../../Service';
-import Header from '../Home/Header';
 import Footer from '../Home/Footer';
 import PreLoaderProgress from '../Preloader/PreLoaderProgress';
 import BookItem from './BookItem';
+import Header from '../Home/Header'
 
 
 type DataParams = {

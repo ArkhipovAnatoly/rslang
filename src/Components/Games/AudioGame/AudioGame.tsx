@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import './AudioGame.css'
 import { DataWord } from '../../../Service';
+import Header from '../../Home/Header';
+import Footer from '../../Home/Footer';
 
 
 const AudioGame = () => {
@@ -54,7 +56,7 @@ const AudioGame = () => {
 
   return (
     <div className="games-page">
-      <nav>
+      {/* <nav>
         <div id="top" className="nav-wrapper blue">
           <ul id="nav-mobile" className="right">
               <li>
@@ -68,7 +70,8 @@ const AudioGame = () => {
               </li>
           </ul>
         </div>
-      </nav>
+      </nav> */}
+      <Header/>
       <div className="card">
         <div className="card-content">
           <div className="content">
@@ -118,6 +121,7 @@ const AudioGame = () => {
         </div>
       </div>
     </div>
+    <Footer/>
   </div>
   );
 };

@@ -1,24 +1,29 @@
+.games-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+}
 .cards {
-  display: flex;
-  gap: 20px;
-  width: 1000px;
-  margin: 0 auto;
+    display: flex;
+    gap: 20px;
+    width: 1000px;
+    margin: 0 auto;
 }
 
 .btn-book {
-  padding: 20px;
-  background-color: skyblue;
-  border-radius: 50%;
-  width: 130px;
-  margin: 20px auto;
-  cursor: pointer;
+    padding: 20px;
+    background-color: skyblue;
+    border-radius: 50%;
+    width: 130px;
+    margin: 20px auto;
+    cursor: pointer;
 }
 
 @media (max-width: 1000px) {
-  .cards {
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-  }
-  
+    .cards {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+    }
 }
