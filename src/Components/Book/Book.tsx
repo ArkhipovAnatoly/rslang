@@ -3,7 +3,6 @@ import ReactPaginate from 'react-paginate';
 
 import MediaQuery from 'react-responsive';
 
-
 import { useNavigate, useParams } from 'react-router-dom';
 import Service, { DataWord } from '../../Service';
 import Footer from '../Home/Footer';
@@ -11,6 +10,7 @@ import PreLoaderProgress from '../Preloader/PreLoaderProgress';
 import BookItem from './BookItem';
 
 import Header from '../Home/Header';
+
 type DataParams = {
     group: string;
     page: string;
@@ -115,7 +115,7 @@ const Book = () => {
     useEffect(() => {
         fetchPartialWords();
     }, [fetchPartialWords]);
-    
+
     useEffect(() => {
         switch (group) {
             case '1':
@@ -247,7 +247,6 @@ const Book = () => {
             </nav> */}
             <Header />
 
-
             <a
                 style={{ display: visible ? 'block' : 'none' }}
                 href="#top"
@@ -369,7 +368,6 @@ const Book = () => {
             </div>
 
             <Footer />
-
         </div>
     );
 };
