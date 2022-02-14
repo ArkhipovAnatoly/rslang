@@ -12,6 +12,7 @@ const AudioGame = () => {
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
     const [show, setShow] = useState(false);
+    let [showMain, setShowMain] = useState(true);
     const [showAnswer, setShowAnswer] = useState(false);
     const [currentGroup, setCurrentGroup] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState<number>(0);
@@ -104,41 +105,43 @@ const AudioGame = () => {
         <div className="games-page">
             <Header />
             <div className="card">
-           
                 <div className="card-content">
-                
                     <div className="game-content">
-                      {showMain  && (
-                        <div aria-hidden onClick={() => {
-                          setShowMain(!showMain);
-                      }}>
-                          <h1>Игра Аудиовызов</h1>
-                          <h2>Выберите уровень сложности</h2>
-                          <div className="groups" aria-hidden onClick={handlerGroup}>
-                              <span className="level" data-group="1">
-                                  A1
-                              </span>
-                              <span className="level" data-group="2">
-                                  A2
-                              </span>
-                              <span className="level" data-group="3">
-                                  B1
-                              </span>
-                              <span className="level" data-group="4">
-                                  B2
-                              </span>
-                              <span className="level" data-group="5">
-                                  C1
-                              </span>
-                              <span className="level" data-group="6">
-                                  C2
-                              </span>
-                          </div>
-                        </div>
-
+                        {showMain && (
+                            <div
+                                aria-hidden
+                                onClick={() => {
+                                    setShowMain(!showMain);
+                                }}
+                            >
+                                <h1>Игра Аудиовызов</h1>
+                                <h2>Выберите уровень сложности</h2>
+                                <div className="groups" aria-hidden onClick={handlerGroup}>
+                                    <span className="level" data-group="1">
+                                        A1
+                                    </span>
+                                    <span className="level" data-group="2">
+                                        A2
+                                    </span>
+                                    <span className="level" data-group="3">
+                                        B1
+                                    </span>
+                                    <span className="level" data-group="4">
+                                        B2
+                                    </span>
+                                    <span className="level" data-group="5">
+                                        C1
+                                    </span>
+                                    <span className="level" data-group="6">
+                                        C2
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                         <div className="btn-start" aria-hidden onClick={generateWordsToGuess}>
                             Начать игру
-                        </div> 
+                        </div>
+
                         {show && (
                             <div className="game-container">
                                 <div className="audio-question">
@@ -181,7 +184,6 @@ const AudioGame = () => {
                 </div>
             </div>
             <Footer />
-          
         </div>
     );
 };
