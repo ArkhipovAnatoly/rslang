@@ -12,7 +12,7 @@ const AudioGame = () => {
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
     const [show, setShow] = useState(false);
-    let [showMain, setShowMain] = useState(true);
+    const [showMain, setShowMain] = useState(true);
     const [showAnswer, setShowAnswer] = useState(false);
     const [currentGroup, setCurrentGroup] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState<number>(0);
