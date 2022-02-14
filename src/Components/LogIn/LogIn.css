@@ -22,7 +22,7 @@
     justify-content: space-between;
     align-items: center;
     background: rgba(0, 0, 0, 0.7);
-    background-image: url('../../../public/assets/img/background.jpg');
+    background-image: url('../../../public/assets/img/background-auth.jpg');
     background-position: center;
     background-size: cover;
     background-blend-mode: multiply;
