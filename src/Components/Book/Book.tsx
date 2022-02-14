@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactPaginate from 'react-paginate';
 import MediaQuery from 'react-responsive';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Service, { DataWord } from '../../Service';
+import Footer from '../Home/Footer';
 import PreLoaderProgress from '../Preloader/PreLoaderProgress';
 import BookItem from './BookItem';
+import Header from '../Home/Header';
 
 type DataParams = {
     group: string;
@@ -220,7 +222,7 @@ const Book = () => {
 
     return (
         <div id="wrapper">
-            <nav>
+            {/* <nav>
                 <div id="top" className="nav-wrapper blue">
                     <MediaQuery minWidth={605}>
                         <Link to="/" className="brand-logo">
@@ -233,13 +235,14 @@ const Book = () => {
                             <Link to="/">Главная</Link>
                         </li>
                         <li>
-                            <a href="sass.html">Игры</a>
+                            <Link to="/games">Игры</Link>
                         </li>
 
                         <li>{isAuth ? localStorage.getItem('name') : <Link to="/registration">Войти</Link>}</li>
                     </ul>
                 </div>
-            </nav>
+            </nav> */}
+            <Header />
             <a
                 style={{ display: visible ? 'block' : 'none' }}
                 href="#top"
@@ -359,6 +362,7 @@ const Book = () => {
                     </article>
                 </section>
             </div>
+            <Footer />
         </div>
     );
 };
