@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Service, { DataAggregatedWordsById } from '../../Service';
 import './Book.css';
@@ -21,6 +21,7 @@ type DictionaryItemProps = {
     callback: (color: string) => void;
 };
 let totalLearnedWords = 0;
+const player = new Audio('');
 const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
     const { id: wordId, group, callback } = props;
     const navigator = useNavigate();
@@ -32,40 +33,12 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
     const [textLearned, setTextLearned] = useState<string>('Добавить в изученные');
     const [textHard, setTextHard] = useState<string>('Добавить в сложные');
     const [isAuth, setIsAuth] = useState<boolean>(false);
-    const [color, setColor] = useState<string>('');
     const [isLearned, setIsLearned] = useState<boolean>(false);
-    const player = new Audio('');
+
     const imageUrl = `https://learn-english-words-app.herokuapp.com/${props.image}`;
     const audioMeaningUrl = `https://learn-english-words-app.herokuapp.com/${props.audioMeaning}`;
     const audioExampleUrl = `https://learn-english-words-app.herokuapp.com/${props.audioExample}`;
     const audioUrl = `https://learn-english-words-app.herokuapp.com/${props.audio}`;
-
-    useMemo(() => {
-        switch (group) {
-            case '1':
-            case '2':
-                setColor('purple');
-                break;
-            case '3':
-            case '4':
-                setColor('orange');
-                break;
-            case '5':
-            case '6':
-                setColor('blue');
-                break;
-            default:
-                break;
-        }
-    }, [group]);
-    const handlerAudioMeaning = () => {
-        player.src = audioMeaningUrl;
-        if (player.paused) {
-            player.play();
-            return;
-        }
-        player.pause();
-    };
 
     const fetchHardWords = useCallback(async () => {
         if (isAuth) {
@@ -104,22 +77,31 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
         }
     }, [isLearned, callback]);
 
-    const handlerAudioExample = () => {
-        player.src = audioExampleUrl;
-        if (player.paused) {
-            player.play();
-            return;
-        }
-        player.pause();
-    };
-
     const handlerAudio = () => {
+        let track: number = 0;
         player.src = audioUrl;
+        player.addEventListener('ended', () => {
+            switch (track) {
+                case 1:
+                    player.src = audioMeaningUrl;
+                    player.play();
+                    track += 1;
+                    break;
+                case 2:
+                    player.src = audioExampleUrl;
+                    player.play();
+                    track = 0;
+                    break;
+                default:
+                    break;
+            }
+        });
         if (player.paused) {
             player.play();
-            return;
+            track += 1;
+        } else {
+            player.pause();
         }
-        player.pause();
     };
 
     useEffect(() => {
@@ -223,25 +205,9 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                     <div className="card-content">
                         <p className="info" ref={pRefMeaning} />
                         <p className="info">{props.textMeaningTranslate}</p>
-                        <i
-                            aria-hidden
-                            onClick={handlerAudioMeaning}
-                            style={{ cursor: 'pointer' }}
-                            className={`material-icons prefix ${color}`}
-                        >
-                            audiotrack
-                        </i>
                         <div className="card-action" />
                         <p className="info" ref={pRefExample} />
                         <p className="info">{props.textExampleTranslate}</p>
-                        <i
-                            aria-hidden
-                            onClick={handlerAudioExample}
-                            style={{ cursor: 'pointer' }}
-                            className={`material-icons prefix ${color}`}
-                        >
-                            audiotrack
-                        </i>
                         <div className="card-action">
                             <div className="card-action_inner">
                                 <label style={{ display: isAuth && group !== '7' ? 'block' : 'none' }}>

@@ -1,14 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactPaginate from 'react-paginate';
-// import MediaQuery from 'react-responsive';
+
+import MediaQuery from 'react-responsive';
+
+
 import { useNavigate, useParams } from 'react-router-dom';
 import Service, { DataWord } from '../../Service';
 import Footer from '../Home/Footer';
 import PreLoaderProgress from '../Preloader/PreLoaderProgress';
 import BookItem from './BookItem';
-import Header from '../Home/Header'
 
-
+import Header from '../Home/Header';
 type DataParams = {
     group: string;
     page: string;
@@ -32,16 +34,25 @@ const Book = () => {
     useMemo(() => {
         switch (group) {
             case '1':
-            case '2':
-                setTextColor('purple');
+                setTextColor('red');
                 break;
-            case '3':
-            case '4':
+            case '2':
                 setTextColor('orange');
                 break;
+            case '3':
+                setTextColor('darkcyan');
+                break;
+            case '4':
+                setTextColor('lightskyblue');
+                break;
             case '5':
+                setTextColor('lightpink');
+                break;
             case '6':
-                setTextColor('blue');
+                setTextColor('purple');
+                break;
+            case '7':
+                setTextColor('violet');
                 break;
             default:
                 break;
@@ -216,7 +227,7 @@ const Book = () => {
         <div id="wrapper">
             {/* <nav>
                 <div id="top" className="nav-wrapper blue">
-                    <MediaQuery minWidth={528}>
+                    <MediaQuery minWidth={605}>
                         <Link to="/" className="brand-logo">
                             RS-Lang
                         </Link>
@@ -234,7 +245,9 @@ const Book = () => {
                     </ul>
                 </div>
             </nav> */}
-            <Header/>
+            <Header />
+
+
             <a
                 style={{ display: visible ? 'block' : 'none' }}
                 href="#top"
@@ -265,7 +278,7 @@ const Book = () => {
                     &quot;Сложные слова&quot;
                 </div>
             </div>
-            <div style={{ display: group === '7' ? 'none' : 'flex' }} className="paginate">
+            <div style={{ display: group === '7' || loader ? 'none' : 'flex' }} className="paginate">
                 <ReactPaginate
                     onPageChange={handlerPageClick}
                     nextLabel=">"
@@ -322,12 +335,14 @@ const Book = () => {
                     <h2 style={{ color: textColor }} className="chapter-title">
                         {words.length ? groupInfo : 'Здесь пока ничего нет...'}
                     </h2>
-                    <h2
-                        style={{ display: group !== '7' ? 'inline-block' : 'none', color: colorLearnedPage }}
-                        className="chapter-title"
-                    >
-                        {words.length ? levelInfo : ''}
-                    </h2>
+                    <MediaQuery minWidth={800}>
+                        <h2
+                            style={{ display: group !== '7' ? 'inline-block' : 'none', color: colorLearnedPage }}
+                            className="chapter-title "
+                        >
+                            {words.length ? levelInfo : ''}
+                        </h2>
+                    </MediaQuery>
                     <article>
                         {words.map((word) => (
                             <BookItem
@@ -352,7 +367,9 @@ const Book = () => {
                     </article>
                 </section>
             </div>
-        <Footer/>
+
+            <Footer />
+
         </div>
     );
 };
