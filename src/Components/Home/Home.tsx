@@ -10,30 +10,30 @@ const Home = () => {
 <div className="wrapper row1">
   <header id="header" className="clear"> 
     <div id="logo" className="fl_left">
-      <h1><a href="index.html">RSLang</a></h1>
+      <h1><Link to="/">RSLang</Link></h1>
     </div>
     <nav id="mainav" className="fl_right">
       <ul className="clear">
-        <li className="active"><a href="/">Главная</a></li>
+        <li className="active"><Link to="/">Главная</Link></li>
         
-        <li ><a href="/">Учебник</a>
+        <li ><Link to="/">Учебник</Link>
         <ul>
-            <li><a href="/">Раздел1</a></li>
-            <li><a href="/">Раздел2</a></li>
-            <li><a href="/">Раздел3</a></li>
-            <li><a href="/">Раздел4</a></li>
-            <li><a href="/">Раздел5</a></li>
-            <li><a href="/">Раздел6</a></li>
+            <li><Link to="/">Раздел1</Link></li>
+            <li><Link to="/">Раздел2</Link></li>
+            <li><Link to="/">Раздел3</Link></li>
+            <li><Link to="/">Раздел4</Link></li>
+            <li><Link to="/">Раздел5</Link></li>
+            <li><Link to="/">Раздел6</Link></li>
           </ul>
         </li>
-        <li ><a href="/">Игры</a>
+        <li ><Link to="/">Игры</Link>
           <ul>
-            <li><a href="/">Аудиовызов</a></li>
-            <li><a href="/">Спринт</a></li>
+            <li><Link to="/">Аудиовызов</Link></li>
+            <li><Link to="/">Спринт</Link></li>
           </ul>
           </li>
-        <li><a href="/">Статистика</a></li>
-        <li><a href="/">Войти</a></li>
+        <li><Link to="/">Статистика</Link></li>
+        <li><Link to="/authorization">Войти</Link></li>
       </ul>
     </nav>
   </header>
@@ -62,7 +62,7 @@ const Home = () => {
           <li>-количество изученных слов за день</li>
           <li>-процент правильных ответов за день</li>
         </ul>
-        <p className="link"><a href="/">Read More &raquo;</a></p>
+        <p className="link"><Link to="/">Read More &raquo;</Link></p>
       </article>
       <article className="one_third">
         <h3 className="heading">Игры </h3>
@@ -72,7 +72,7 @@ const Home = () => {
           <li>- улучшение запоминания</li>
           <li>- восприятие на слух и навыки перевода</li>
         </ul>
-        <p className="link"><a href="/">Read More &raquo;</a></p>
+        <p className="link"><Link to="/">Read More &raquo;</Link></p>
       </article>
     </div>
   </div>
@@ -86,7 +86,7 @@ const Home = () => {
           <figcaption>
             <h2 className="heading">Urna sit amet pulvinar</h2>
             <p className="shortintro">Aenean semper elementum tellus, ut placerat leo. Quisque vehicula, urna sit amet.&hellip;</p>
-            <p className="link"><a className="btn" href="/">Read More &raquo;</a></p>
+            <p className="link"><Link className="btn" to="/">Read More &raquo;</Link></p>
           </figcaption>
         </figure>
       </div>
@@ -131,7 +131,6 @@ const Home = () => {
       <a href='/'>Разработчик 2</a>
       <a href='/'>Разработчик 3</a>
     </div>
-
   </div>
 </div>
     </div>
