@@ -1,73 +1,107 @@
-import { useNavigate } from 'react-router-dom';
-import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
 import './AudioGame.css';
-import { DataWord } from '../../../Service';
+
 import Header from '../../Home/Header';
 import Footer from '../../Home/Footer';
+import Service, { DataWord } from '../../../Service';
+import shuffle from '../../../Utils/shaffleArray';
+import getRandomNumber from '../../../Utils/random';
 
 const AudioGame = () => {
-    const navigator = useNavigate();
-    const [words] = useState<DataWord[]>([]);
+    const { group, page } = useParams();
+    const [words, setWords] = useState<DataWord[]>([]);
     const [show, setShow] = useState(false);
-    const [showNextQuestion, setShowNextQuestion] = useState(false);
     const [showAnswer, setShowAnswer] = useState(false);
-    // const player = new Audio('');
+    const [currentGroup, setCurrentGroup] = useState<number>(0);
+    const [currentPage, setCurrentPage] = useState<number>(0);
+    const [wordsToGuess, setWordsToGuess] = useState<DataWord[]>([]);
+    const [correctWordId, setCorrectWordId] = useState<string>('');
+    const [wordIndex, setWordIndex] = useState<number>(0);
 
-    // const audioUrl = `https://learn-english-words-app.herokuapp.com/${props.audio}`;
-    //  const imageUrl = `https://learn-english-words-app.herokuapp.com/${words.audio}`;
-
-    console.log(words);
-
-    const gameLevel = () => {
-        if (!show) {
-            setShow(!show);
-        }
-    };
+    const player = new Audio();
 
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
-
         if (!dataset.group) {
             return;
         }
 
-        const currentGroup = dataset.group;
-
-        navigator(`/audioGame/level/${currentGroup}`);
-        gameLevel();
+        setCurrentGroup(+dataset.group);
     };
 
-    const nextQuestion = () => {
-        setShowAnswer(!showAnswer);
-        setShowNextQuestion(!showNextQuestion);
+    const fetchPartialWords = useCallback(async () => {
+        let wordsPartial: DataWord[] = [];
+        if (group && page) {
+            wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
+        } else {
+            wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
+        }
+        const shuffledWords = shuffle(wordsPartial);
+        setWords(shuffledWords);
+    }, [currentPage, group, page, currentGroup]);
+
+    useEffect(() => {
+        fetchPartialWords();
+    }, [fetchPartialWords]);
+
+    const generateWordsToGuess = () => {
+        setShowAnswer(true);
+        setShow(true);
+        setCorrectWordId(words[wordIndex].id);
+        const audioUrl = `https://learn-english-words-app.herokuapp.com/${words[wordIndex].audio}`;
+        player.src = audioUrl;
+        player.play();
+        const arr: DataWord[] = [];
+        const generated: number[] = [];
+        arr.push(words[wordIndex]);
+        let num = 0;
+        for (let index = 0; index < 4; index += 1) {
+            num = getRandomNumber(20);
+            if (generated.includes(num) || num === wordIndex) {
+                num = getRandomNumber(20);
+            } else {
+                generated.push(num);
+            }
+            arr.push(words[num]);
+        }
+        const shuffledWordsToGuess = shuffle(arr);
+        setWordsToGuess(shuffledWordsToGuess);
+        setWordIndex(wordIndex + 1);
     };
 
-    // const handlerAudio = () => {
-    //   player.src = audioUrl;
-    //   if (player.paused) {
-    //       player.play();
-    //       return;
-    //   }
-    //   player.pause();
-    // };
+    const checkAnswer = (event: React.MouseEvent) => {
+        const { dataset } = event.target as HTMLDivElement;
+        if (!dataset.answer) return;
+        const variantWordId = dataset.answer;
+        if (variantWordId === correctWordId) {
+            console.log('You are rigth');
+        } else {
+            console.log('You are wrong');
+        }
+    };
+
+    useEffect(() => {
+        if (group && page && wordIndex === 20) {
+            setCurrentPage(currentPage + 1);
+        }
+        if (wordIndex === 20) {
+            setWordIndex(0);
+        }
+    }, [wordIndex, currentPage, group, page]);
+
+    useEffect(() => {
+        if (currentPage === 30) {
+            setCurrentPage(0);
+            setCurrentGroup(currentGroup + 1);
+            if (currentGroup === 6) {
+                setCurrentGroup(0);
+            }
+        }
+    }, [currentPage, currentGroup]);
 
     return (
         <div className="games-page">
-            {/* <nav>
-        <div id="top" className="nav-wrapper blue">
-          <ul id="nav-mobile" className="right">
-              <li>
-                  <a href="/">Главная</a>
-              </li>
-              <li>
-                  <a href="/book/1/1">Книга</a>
-              </li>
-              <li>
-                  <a href="/games" className="btn-main">Игры</a>
-              </li>
-          </ul>
-        </div>
-      </nav> */}
             <Header />
             <div className="card">
                 <div className="card-content">
@@ -94,13 +128,7 @@ const AudioGame = () => {
                                 C2
                             </span>
                         </div>
-                        <div
-                            className="btn-start"
-                            aria-hidden
-                            onClick={() => {
-                                setShow(!show);
-                            }}
-                        >
+                        <div className="btn-start" aria-hidden onClick={generateWordsToGuess}>
                             Начать игру
                         </div>
                         {show && (
@@ -109,7 +137,6 @@ const AudioGame = () => {
                                     {showAnswer && <div className="right-image">image</div>}
                                     <i
                                         aria-hidden
-                                        // onClick={handlerAudio}
                                         style={{ cursor: 'pointer', color: 'red' }}
                                         className={`material-icon prefix `}
                                     >
@@ -117,55 +144,15 @@ const AudioGame = () => {
                                     </i>{' '}
                                     {showAnswer && <div className="right-answer">right Answer</div>}
                                 </div>
-                                <div className="answers">
-                                    <div
-                                        className="answer"
-                                        aria-hidden
-                                        onClick={() => {
-                                            setShowAnswer(!showAnswer);
-                                        }}
-                                    >
-                                        qqqqqqqqqq
-                                    </div>
-                                    <div
-                                        className="answer"
-                                        aria-hidden
-                                        onClick={() => {
-                                            setShowAnswer(!showAnswer);
-                                        }}
-                                    >
-                                        wwwwwwwwww
-                                    </div>
-                                    <div
-                                        className="answer"
-                                        aria-hidden
-                                        onClick={() => {
-                                            setShowAnswer(!showAnswer);
-                                        }}
-                                    >
-                                        eeeeeeeeee
-                                    </div>
-                                    <div
-                                        className="answer"
-                                        aria-hidden
-                                        onClick={() => {
-                                            setShowAnswer(!showAnswer);
-                                        }}
-                                    >
-                                        rrrrrrrrrr
-                                    </div>
-                                    <div
-                                        className="answer"
-                                        aria-hidden
-                                        onClick={() => {
-                                            setShowAnswer(!showAnswer);
-                                        }}
-                                    >
-                                        tttttttttt
-                                    </div>
+                                <div className="answers" aria-hidden onClick={checkAnswer}>
+                                    {wordsToGuess.map((word) => (
+                                        <div key={word.id} data-answer={word.id} className="answer" aria-hidden>
+                                            {word.wordTranslate}
+                                        </div>
+                                    ))}
                                 </div>
                                 {showAnswer && (
-                                    <div className="btn-next" aria-hidden onClick={nextQuestion}>
+                                    <div className="btn-next" aria-hidden onClick={generateWordsToGuess}>
                                         Следующий
                                     </div>
                                 )}
