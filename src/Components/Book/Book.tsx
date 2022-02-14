@@ -367,7 +367,7 @@ const Book = () => {
                 </section>
             </div>
 
-            <Footer />
+            {!loader && <Footer />}
         </div>
     );
 };
