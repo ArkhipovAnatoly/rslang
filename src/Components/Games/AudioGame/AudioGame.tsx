@@ -8,7 +8,7 @@ import { DataWord } from '../../../Service';
 const AudioGame = () => {
 
   const navigator = useNavigate();
-  const [words, setWords] = useState<DataWord[]>([]);
+  const [words] = useState<DataWord[]>([]);
   const [show, setShow] = useState(false); 
   const [showNextQuestion, setShowNextQuestion] = useState(false); 
   const [showAnswer, setShowAnswer] = useState(false); 

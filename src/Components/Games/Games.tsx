@@ -1,8 +1,11 @@
+/* eslint-disable global-require */
 import './Games.css'
+import Header from '../Home/Header';
+import Footer from '../Home/Footer';
 
 const Games = () => (
   <div className="games-page">
-    <nav>
+    {/* <nav>
       <div id="top" className="nav-wrapper blue">
         <ul id="nav-mobile" className="right">
             <li>
@@ -13,7 +16,8 @@ const Games = () => (
             </li>
         </ul>
       </div>
-    </nav>
+    </nav> */}
+    <Header/>
     <div className="cards">
       <div className="card">
         <div className="card-image waves-effect waves-block waves-light">
@@ -43,6 +47,7 @@ const Games = () => (
         </div>
       </div>
     </div>
+    <Footer/>
   </div>
 );
 

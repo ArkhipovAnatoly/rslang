@@ -9,13 +9,14 @@ import Book from './Components/Book/Book';
 import Games from './Components/Games/Games';
 import AudioGame from './Components/Games/AudioGame/AudioGame';
 import Sprint from './Components/Games/Sprint/Sprint';
+import Home from './Components/Home/Home';
 
 function App() {
     return (
         <Router>
             <GlobalContextProvider>
                 <Routes>
-                    <Route path="/" element={<h1>Home Page</h1>} />
+                    <Route path="/" element={<Home/>} />
                     <Route path="/registration" element={<Registration />} />
                     <Route path="/authorization" element={<Authorization />} />
                     <Route path="/book/:group/:page" element={<Book />} />

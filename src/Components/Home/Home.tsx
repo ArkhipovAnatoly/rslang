@@ -1,43 +1,14 @@
 import  './Home.css';
 import { Link } from 'react-router-dom';
+import Header from './Header';
+import Footer from './Footer';
 
 
 const Home = () => {
   console.log('hi')
   return (
 <div className='home'>
-      
-<div className="wrapper row1">
-  <header id="header" className="clear"> 
-    <div id="logo" className="fl_left">
-      <h1><Link to="/">RSLang</Link></h1>
-    </div>
-    <nav id="mainav" className="fl_right">
-      <ul className="clear">
-        <li className="active"><Link to="/">Главная</Link></li>
-        
-        <li ><Link to="/">Учебник</Link>
-        <ul>
-            <li><Link to="/">Раздел1</Link></li>
-            <li><Link to="/">Раздел2</Link></li>
-            <li><Link to="/">Раздел3</Link></li>
-            <li><Link to="/">Раздел4</Link></li>
-            <li><Link to="/">Раздел5</Link></li>
-            <li><Link to="/">Раздел6</Link></li>
-          </ul>
-        </li>
-        <li ><Link to="/">Игры</Link>
-          <ul>
-            <li><Link to="/">Аудиовызов</Link></li>
-            <li><Link to="/">Спринт</Link></li>
-          </ul>
-          </li>
-        <li><Link to="/">Статистика</Link></li>
-        <li><Link to="/authorization">Войти</Link></li>
-      </ul>
-    </nav>
-  </header>
-</div>
+  <Header/>
 <div className="wrapper row2 bgded">
   <div className="overlay">
   <h2>Преимущества</h2>
@@ -123,16 +94,7 @@ const Home = () => {
     <div className="clear" />
   </main>
 </div>
-<div className="wrapper row6">
-  <div id="copyright" className="clear"> 
-    <a className="rss" href="https://rs.school/js/"  rel="noopener"> <span className="rss-year">`22</span> </a>
-    <div className='githab'>
-      <a href='/'>Разработчик 1</a>
-      <a href='/'>Разработчик 2</a>
-      <a href='/'>Разработчик 3</a>
-    </div>
-  </div>
-</div>
+<Footer/>
     </div>
   );
 };
