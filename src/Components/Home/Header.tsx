@@ -1,8 +1,8 @@
 import './Home.css';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 const Header = () => {
-    console.log('hi');
+    const { group, page } = useParams();
     return (
         <div className="wrapper row1">
             <div id="header" className="clear">
@@ -41,13 +41,15 @@ const Header = () => {
                             </ul>
                         </li>
                         <li>
-                            <Link to="/games">Игры</Link>
+                            <Link to={group && page ? `/games/${group}/${page}` : '/games'}>Игры</Link>
                             <ul>
                                 <li>
-                                    <Link to="/audioGame/level/1">Аудиовызов</Link>
+                                    <Link to={group && page ? `/audioGame/${group}/${page}` : '/audioGame'}>
+                                        Аудиовызов
+                                    </Link>
                                 </li>
                                 <li>
-                                    <Link to="/sprint/level/1">Спринт</Link>
+                                    <Link to={group && page ? `/sprint/${group}/${page}` : '/sprint'}>Спринт</Link>
                                 </li>
                             </ul>
                         </li>
