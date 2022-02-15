@@ -8,6 +8,8 @@ import Service, { DataWord } from '../../../Service';
 import shuffle from '../../../Utils/shaffleArray';
 import getRandomNumber from '../../../Utils/random';
 
+const guessedWordsIDs: string[] = [];
+const notGuessedWordsIDs: string[] = [];
 const AudioGame = () => {
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
@@ -22,8 +24,19 @@ const AudioGame = () => {
     const [wordIndex, setWordIndex] = useState<number>(0);
     const [imgSrc, setImgSrc] = useState<string>('');
     const [className, setClassName] = useState<string>('answer');
-
+    // const [isAuth, setIsAuth] = useState<boolean>(false);
+    const [isFinished, setIsFinished] = useState<boolean>(false);
     const player = new Audio();
+
+    /*     useEffect(() => {
+        const token = localStorage.getItem('token') as string;
+        const userId = localStorage.getItem('userId') as string;
+        if (token !== null && userId !== null) {
+            setIsAuth(true);
+        } else {
+            setIsAuth(false);
+        }
+    }, []); */
 
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
@@ -58,6 +71,7 @@ const AudioGame = () => {
         setCorrectWordId(words[wordIndex].id);
         setCorrectText('');
         setImgSrc('');
+
         const audioUrl = `https://learn-english-words-app.herokuapp.com/${words[wordIndex].audio}`;
         player.src = audioUrl;
         player.play();
@@ -78,27 +92,30 @@ const AudioGame = () => {
         setTimeout(() => {
             setClassName('answer show');
         }, 500);
-        console.log(wordIndex);
     };
 
     const checkAnswer = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
         if (!dataset.answer) return;
         const variantWordId = dataset.answer;
+        const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
         if (variantWordId === correctWordId) {
-            const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
             setImgSrc(imgUrl);
+            guessedWordsIDs.push(variantWordId);
+            console.log(guessedWordsIDs);
         } else {
-            const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
             setImgSrc(imgUrl);
             setCorrectText(correctWord?.wordTranslate as string);
+            notGuessedWordsIDs.push(variantWordId);
         }
     };
 
     useEffect(() => {
-        if (wordIndex === 20) {
+        if (wordIndex === 5) {
             setWordIndex(0);
-            setCurrentPage(currentPage + 1);
+            // setCurrentPage(currentPage + 1);
+            setShowMain(false);
+            setIsFinished(true);
         }
     }, [wordIndex, currentPage]);
 
@@ -119,12 +136,7 @@ const AudioGame = () => {
                 <div className="card-content">
                     <div className="game-content">
                         {showMain && (
-                            <div
-                                aria-hidden
-                                onClick={() => {
-                                    setShowMain(!showMain);
-                                }}
-                            >
+                            <div>
                                 <h1>Игра Аудиовызов</h1>
                                 <h2 style={{ display: group && page ? 'block' : 'none' }}>
                                     Выберите уровень сложности
@@ -167,6 +179,73 @@ const AudioGame = () => {
 
                         {showAnswer && (
                             <div className="game-container">
+                                {isFinished && (
+                                    <>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Знаю</th>
+                                                    <th>Item Name</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                <tr>
+                                                    {guessedWordsIDs.map((wordID) => {
+                                                        const index = words.findIndex((word) => word.id === wordID);
+                                                        if (index !== -1) {
+                                                            return (
+                                                                <td key={words[index].id} className="collection-item">
+                                                                    {words[index].word}
+                                                                    <i
+                                                                        aria-hidden
+                                                                        style={{ cursor: 'pointer', color: 'red' }}
+                                                                        className={`material-icon prefix `}
+                                                                    >
+                                                                        audiotrack
+                                                                    </i>{' '}
+                                                                </td>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Не Знаю</th>
+                                                    <th>Item Name</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                <tr>
+                                                    {notGuessedWordsIDs.map((wordID) => {
+                                                        const index = words.findIndex((word) => word.id === wordID);
+                                                        if (index !== -1) {
+                                                            return (
+                                                                <td key={words[index].id} className="collection-item">
+                                                                    {words[index].word}
+                                                                    <i
+                                                                        aria-hidden
+                                                                        style={{ cursor: 'pointer', color: 'red' }}
+                                                                        className={`material-icon prefix `}
+                                                                    >
+                                                                        audiotrack
+                                                                    </i>{' '}
+                                                                </td>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })}
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </>
+                                )}
+
                                 <div className="audio-question">
                                     {showAnswer && <img src={imgSrc} className="right-image" alt="" />}
                                     <i
@@ -178,6 +257,7 @@ const AudioGame = () => {
                                     </i>{' '}
                                     {showAnswer && <div className="right-answer">{correctText}</div>}
                                 </div>
+
                                 <div className="answers" aria-hidden onClick={checkAnswer}>
                                     {wordsToGuess.map((word) => (
                                         <div key={word.id} data-answer={word.id} className={className} aria-hidden>
@@ -185,6 +265,7 @@ const AudioGame = () => {
                                         </div>
                                     ))}
                                 </div>
+
                                 {showAnswer && (
                                     <div className="btn-next" aria-hidden onClick={generateWordsToGuess}>
                                         Следующий
