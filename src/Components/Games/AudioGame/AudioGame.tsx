@@ -11,14 +11,16 @@ import getRandomNumber from '../../../Utils/random';
 const AudioGame = () => {
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
-    const [show, setShow] = useState(false);
     const [showMain, setShowMain] = useState(true);
     const [showAnswer, setShowAnswer] = useState(false);
     const [currentGroup, setCurrentGroup] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [wordsToGuess, setWordsToGuess] = useState<DataWord[]>([]);
+    const [correctWord, setCorrectWord] = useState<DataWord>();
     const [correctWordId, setCorrectWordId] = useState<string>('');
+    const [correctText, setCorrectText] = useState<string>('');
     const [wordIndex, setWordIndex] = useState<number>(0);
+    const [imgSrc, setImgSrc] = useState<string>('');
 
     const player = new Audio();
 
@@ -48,8 +50,11 @@ const AudioGame = () => {
 
     const generateWordsToGuess = () => {
         setShowAnswer(true);
-        setShow(true);
+        setShowMain(false);
+        setCorrectWord(words[wordIndex]);
         setCorrectWordId(words[wordIndex].id);
+        setCorrectText('');
+        setImgSrc('');
         const audioUrl = `https://learn-english-words-app.herokuapp.com/${words[wordIndex].audio}`;
         player.src = audioUrl;
         player.play();
@@ -76,9 +81,12 @@ const AudioGame = () => {
         if (!dataset.answer) return;
         const variantWordId = dataset.answer;
         if (variantWordId === correctWordId) {
-            console.log('You are right!!!');
+            const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
+            setImgSrc(imgUrl);
         } else {
-            console.log('You are wrong');
+            const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
+            setImgSrc(imgUrl);
+            setCorrectText(correctWord?.wordTranslate as string);
         }
     };
 
@@ -115,8 +123,15 @@ const AudioGame = () => {
                                 }}
                             >
                                 <h1>Игра Аудиовызов</h1>
-                                <h2>Выберите уровень сложности</h2>
-                                <div className="groups" aria-hidden onClick={handlerGroup}>
+                                <h2 style={{ display: group && page ? 'block' : 'none' }}>
+                                    Выберите уровень сложности
+                                </h2>
+                                <div
+                                    style={{ display: group && page ? 'flex' : 'none' }}
+                                    className="groups"
+                                    aria-hidden
+                                    onClick={handlerGroup}
+                                >
                                     <span className="level" data-group="1">
                                         A1
                                     </span>
@@ -138,14 +153,19 @@ const AudioGame = () => {
                                 </div>
                             </div>
                         )}
-                        <div className="btn-start" aria-hidden onClick={generateWordsToGuess}>
+                        <div
+                            className="btn-start"
+                            style={{ display: showMain ? 'block' : 'none' }}
+                            aria-hidden
+                            onClick={generateWordsToGuess}
+                        >
                             Начать игру
                         </div>
 
-                        {show && (
+                        {showAnswer && (
                             <div className="game-container">
                                 <div className="audio-question">
-                                    {showAnswer && <div className="right-image">image</div>}
+                                    {showAnswer && <img src={imgSrc} className="right-image" alt="" />}
                                     <i
                                         aria-hidden
                                         style={{ cursor: 'pointer', color: 'red' }}
@@ -153,7 +173,7 @@ const AudioGame = () => {
                                     >
                                         audiotrack
                                     </i>{' '}
-                                    {showAnswer && <div className="right-answer">right Answer</div>}
+                                    {showAnswer && <div className="right-answer">{correctText}</div>}
                                 </div>
                                 <div className="answers" aria-hidden onClick={checkAnswer}>
                                     {wordsToGuess.map((word) => (
@@ -172,8 +192,8 @@ const AudioGame = () => {
                                     className="btn-end"
                                     aria-hidden
                                     onClick={() => {
-                                        setShow(!show);
-                                        setShowMain(!showMain);
+                                        setShowAnswer(false);
+                                        setShowMain(true);
                                     }}
                                 >
                                     Закончить игру
