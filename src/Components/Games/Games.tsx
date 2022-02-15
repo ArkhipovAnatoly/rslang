@@ -19,7 +19,7 @@ const Games = () => {
                             Аудиовызов<i className="material-icons right">more_vert</i>
                         </span>
                         <p>
-                            <Link to={group && page ? `/audioGame/${group}/${page}` : '/audioGame'}>Начать игру</Link>
+                            <Link to={group && page ? `/audioGame/${group}/${page}` : '/audioGame'} className="open-game"><span data-hover="Начать игру">Начать игру</span></Link>
                         </p>
                     </div>
                     <div className="card-reveal">
@@ -38,7 +38,7 @@ const Games = () => {
                             Спринт<i className="material-icons right">more_vert</i>
                         </span>
                         <p>
-                            <a href="/sprint/level/1">Начать игру</a>
+                            <Link to={group && page ? `/sprint/${group}/${page}` : '/sprint'} className="open-game"><span data-hover="Начать игру">Начать игру</span></Link>
                         </p>
                     </div>
                     <div className="card-reveal">
