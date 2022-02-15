@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import React, { useCallback, useEffect, useState } from 'react';
 import './AudioGame.css';
-
 import Header from '../../Home/Header';
 import Footer from '../../Home/Footer';
 import Service, { DataWord } from '../../../Service';
@@ -26,21 +25,24 @@ const AudioGame = () => {
 
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
+        console.log(dataset.group)
         if (!dataset.group) {
             return;
         }
-
+        
         setCurrentGroup(+dataset.group);
     };
 
     const fetchPartialWords = useCallback(async () => {
         let wordsPartial: DataWord[] = [];
+
         if (group && page) {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
         } else {
             wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
         }
         const shuffledWords = shuffle(wordsPartial);
+       console.log(shuffledWords)
         setWords(shuffledWords);
     }, [currentPage, group, page, currentGroup]);
 
@@ -55,13 +57,17 @@ const AudioGame = () => {
         setCorrectWordId(words[wordIndex].id);
         setCorrectText('');
         setImgSrc('');
+
         const audioUrl = `https://learn-english-words-app.herokuapp.com/${words[wordIndex].audio}`;
-        player.src = audioUrl;
-        player.play();
         const arr: DataWord[] = [];
         const generated: number[] = [];
-        arr.push(words[wordIndex]);
         let num = 0;
+
+        player.src = audioUrl;
+        player.play();
+
+        arr.push(words[wordIndex]);
+
         for (let index = 0; index < 4; index += 1) {
             num = getRandomNumber(20);
             if (generated.includes(num) || num === wordIndex) {
@@ -72,14 +78,18 @@ const AudioGame = () => {
             arr.push(words[num]);
         }
         const shuffledWordsToGuess = shuffle(arr);
+
         setWordsToGuess(shuffledWordsToGuess);
         setWordIndex(wordIndex + 1);
     };
 
     const checkAnswer = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
+
         if (!dataset.answer) return;
+
         const variantWordId = dataset.answer;
+
         if (variantWordId === correctWordId) {
             const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
             setImgSrc(imgUrl);
@@ -103,6 +113,7 @@ const AudioGame = () => {
         if (currentPage === 30) {
             setCurrentPage(0);
             setCurrentGroup(currentGroup + 1);
+            
             if (currentGroup === 6) {
                 setCurrentGroup(0);
             }

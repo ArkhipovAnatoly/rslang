@@ -66,7 +66,7 @@ h2 {
 }
 #intro article {
     text-align: center;
-    opacity: 0.5;
+    opacity: 0.8;
 }
 #intro article:hover {
     opacity: 1;

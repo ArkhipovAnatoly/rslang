@@ -28,21 +28,6 @@ const Sprint = () => {
 
     return (
         <div className="games-page">
-            {/* <nav>
-        <div id="top" className="nav-wrapper blue">
-          <ul id="nav-mobile" className="right">
-              <li>
-                  <a href="/">Главная</a>
-              </li>
-              <li>
-                  <a href="/book/1/1">Книга</a>
-              </li>
-              <li>
-                  <a href="/games" className="btn-main">Игры</a>
-              </li>
-            </ul>
-          </div>
-        </nav> */}
             <Header />
             <div className="card">
                 <div className="card-content">
