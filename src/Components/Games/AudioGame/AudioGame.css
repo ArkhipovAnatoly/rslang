@@ -95,7 +95,6 @@
     white-space: nowrap;
     word-wrap: normal;
     direction: ltr;
-    -webkit-font-feature-settings: 'liga';
     -webkit-font-smoothing: antialiased;
     cursor: pointer;
 }
@@ -103,7 +102,7 @@
 .answers {
     display: flex;
     gap: 5px;
-    padding: 40px 10px;
+    padding: 30px 10px;
 }
 
 .answer {
@@ -136,4 +135,14 @@
     font: bold 20px 'Neucha', cursive;
 }
 
+.audio-question {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
 
+.right-image {
+    width: 100px;
+    height: auto;
+}
