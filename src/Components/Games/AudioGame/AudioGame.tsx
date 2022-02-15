@@ -21,6 +21,7 @@ const AudioGame = () => {
     const [correctText, setCorrectText] = useState<string>('');
     const [wordIndex, setWordIndex] = useState<number>(0);
     const [imgSrc, setImgSrc] = useState<string>('');
+    const [className, setClassName] = useState<string>('answer');
 
     const player = new Audio();
 
@@ -49,6 +50,7 @@ const AudioGame = () => {
     }, [fetchPartialWords]);
 
     const generateWordsToGuess = () => {
+        setClassName('answer');
         setShowAnswer(true);
         setShowMain(false);
         setCorrectWord(words[wordIndex]);
@@ -63,17 +65,19 @@ const AudioGame = () => {
         arr.push(words[wordIndex]);
         let num = 0;
         for (let index = 0; index < 4; index += 1) {
-            num = getRandomNumber(20);
-            if (generated.includes(num) || num === wordIndex) {
+            do {
                 num = getRandomNumber(20);
-            } else {
-                generated.push(num);
-            }
+            } while (generated.includes(num) || num === wordIndex);
+            generated.push(num);
             arr.push(words[num]);
         }
         const shuffledWordsToGuess = shuffle(arr);
         setWordsToGuess(shuffledWordsToGuess);
         setWordIndex(wordIndex + 1);
+        setTimeout(() => {
+            setClassName('answer show');
+        }, 500);
+        console.log(wordIndex);
     };
 
     const checkAnswer = (event: React.MouseEvent) => {
@@ -177,7 +181,7 @@ const AudioGame = () => {
                                 </div>
                                 <div className="answers" aria-hidden onClick={checkAnswer}>
                                     {wordsToGuess.map((word) => (
-                                        <div key={word.id} data-answer={word.id} className="answer" aria-hidden>
+                                        <div key={word.id} data-answer={word.id} className={className} aria-hidden>
                                             {word.wordTranslate}
                                         </div>
                                     ))}
@@ -194,6 +198,7 @@ const AudioGame = () => {
                                     onClick={() => {
                                         setShowAnswer(false);
                                         setShowMain(true);
+                                        setWordIndex(0);
                                     }}
                                 >
                                     Закончить игру
