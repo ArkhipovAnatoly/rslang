@@ -22,6 +22,7 @@ function App() {
                     <Route path="/authorization" element={<Authorization />} />
                     <Route path="/book/:group/:page" element={<Book />} />
                     <Route path="/games" element={<Games />} />
+                    <Route path="/games/:group/:page" element={<Games />} />
                     <Route path="/audioGame" element={<AudioGame />} />
                     <Route path="/audioGame/:group/:page" element={<AudioGame />} />
                     <Route path="/sprint/level/:currentGroup" element={<Sprint />} />
