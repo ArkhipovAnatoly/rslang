@@ -1,8 +1,20 @@
 import './Home.css';
 import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 const Header = () => {
     const { group, page } = useParams();
+    const [isAuth, setIsAuth] = useState<Boolean>(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token') as string;
+        const userId = localStorage.getItem('userId') as string;
+        if (token !== null && userId !== null) {
+            setIsAuth(true);
+        } else {
+            setIsAuth(false);
+        }
+    }, []);
     return (
         <div className="wrapper row1">
             <div id="header" className="clear">
@@ -53,11 +65,13 @@ const Header = () => {
                                 </li>
                             </ul>
                         </li>
+
                         <li>
-                            <Link to="/statistics">Статистика</Link>
-                        </li>
-                        <li>
-                            <Link to="/authorization">Войти</Link>
+                            {isAuth ? (
+                                <Link to="/statistics">{localStorage.getItem('name')}</Link>
+                            ) : (
+                                <Link to="/authorization">Войти</Link>
+                            )}
                         </li>
                     </ul>
                 </nav>
