@@ -135,6 +135,8 @@
 }
 
 .btn-next {
+    outline: none;
+    border: none;
     background-color: powderblue;
     border-radius: 10%;
     padding: 7px 0;
@@ -198,4 +200,8 @@ td {
     justify-content: space-between;
     align-items: center;
     text-transform: capitalize;
+}
+.group-text,
+.words-count {
+    font-size: 25px;
 }
