@@ -8,8 +8,8 @@ import Service, { DataWord } from '../../../Service';
 import shuffle from '../../../Utils/shaffleArray';
 import getRandomNumber from '../../../Utils/random';
 
-const guessedWordsIDs: string[] = [];
-const notGuessedWordsIDs: string[] = [];
+let guessedWordsIDs: string[] = [];
+let notGuessedWordsIDs: string[] = [];
 const AudioGame = () => {
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
@@ -102,7 +102,6 @@ const AudioGame = () => {
         if (variantWordId === correctWordId) {
             setImgSrc(imgUrl);
             guessedWordsIDs.push(variantWordId);
-            console.log(guessedWordsIDs);
         } else {
             setImgSrc(imgUrl);
             setCorrectText(correctWord?.wordTranslate as string);
@@ -128,6 +127,17 @@ const AudioGame = () => {
             }
         }
     }, [currentPage, currentGroup]);
+
+    const audioHandler = (event: React.MouseEvent) => {
+        const { audio } = (event.target as HTMLElement).dataset;
+        const audioUrl = `https://learn-english-words-app.herokuapp.com/${audio}`;
+        if (player.paused) {
+            player.src = audioUrl;
+            player.play();
+        } else {
+            player.pause();
+        }
+    };
 
     return (
         <div className="games-page">
@@ -180,70 +190,107 @@ const AudioGame = () => {
                         {showAnswer && (
                             <div className="game-container">
                                 {isFinished && (
-                                    <>
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th>Знаю</th>
-                                                    <th>Item Name</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                <tr>
-                                                    {guessedWordsIDs.map((wordID) => {
-                                                        const index = words.findIndex((word) => word.id === wordID);
-                                                        if (index !== -1) {
-                                                            return (
-                                                                <td key={words[index].id} className="collection-item">
-                                                                    {words[index].word}
-                                                                    <i
-                                                                        aria-hidden
-                                                                        style={{ cursor: 'pointer', color: 'red' }}
-                                                                        className={`material-icon prefix `}
-                                                                    >
-                                                                        audiotrack
-                                                                    </i>{' '}
-                                                                </td>
-                                                            );
-                                                        }
-                                                        return null;
-                                                    })}
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th>Не Знаю</th>
-                                                    <th>Item Name</th>
-                                                </tr>
-                                            </thead>
-
-                                            <tbody>
-                                                <tr>
-                                                    {notGuessedWordsIDs.map((wordID) => {
-                                                        const index = words.findIndex((word) => word.id === wordID);
-                                                        if (index !== -1) {
-                                                            return (
-                                                                <td key={words[index].id} className="collection-item">
-                                                                    {words[index].word}
-                                                                    <i
-                                                                        aria-hidden
-                                                                        style={{ cursor: 'pointer', color: 'red' }}
-                                                                        className={`material-icon prefix `}
-                                                                    >
-                                                                        audiotrack
-                                                                    </i>{' '}
-                                                                </td>
-                                                            );
-                                                        }
-                                                        return null;
-                                                    })}
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </>
+                                    <div className="result">
+                                        <h4 className="result-title">Результаты</h4>
+                                        <div className="result-info">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th style={{ color: 'green' }}>Знаю</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {guessedWordsIDs.length ? (
+                                                        guessedWordsIDs.map((wordID) => {
+                                                            const index = words.findIndex((word) => word.id === wordID);
+                                                            if (index !== -1) {
+                                                                return (
+                                                                    <tr key={Math.random() * 1000}>
+                                                                        {' '}
+                                                                        <td
+                                                                            key={words[index].id}
+                                                                            className="collection-item"
+                                                                        >
+                                                                            {words[index].word}
+                                                                            <i
+                                                                                data-audio={words[index].audio}
+                                                                                aria-hidden
+                                                                                style={{
+                                                                                    cursor: 'pointer',
+                                                                                    color: 'green',
+                                                                                }}
+                                                                                className="material-icon"
+                                                                                onClick={audioHandler}
+                                                                            >
+                                                                                audiotrack
+                                                                            </i>{' '}
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        })
+                                                    ) : (
+                                                        <td>Тут пусто</td>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th style={{ color: 'red' }}>Не Знаю</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {notGuessedWordsIDs.length ? (
+                                                        notGuessedWordsIDs.map((wordID) => {
+                                                            const index = words.findIndex((word) => word.id === wordID);
+                                                            if (index !== -1) {
+                                                                return (
+                                                                    <tr key={Math.random() * 1000}>
+                                                                        {' '}
+                                                                        <td
+                                                                            key={words[index].id}
+                                                                            className="collection-item"
+                                                                        >
+                                                                            {words[index].word}
+                                                                            <i
+                                                                                data-audio={words[index].audio}
+                                                                                aria-hidden
+                                                                                style={{
+                                                                                    cursor: 'pointer',
+                                                                                    color: 'red',
+                                                                                }}
+                                                                                className="material-icon"
+                                                                                onClick={audioHandler}
+                                                                            >
+                                                                                audiotrack
+                                                                            </i>
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        })
+                                                    ) : (
+                                                        <td>Тут пусто</td>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <button
+                                            className="btn btn-result waves-effect waves-light blue"
+                                            type="button"
+                                            onClick={() => {
+                                                setIsFinished(false);
+                                                guessedWordsIDs = [];
+                                                notGuessedWordsIDs = [];
+                                            }}
+                                        >
+                                            Закрыть
+                                            <i className="material-icons right">close</i>
+                                        </button>
+                                    </div>
                                 )}
 
                                 <div className="audio-question">
@@ -251,7 +298,7 @@ const AudioGame = () => {
                                     <i
                                         aria-hidden
                                         style={{ cursor: 'pointer', color: 'red' }}
-                                        className={`material-icon prefix `}
+                                        className={`material-icon medium `}
                                     >
                                         audiotrack
                                     </i>{' '}
