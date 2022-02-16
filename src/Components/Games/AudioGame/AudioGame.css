@@ -115,8 +115,15 @@
     background-color: rgb(7 3 94 / 60%);
     color: white;
     cursor: pointer;
-    opacity: 0;
+    opacity: 1;
     border-radius: 20px;
+}
+
+.answer.correct {
+    background-color: green;
+}
+.answer.incorrect {
+    background-color: red;
 }
 .answer:disabled {
     background-color: #7e7e7e;
