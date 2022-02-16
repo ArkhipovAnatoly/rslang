@@ -8,9 +8,6 @@ import Service, { DataWord } from '../../../Service';
 import shuffle from '../../../Utils/shaffleArray';
 import getRandomNumber from '../../../Utils/random';
 
-let guessedWordsIDs: string[] = [];
-let notGuessedWordsIDs: string[] = [];
-let isDisabled: boolean[] = Array.from({ length: 5 }, () => false);
 const AudioGame = () => {
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
@@ -19,12 +16,19 @@ const AudioGame = () => {
     const [currentGroup, setCurrentGroup] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [wordsToGuess, setWordsToGuess] = useState<DataWord[]>([]);
+    const [guessedWordsIDs, setGuessedWordsIDs] = useState<string[]>([]);
+    const [notGuessedWordsIDs, setNotGuessedWordsIDs] = useState<string[]>([]);
     const [correctWord, setCorrectWord] = useState<DataWord>();
     const [correctWordId, setCorrectWordId] = useState<string>('');
     const [correctText, setCorrectText] = useState<string>('');
     const [wordIndex, setWordIndex] = useState<number>(0);
     const [imgSrc, setImgSrc] = useState<string>('');
-    const [className, setClassName] = useState<string>('answer');
+    const [btnNum, setBtnNum] = useState<string>('');
+    const [message, setMessage] = useState<string>('');
+    const [isAnswered, setIsAnswered] = useState<boolean>(false);
+    const [className, setClassName] = useState<string>('');
+    const [isDisabled, setIsDisabled] = useState<boolean[]>(Array.from({ length: 5 }, () => false));
+
     // const [isAuth, setIsAuth] = useState<boolean>(false);
     const [isFinished, setIsFinished] = useState<boolean>(false);
 
@@ -55,7 +59,6 @@ const AudioGame = () => {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
         } else {
             wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
-            console.log(`page = ${currentPage}`);
         }
         const shuffledWords = shuffle(wordsPartial);
         setWords(shuffledWords);
@@ -66,8 +69,9 @@ const AudioGame = () => {
     }, [fetchPartialWords]);
 
     const generateWordsToGuess = () => {
-        isDisabled = Array.from({ length: 5 }, () => false);
-        setClassName('answer');
+        setIsDisabled(Array.from({ length: 5 }, () => false));
+        setBtnNum('');
+        setIsAnswered(false);
         setShowAnswer(true);
         setShowMain(false);
         setCorrectWord(words[wordIndex]);
@@ -93,7 +97,7 @@ const AudioGame = () => {
         setWordsToGuess(shuffledWordsToGuess);
         setWordIndex(wordIndex + 1);
         setTimeout(() => {
-            setClassName('answer show');
+            // setClassName(...'show');
         }, 500);
     };
 
@@ -101,36 +105,40 @@ const AudioGame = () => {
         const target = event.target as HTMLDivElement;
         const { dataset } = target;
         if (!dataset.answer) return;
-        const btnNum = dataset.num;
-
-        isDisabled.forEach((_, i) => {
-            if (i === +(btnNum as string)) {
-                isDisabled[i] = false;
-            } else {
-                isDisabled[i] = true;
+        const currentBtnNum = dataset.num as string;
+        setBtnNum(currentBtnNum);
+        const arr = Array.from({ length: 5 }, () => false);
+        arr.forEach((_, i) => {
+            if (i !== +(currentBtnNum as string)) {
+                arr[i] = true;
             }
         });
+        setIsDisabled(arr);
 
         const variantWordId = dataset.answer;
         const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
         if (variantWordId === correctWordId) {
+            if (guessedWordsIDs.includes(variantWordId)) {
+                return;
+            }
             setImgSrc(imgUrl);
-            guessedWordsIDs.push(variantWordId);
-            target.innerText = 'Верно';
-            target.style.backgroundColor = 'green';
+            setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
+            setMessage('Верно!');
+            setClassName('correct');
         } else {
             setImgSrc(imgUrl);
             setCorrectText(correctWord?.wordTranslate as string);
-            notGuessedWordsIDs.push(variantWordId);
-            target.innerText = 'Ошибка';
-            target.style.backgroundColor = 'red';
+            setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
+            setMessage('Ошибка');
+            setClassName('incorrect');
         }
+        setIsAnswered(true);
     };
 
     useEffect(() => {
+        console.log(wordIndex);
         if (wordIndex === 5) {
             setWordIndex(0);
-            // setCurrentPage(currentPage + 1);
             setShowMain(false);
             setIsFinished(true);
         }
@@ -209,9 +217,23 @@ const AudioGame = () => {
                             <div className="game-container">
                                 {isFinished && (
                                     <div className="result">
+                                        <i
+                                            style={{ cursor: 'pointer' }}
+                                            aria-hidden
+                                            className="material-icons align-left"
+                                            onClick={() => {
+                                                setIsFinished(false);
+                                                setGuessedWordsIDs([]);
+                                                setNotGuessedWordsIDs([]);
+                                                setCurrentPage(currentPage + 1);
+                                            }}
+                                        >
+                                            close
+                                        </i>
+
                                         <h4 className="result-title">Результаты</h4>
                                         <div className="result-info">
-                                            <table>
+                                            <table className="highlight">
                                                 <thead>
                                                     <tr>
                                                         <th style={{ color: 'green' }}>Знаю</th>
@@ -224,7 +246,6 @@ const AudioGame = () => {
                                                             if (index !== -1) {
                                                                 return (
                                                                     <tr key={Math.random() * 1000}>
-                                                                        {' '}
                                                                         <td
                                                                             key={words[index].id}
                                                                             className="collection-item"
@@ -241,7 +262,7 @@ const AudioGame = () => {
                                                                                 onClick={audioHandler}
                                                                             >
                                                                                 audiotrack
-                                                                            </i>{' '}
+                                                                            </i>
                                                                         </td>
                                                                     </tr>
                                                                 );
@@ -249,11 +270,11 @@ const AudioGame = () => {
                                                             return null;
                                                         })
                                                     ) : (
-                                                        <td>Тут пусто</td>
+                                                        <td />
                                                     )}
                                                 </tbody>
                                             </table>
-                                            <table>
+                                            <table className="highlight">
                                                 <thead>
                                                     <tr>
                                                         <th style={{ color: 'red' }}>Не Знаю</th>
@@ -266,7 +287,6 @@ const AudioGame = () => {
                                                             if (index !== -1) {
                                                                 return (
                                                                     <tr key={Math.random() * 1000}>
-                                                                        {' '}
                                                                         <td
                                                                             key={words[index].id}
                                                                             className="collection-item"
@@ -291,23 +311,11 @@ const AudioGame = () => {
                                                             return null;
                                                         })
                                                     ) : (
-                                                        <td>Тут пусто</td>
+                                                        <td />
                                                     )}
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <button
-                                            className="btn btn-result waves-effect waves-light blue"
-                                            type="button"
-                                            onClick={() => {
-                                                setIsFinished(false);
-                                                guessedWordsIDs = [];
-                                                notGuessedWordsIDs = [];
-                                            }}
-                                        >
-                                            Закрыть
-                                            <i className="material-icons right">close</i>
-                                        </button>
                                     </div>
                                 )}
 
@@ -329,12 +337,12 @@ const AudioGame = () => {
                                             data-num={i}
                                             key={word.id}
                                             data-answer={word.id}
-                                            className={className}
+                                            className={isAnswered && i === +btnNum ? `answer ${className}` : 'answer'}
                                             disabled={isDisabled[i]}
                                             aria-hidden
                                             type="button"
                                         >
-                                            {word.wordTranslate}
+                                            {btnNum && i === +btnNum ? message : word.wordTranslate}
                                         </button>
                                     ))}
                                 </div>
