@@ -52,7 +52,7 @@ const Home = () => (
         </div>
         <div className="wrapper row3">
             <main className="container clear">
-                <div className="group">
+                <div className="home_group">
                     <div className="one_half first">
                         <h2 className="heading btmspace-50">Презентация</h2>
                         <figure id="featuredpost">

@@ -104,7 +104,7 @@ h2 {
 }
 
 /* Content */
-.group {
+.home_group {
     display: flex;
     max-width: 978px;
     width: 100%;
@@ -363,6 +363,7 @@ h2 {
 --------------------------------------------------------------------------------------------------------------- */
 #copyright {
     padding: 20px 0;
+    align-items: center;
 }
 #copyright p {
     margin: 0;
@@ -982,7 +983,27 @@ table a,
     #copyright {
         max-width: 95%;
     }
-
+    #intro {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .one_third {
+        width: 50%;
+    }
+    .home_group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .one_quarter {
+        width: 100%;
+    }
+    .githab {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
     #topbar {
         text-align: center;
     }
@@ -1007,6 +1028,7 @@ table a,
     #mainav ul {
         display: none;
     }
+
     #mainav form {
         display: block;
     }
