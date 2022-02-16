@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Service, { DataAggregatedWordsById } from '../../Service';
@@ -200,6 +201,34 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             <div className="card horizontal">
                 <div className="card-image">
                     <img src={imageUrl} alt="img" />
+                    <div className="card-action">
+                            <div className="card-action_inner">
+                                <div className="checkbox-first">
+                                    <label className="checkbox-first__label" style={{ display: isAuth && group !== '7' ? 'block' : 'none' }}>
+                                        <input ref={checkBoxLearned} type="checkbox" onChange={addWordToLearned}className="checkbox-first__input"/>
+                                        <div className="checkbox">
+                                            <svg width="20px" height="20px" viewBox="0 0 20 20">
+                                                <path d="M3,1 L17,1 L17,1 C18.1045695,1 19,1.8954305 19,3 L19,17 L19,17 C19,18.1045695 18.1045695,19 17,19 L3,19 L3,19 C1.8954305,19 1,18.1045695 1,17 L1,3 L1,3 C1,1.8954305 1.8954305,1 3,1 Z" />
+                                                <polyline points="4 11 8 15 16 6" />
+                                            </svg>
+                                        </div>
+                                        <span>{textLearned}</span>
+                                    </label>
+                                </div>
+                                <div className="checkbox-first">
+                                    <label className="checkbox-first__label" style={{ display: isAuth && group !== '7' ? 'block' : 'none' }}>
+                                        <input ref={checkBoxHard} onChange={addWordToHard} type="checkbox" className="checkbox-first__input"/>
+                                        <div className="checkbox">
+                                            <svg width="20px" height="20px" viewBox="0 0 20 20">
+                                                <path d="M3,1 L17,1 L17,1 C18.1045695,1 19,1.8954305 19,3 L19,17 L19,17 C19,18.1045695 18.1045695,19 17,19 L3,19 L3,19 C1.8954305,19 1,18.1045695 1,17 L1,3 L1,3 C1,1.8954305 1.8954305,1 3,1 Z" />
+                                                <polyline points="4 11 8 15 16 6" />
+                                            </svg>
+                                        </div>
+                                        <span>{textHard}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                 </div>
                 <div className="card-stacked">
                     <div className="card-content">
@@ -208,18 +237,6 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                         <div className="card-action" />
                         <p className="info" ref={pRefExample} />
                         <p className="info">{props.textExampleTranslate}</p>
-                        <div className="card-action">
-                            <div className="card-action_inner">
-                                <label style={{ display: isAuth && group !== '7' ? 'block' : 'none' }}>
-                                    <input ref={checkBoxLearned} type="checkbox" onChange={addWordToLearned} />
-                                    <span>{textLearned}</span>
-                                </label>
-                                <label style={{ display: isAuth && group !== '7' ? 'block' : 'none' }}>
-                                    <input ref={checkBoxHard} type="checkbox" onChange={addWordToHard} />
-                                    <span>{textHard}</span>
-                                </label>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
