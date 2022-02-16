@@ -1,14 +1,15 @@
-import { useParams } from 'react-router-dom';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './AudioGame.css';
 
 import Header from '../../Home/Header';
 import Footer from '../../Home/Footer';
-import Service, { DataWord } from '../../../Service';
+import Service, { DataAggregatedWordsById, DataWord } from '../../../Service';
 import shuffle from '../../../Utils/shaffleArray';
 import getRandomNumber from '../../../Utils/random';
 
 const AudioGame = () => {
+    const navigator = useNavigate();
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
     const [showMain, setShowMain] = useState(true);
@@ -28,13 +29,14 @@ const AudioGame = () => {
     const [isAnswered, setIsAnswered] = useState<boolean>(false);
     const [className, setClassName] = useState<string>('');
     const [isDisabled, setIsDisabled] = useState<boolean[]>(Array.from({ length: 5 }, () => false));
-
-    // const [isAuth, setIsAuth] = useState<boolean>(false);
+    const [isAuth, setIsAuth] = useState<boolean>(false);
     const [isFinished, setIsFinished] = useState<boolean>(false);
+    const [isNextDisabled, setIsNextDisabled] = useState<boolean>(true);
+    const [groupText, setGroupText] = useState<string>('Выбраны слова уроня А1');
 
     const player = new Audio();
 
-    /*     useEffect(() => {
+    useEffect(() => {
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
         if (token !== null && userId !== null) {
@@ -42,7 +44,7 @@ const AudioGame = () => {
         } else {
             setIsAuth(false);
         }
-    }, []); */
+    }, []);
 
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
@@ -60,6 +62,20 @@ const AudioGame = () => {
         } else {
             wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
         }
+
+        /*       const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string; */
+        /*             const learnedWords = (await Service.aggregatedWords(
+                {
+                    userId,
+                    group: '',
+                    page: '',
+                    wordsPerPage: '20',
+                    filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
+                },
+                token
+            )) as DataWord[]; */
+
         const shuffledWords = shuffle(wordsPartial);
         setWords(shuffledWords);
     }, [currentPage, group, page, currentGroup]);
@@ -69,6 +85,7 @@ const AudioGame = () => {
     }, [fetchPartialWords]);
 
     const generateWordsToGuess = () => {
+        setIsNextDisabled(true);
         setIsDisabled(Array.from({ length: 5 }, () => false));
         setBtnNum('');
         setIsAnswered(false);
@@ -88,7 +105,7 @@ const AudioGame = () => {
         let num = 0;
         for (let index = 0; index < 4; index += 1) {
             do {
-                num = getRandomNumber(20);
+                num = getRandomNumber(words.length);
             } while (generated.includes(num) || num === wordIndex);
             generated.push(num);
             arr.push(words[num]);
@@ -99,6 +116,59 @@ const AudioGame = () => {
         setTimeout(() => {
             // setClassName(...'show');
         }, 500);
+    };
+
+    const addWord = async (wordId: string) => {
+        if (isAuth) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            const word = (await Service.aggregatedWordsById({ userId, wordId }, token)) as DataAggregatedWordsById[];
+            if (typeof word === 'number') {
+                setIsAuth(false);
+                localStorage.clear();
+                navigator('/authorization');
+            }
+            if (!word[0]?.userWord) {
+                console.log(word[0]?.userWord);
+                await Service.createUserWord({ userId, wordId }, token, {
+                    difficulty: 'guessed',
+                    optional: { guessedCount: '1', testFieldBoolean: true },
+                });
+            } else {
+                let guessedCount: number = +word[0].userWord.optional.guessedCount;
+                guessedCount += 1;
+                if (word[0]?.userWord?.difficulty === 'hard' && guessedCount >= 5) {
+                    await Service.updateUserWord({ userId, wordId }, token, {
+                        difficulty: 'learned',
+                        optional: { guessedCount: `${guessedCount}`, testFieldBoolean: true },
+                    });
+                } else if (word[0]?.userWord?.difficulty === 'guessed') {
+                    await Service.updateUserWord({ userId, wordId }, token, {
+                        difficulty: 'learned',
+                        optional: { guessedCount: `${guessedCount}`, testFieldBoolean: true },
+                    });
+                }
+            }
+        }
+    };
+
+    const removeWord = async (wordId: string) => {
+        if (isAuth) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            const word = (await Service.aggregatedWordsById({ userId, wordId }, token)) as DataAggregatedWordsById[];
+            if (typeof word === 'number') {
+                setIsAuth(false);
+                localStorage.clear();
+                navigator('/authorization');
+            }
+            if (word[0]?.userWord) {
+                await Service.updateUserWord({ userId, wordId }, token, {
+                    difficulty: 'learned',
+                    optional: { guessedCount: '0', testFieldBoolean: true },
+                });
+            }
+        }
     };
 
     const checkAnswer = (event: React.MouseEvent) => {
@@ -126,21 +196,23 @@ const AudioGame = () => {
             setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
             setMessage('Верно!');
             setClassName('correct');
+            addWord(variantWordId);
         } else {
             setCorrectText(correctWord?.wordTranslate as string);
             setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
             setMessage('Ошибка');
             setClassName('incorrect');
+            removeWord(variantWordId);
         }
         setIsAnswered(true);
+        setIsNextDisabled(false);
     };
 
     useEffect(() => {
-        console.log(wordIndex);
-        if (wordIndex === 5) {
+        if (wordIndex === 20) {
             setWordIndex(0);
-            setShowMain(false);
             setIsFinished(true);
+            setShowMain(false);
         }
     }, [wordIndex, currentPage]);
 
@@ -165,6 +237,58 @@ const AudioGame = () => {
         }
     };
 
+    useMemo(() => {
+        switch (currentGroup) {
+            case 1:
+                setGroupText('Выбраны слова уроня A1');
+                break;
+            case 2:
+                setGroupText('Выбраны слова уроня A2');
+                break;
+            case 3:
+                setGroupText('Выбраны слова уроня B1');
+                break;
+            case 4:
+                setGroupText('Выбраны слова уроня B2');
+                break;
+            case 5:
+                setGroupText('Выбраны слова уроня C1');
+                break;
+            case 6:
+                setGroupText('Выбраны слова уроня C2');
+                break;
+
+            default:
+                break;
+        }
+    }, [currentGroup]);
+
+    useMemo(() => {
+        switch (group) {
+            case '1':
+                setGroupText('Слова уроня A1');
+                break;
+            case '2':
+                setGroupText('Слова уроня A2');
+                break;
+            case '3':
+                setGroupText('Слова уроня B1');
+                break;
+            case '4':
+                setGroupText('Слова уроня B2');
+                break;
+            case '5':
+                setGroupText('Слова уроня C1');
+                break;
+            case '6':
+                setGroupText('Слова уроня C2');
+                break;
+
+            default:
+                break;
+        }
+    }, [group]);
+
     return (
         <div className="games-page">
             <Header />
@@ -174,11 +298,9 @@ const AudioGame = () => {
                         {showMain && (
                             <div>
                                 <h1>Игра Аудиовызов</h1>
-                                <h2 style={{ display: group && page ? 'block' : 'none' }}>
-                                    Выберите уровень сложности
-                                </h2>
+                                <h2 style={{ display: group ? 'none' : 'block' }}>Выберите уровень сложности</h2>
                                 <div
-                                    style={{ display: group && page ? 'flex' : 'none' }}
+                                    style={{ display: group && page ? 'none' : 'flex' }}
                                     className="groups"
                                     aria-hidden
                                     onClick={handlerGroup}
@@ -202,6 +324,7 @@ const AudioGame = () => {
                                         C2
                                     </span>
                                 </div>
+                                <span className="group-text"> {!group ? groupText : groupText} </span>
                             </div>
                         )}
                         <div
@@ -348,11 +471,17 @@ const AudioGame = () => {
                                 </div>
 
                                 {showAnswer && (
-                                    <div className="btn-next" aria-hidden onClick={generateWordsToGuess}>
+                                    <button
+                                        disabled={isNextDisabled}
+                                        className="btn-next"
+                                        aria-hidden
+                                        onClick={generateWordsToGuess}
+                                        type="button"
+                                    >
                                         Следующий
-                                    </div>
+                                    </button>
                                 )}
-                                <article>game</article>
+                                <span>`Количество слов,оствшихся для изучения {words.length}` </span>
                                 <div
                                     className="btn-end"
                                     aria-hidden
