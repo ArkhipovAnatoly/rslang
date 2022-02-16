@@ -107,6 +107,8 @@
 }
 
 .answer {
+    outline: none;
+    border: none;
     width: 130px;
     height: 35px;
     padding: 5px;
@@ -115,6 +117,10 @@
     cursor: pointer;
     opacity: 0;
     border-radius: 20px;
+}
+.answer:disabled {
+    background-color: #7e7e7e;
+    cursor: auto;
 }
 .answer.show {
     opacity: 1;
