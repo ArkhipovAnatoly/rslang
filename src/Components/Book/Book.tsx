@@ -69,7 +69,7 @@ const Book = () => {
                         group: '',
                         page: '',
                         wordsPerPage: '20',
-                        filter: `{"$and":[{"userWord.difficulty":"hard", "userWord.optional.testFieldString":"test"}]}`,
+                        filter: `{"$and":[{"userWord.difficulty":"hard", "userWord.optional.testFieldBoolean":${true}}]}`,
                     },
                     token
                 )) as DataWord[];
