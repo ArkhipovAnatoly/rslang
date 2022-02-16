@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import './Sprint.css';
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import Header from '../../Home/Header';
+import Menu from '../../Menu/Menu';
 import Footer from '../../Home/Footer';
 import Service, { DataWord } from '../../../Service';
 import shuffle from '../../../Utils/shaffleArray';
@@ -21,7 +22,8 @@ const Sprint = () => {
     const [textTranslate, setTextTranslate] = useState<string>('');
     const [wordIndex, setWordIndex] = useState<number>(0);
     const [className, setClassName] = useState<string>('answer');
-    const [scoreRight, setScoreRight] = useState<number>(0);    
+    const [scoreRight, setScoreRight] = useState<number>(0); 
+    const [menuActive, setMenuActive] = useState<boolean>(false);   
 
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
@@ -119,7 +121,8 @@ const Sprint = () => {
 
     return (
         <div className="games-page">
-            <Header />
+            <Header menuActive={menuActive} setMenuActive={setMenuActive} />
+            <Menu menuActive={menuActive} setMenuActive={setMenuActive}/>
             <div className="card">
                 <div className="card-content">
                     <div className="game-content">
