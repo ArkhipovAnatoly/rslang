@@ -125,7 +125,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
 
             const data = await Service.createUserWord({ userId, wordId }, token, {
                 difficulty: 'learned',
-                optional: { testFieldString: 'test', testFieldBoolean: true },
+                optional: { guessedCount: '0', testFieldBoolean: true },
             });
             if (typeof data === 'number') {
                 setIsAuth(false);
@@ -157,7 +157,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
 
             const data = await Service.createUserWord({ userId, wordId }, token, {
                 difficulty: 'hard',
-                optional: { testFieldString: 'test', testFieldBoolean: true },
+                optional: { guessedCount: '0', testFieldBoolean: true },
             });
             if (typeof data === 'number') {
                 setIsAuth(false);
