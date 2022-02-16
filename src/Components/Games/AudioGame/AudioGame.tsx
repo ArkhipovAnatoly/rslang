@@ -117,16 +117,16 @@ const AudioGame = () => {
 
         const variantWordId = dataset.answer;
         const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
+        setImgSrc(imgUrl);
         if (variantWordId === correctWordId) {
             if (guessedWordsIDs.includes(variantWordId)) {
                 return;
             }
-            setImgSrc(imgUrl);
+
             setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
             setMessage('Верно!');
             setClassName('correct');
         } else {
-            setImgSrc(imgUrl);
             setCorrectText(correctWord?.wordTranslate as string);
             setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
             setMessage('Ошибка');
