@@ -10,6 +10,7 @@ import getRandomNumber from '../../../Utils/random';
 
 let guessedWordsIDs: string[] = [];
 let notGuessedWordsIDs: string[] = [];
+let isDisabled: boolean[] = Array.from({ length: 5 }, () => false);
 const AudioGame = () => {
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
@@ -26,6 +27,7 @@ const AudioGame = () => {
     const [className, setClassName] = useState<string>('answer');
     // const [isAuth, setIsAuth] = useState<boolean>(false);
     const [isFinished, setIsFinished] = useState<boolean>(false);
+
     const player = new Audio();
 
     /*     useEffect(() => {
@@ -64,6 +66,7 @@ const AudioGame = () => {
     }, [fetchPartialWords]);
 
     const generateWordsToGuess = () => {
+        isDisabled = Array.from({ length: 5 }, () => false);
         setClassName('answer');
         setShowAnswer(true);
         setShowMain(false);
@@ -95,17 +98,32 @@ const AudioGame = () => {
     };
 
     const checkAnswer = (event: React.MouseEvent) => {
-        const { dataset } = event.target as HTMLDivElement;
+        const target = event.target as HTMLDivElement;
+        const { dataset } = target;
         if (!dataset.answer) return;
+        const btnNum = dataset.num;
+
+        isDisabled.forEach((_, i) => {
+            if (i === +(btnNum as string)) {
+                isDisabled[i] = false;
+            } else {
+                isDisabled[i] = true;
+            }
+        });
+
         const variantWordId = dataset.answer;
         const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
         if (variantWordId === correctWordId) {
             setImgSrc(imgUrl);
             guessedWordsIDs.push(variantWordId);
+            target.innerText = 'Верно';
+            target.style.backgroundColor = 'green';
         } else {
             setImgSrc(imgUrl);
             setCorrectText(correctWord?.wordTranslate as string);
             notGuessedWordsIDs.push(variantWordId);
+            target.innerText = 'Ошибка';
+            target.style.backgroundColor = 'red';
         }
     };
 
@@ -306,10 +324,18 @@ const AudioGame = () => {
                                 </div>
 
                                 <div className="answers" aria-hidden onClick={checkAnswer}>
-                                    {wordsToGuess.map((word) => (
-                                        <div key={word.id} data-answer={word.id} className={className} aria-hidden>
+                                    {wordsToGuess.map((word, i) => (
+                                        <button
+                                            data-num={i}
+                                            key={word.id}
+                                            data-answer={word.id}
+                                            className={className}
+                                            disabled={isDisabled[i]}
+                                            aria-hidden
+                                            type="button"
+                                        >
                                             {word.wordTranslate}
-                                        </div>
+                                        </button>
                                     ))}
                                 </div>
 
