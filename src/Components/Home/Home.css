@@ -22,6 +22,9 @@ h2 {
 }
 /* Header
 --------------------------------------------------------------------------------------------------------------- */
+#header {
+    align-items: center;
+}
 .clear {
     display: flex;
     justify-content: space-between;
@@ -44,6 +47,10 @@ h2 {
     color: #000;
     background-color: inherit;
 }
+.burger-menu {
+    display: none;
+}
+
 /* Intro
 --------------------------------------------------------------------------------------------------------------- */
 #intro {
@@ -564,28 +571,6 @@ nav ol {
     left: 45px;
 }
 
-/* Pagination */
-.pagination {
-    display: block;
-    width: 100%;
-    text-align: center;
-    clear: both;
-}
-.pagination li {
-    display: inline-block;
-    margin: 0 2px 0 0;
-}
-.pagination li:last-child {
-    margin-right: 0;
-}
-.pagination a,
-.pagination strong {
-    display: block;
-    padding: 8px 11px;
-    border: 1px solid;
-    font-weight: normal;
-}
-
 /* Tables
 --------------------------------------------------------------------------------------------------------------- */
 table,
@@ -871,15 +856,6 @@ label span {
     color: #8aba56;
 }
 
-.pagination a,
-.pagination strong {
-    border-color: #d7d7d7;
-}
-.pagination .current {
-    color: #ffffff;
-    background-color: #000000;
-}
-
 /* Tables + Comments */
 table,
 th,
@@ -1015,30 +991,20 @@ table a,
     }
 
     #header {
-        padding: 15px 0;
         text-align: center;
     }
     #header #logo {
-        margin: 0 0 20px 0;
+        margin: 0 0 10px 0;
     }
-
     #mainav {
-        margin-top: 5px;
-    }
-    #mainav ul {
         display: none;
     }
-
     #mainav form {
         display: block;
     }
 
     #comments input[type='reset'] {
         margin-top: 10px;
-    }
-    .pagination li {
-        display: inline-block;
-        margin: 0 5px 5px 0;
     }
 
     #cta article {
@@ -1110,5 +1076,52 @@ table a,
         margin: 0;
         padding: 0;
         white-space: nowrap;
+    }
+}
+/* burger-menu
+--------------------------------------------------------------------------------------------------------------- */
+@media screen and (min-width: 180px) and (max-width: 900px) {
+    .burger-menu {
+        z-index: 50;
+        display: block;
+        position: relative;
+        width: 30px;
+        height: 18px;
+        cursor: pointer;
+    }
+    .burger-menu::before,
+    .burger-menu::after,
+    .burger-menu span {
+        left: 0;
+        position: absolute;
+        height: 10%;
+        width: 100%;
+        transition: all 0.3s ease 0s;
+        background-color: #000000;
+    }
+    .burger-menu::before,
+    .burger-menu::after {
+        content: '';
+    }
+    .burger-menu::before {
+        top: 0;
+    }
+    .burger-menu::after {
+        bottom: 0;
+    }
+    .burger-menu span {
+        top: 50%;
+        transform: scale(1) translate(0px, -50%);
+    }
+    .burger-menu.active span {
+        transform: scale(0) translate(0px, -50%);
+    }
+    .burger-menu.active::before {
+        top: 50%;
+        transform: rotate(-45deg) translate(0px, -50%);
+    }
+    .burger-menu.active::after {
+        bottom: 50%;
+        transform: rotate(45deg) translate(0px, 50%);
     }
 }
