@@ -107,13 +107,13 @@ const AudioGame = () => {
         if (!dataset.answer) return;
         const currentBtnNum = dataset.num as string;
         setBtnNum(currentBtnNum);
-        const arr = Array.from({ length: 5 }, () => false);
-        arr.forEach((_, i) => {
+        const disabledArr = Array.from({ length: 5 }, () => false);
+        disabledArr.forEach((_, i) => {
             if (i !== +(currentBtnNum as string)) {
-                arr[i] = true;
+                disabledArr[i] = true;
             }
         });
-        setIsDisabled(arr);
+        setIsDisabled(disabledArr);
 
         const variantWordId = dataset.answer;
         const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
