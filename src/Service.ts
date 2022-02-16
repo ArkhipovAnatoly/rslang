@@ -25,6 +25,12 @@ export type DataWord = {
     wordTranslate: string;
     textMeaningTranslate: string;
     textExampleTranslate: string;
+    userWord: {
+        difficulty: string;
+        optional: {
+            guessedCount: string;
+        };
+    };
 };
 
 export type DataUserLoginResponse = {
@@ -59,7 +65,12 @@ export type DataAggregatedWords = {
 };
 
 export type DataAggregatedWordsById = {
-    userWord: { difficulty: string };
+    userWord: {
+        difficulty: string;
+        optional: {
+            guessedCount: string;
+        };
+    };
 };
 
 export type DataAggregatedWordsResponse = {
@@ -124,6 +135,34 @@ class Service {
         try {
             const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
                 method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(word),
+            });
+            if (rawResponse.status === 401) {
+                return rawResponse.status;
+            }
+
+            const content = await rawResponse.json();
+            return content;
+        } catch (error) {
+            console.log(error);
+        }
+        return undefined;
+    }
+
+    public static async updateUserWord(
+        wordData: DataUserWord,
+        token: string,
+        word: object
+    ): Promise<DataCreateUserWordResponse | number | undefined> {
+        const { userId, wordId } = wordData;
+        try {
+            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
+                method: 'PUT',
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',
