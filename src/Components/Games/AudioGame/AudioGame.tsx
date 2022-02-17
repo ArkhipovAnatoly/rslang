@@ -29,10 +29,11 @@ const AudioGame = () => {
     const [message, setMessage] = useState<string>('');
     const [isAnswered, setIsAnswered] = useState<boolean>(false);
     const [isDisabled, setIsDisabled] = useState<boolean[]>(Array.from({ length: 5 }, () => false));
+    const [isDisabledStart, setIsDisabledStart] = useState<boolean>(true);
     const [isAuth, setIsAuth] = useState<boolean>(false);
     const [isFinished, setIsFinished] = useState<boolean>(false);
     const [isNextDisabled, setIsNextDisabled] = useState<boolean>(true);
-    const [groupText, setGroupText] = useState<string>('Выбраны слова уроня А1');
+    const [groupText, setGroupText] = useState<string>('');
     const [className, setClassName] = useState<string>('answer');
     const [menuActive, setMenuActive] = useState<boolean>(false);
 
@@ -55,6 +56,7 @@ const AudioGame = () => {
         }
 
         setCurrentGroup(+dataset.group);
+        setIsDisabledStart(false);
     };
 
     const fetchPartialWords = useCallback(async () => {
@@ -62,7 +64,7 @@ const AudioGame = () => {
         if (group && page) {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
         } else {
-            wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
+            wordsPartial = (await Service.getWords(currentGroup - 1, currentPage)) as DataWord[];
         }
 
         if (isAuth && group && page) {
@@ -130,10 +132,6 @@ const AudioGame = () => {
         }
         const shuffledWordsToGuess = shuffle(arr);
         setWordsToGuess(shuffledWordsToGuess);
-
-        setTimeout(() => {
-            // setClassName(...'show');
-        }, 500);
     };
 
     const createCorrectWord = async (wordId: string) => {
@@ -219,7 +217,6 @@ const AudioGame = () => {
             }
         });
         setIsDisabled(disabledArr);
-
         const variantWordId = dataset.answer;
         const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
         setImgSrc(imgUrl);
@@ -364,14 +361,16 @@ const AudioGame = () => {
                                 <span className="group-text"> {!group ? groupText : groupText} </span>
                             </div>
                         )}
-                        <div
+                        <button
                             className="btn-start"
+                            disabled={group && page ? false : isDisabledStart}
                             style={{ display: showMain ? 'block' : 'none' }}
                             aria-hidden
                             onClick={generateWordsToGuess}
+                            type="button"
                         >
                             Начать игру
-                        </div>
+                        </button>
 
                         {showAnswer && (
                             <div className="game-container">
@@ -385,6 +384,9 @@ const AudioGame = () => {
                                                 setIsFinished(false);
                                                 setShowAnswer(false);
                                                 setShowMain(true);
+                                                setWordIndex(0);
+                                                setCurrentPage(0);
+                                                setCurrentGroup(0);
                                                 setGuessedWordsIDs([]);
                                                 setNotGuessedWordsIDs([]);
                                                 setCurrentPage(currentPage + 1);
@@ -533,11 +535,6 @@ const AudioGame = () => {
                                     className="btn-end"
                                     aria-hidden
                                     onClick={() => {
-                                        // setShowAnswer(false);
-                                        // setShowMain(true);
-                                        setWordIndex(0);
-                                        setCurrentPage(0);
-                                        setCurrentGroup(0);
                                         setIsFinished(true);
                                         setClassName('');
                                     }}
