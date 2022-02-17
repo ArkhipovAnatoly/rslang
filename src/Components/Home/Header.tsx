@@ -1,9 +1,21 @@
 
 import './Home.css';
 import { Link, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
 const Header = ({menuActive, setMenuActive} : {menuActive: boolean, setMenuActive: (value: boolean) => void }) => {
     const { group, page } = useParams();
+    const [isAuth, setIsAuth] = useState<Boolean>(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token') as string;
+        const userId = localStorage.getItem('userId') as string;
+        if (token !== null && userId !== null) {
+            setIsAuth(true);
+        } else {
+            setIsAuth(false);
+        }
+    }, []);
     return (
         <div className="wrapper row1">
             <div id="header" className="clear">
@@ -56,11 +68,21 @@ const Header = ({menuActive, setMenuActive} : {menuActive: boolean, setMenuActiv
                                 </li>
                             </ul>
                         </li>
+
                         <li>
-                            <Link to="/statistics">Статистика</Link>
+                            {isAuth ? (
+                                <Link to="/statistics">{localStorage.getItem('name')}</Link>
+                            ) : (
+                                <Link to="/authorization">Войти</Link>
+                            )}
                         </li>
+
                         <li>
-                            <Link to="/authorization">Войти</Link>
+                            {isAuth && (
+                                <Link to="/" onClick={() => localStorage.clear()}>
+                                    Выйти
+                                </Link>
+                            )}
                         </li>
                     </ul>
                 </nav>
