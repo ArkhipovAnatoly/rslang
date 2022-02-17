@@ -26,6 +26,7 @@ function App() {
                     <Route path="/audioGame" element={<AudioGame />} />
                     <Route path="/audioGame/:group/:page" element={<AudioGame />} />
                     <Route path="/sprint/:group/:page" element={<Sprint />} />
+                    <Route path="/sprint" element={<Sprint />} />
                     <Route path="/statistics" element={<Statistics />} />
                 </Routes>
             </GlobalContextProvider>
