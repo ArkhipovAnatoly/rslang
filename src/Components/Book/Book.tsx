@@ -8,7 +8,7 @@ import Service, { DataWord } from '../../Service';
 import Footer from '../Home/Footer';
 import PreLoaderProgress from '../Preloader/PreLoaderProgress';
 import BookItem from './BookItem';
-
+import Menu from '../Menu/Menu';
 import Header from '../Home/Header';
 
 type DataParams = {
@@ -30,6 +30,7 @@ const Book = () => {
     const [textColor, setTextColor] = useState<string>('');
     const [colorLearnedPage, setColorLearnedPage] = useState<string>('');
     const [activePaginationClass, setActivePaginationClass] = useState<string>('');
+    const [menuActive, setMenuActive] = useState<boolean>(false);
 
     useMemo(() => {
         switch (group) {
@@ -245,8 +246,8 @@ const Book = () => {
                     </ul>
                 </div>
             </nav> */}
-            <Header />
-
+            <Header menuActive={menuActive} setMenuActive={setMenuActive} />
+            <Menu menuActive={menuActive} setMenuActive={setMenuActive}/>
             <a
                 style={{ display: visible ? 'block' : 'none' }}
                 href="#top"

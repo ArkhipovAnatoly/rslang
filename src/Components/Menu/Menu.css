@@ -1,0 +1,40 @@
+.burger-menu_menu {
+    position: fixed;
+    right: 0;
+    top: 55px;
+    width: 30%;
+    height: 100%;
+    z-index: 50;
+    transform: translateX(100%);
+    background: linear-gradient(-45deg, #fdfb7d, #fd9999, #d5ff73, #e3a6ff, #96fff1, #7b9eff);
+    background-size: 400% 400%;
+    animation: gradient 10s ease infinite;
+    transition: all 0.2s;
+}
+.burger-menu_menu.active {
+    transform: translateX(0);
+}
+.burger-menu_items {
+    font-size: 1.3rem;
+}
+.burger-menu_items a {
+    color: rgb(0, 0, 0);
+}
+.burger-menu_menu ul ul {
+    padding-left: 30px;
+}
+.burger-menu_menu li {
+    margin: 10px 10px 0 20px;
+    background-color: #ffffff6b;
+}
+.burger-menu_menu a:hover {
+    background-color: #ffffff;
+}
+.burger-menu_menu li li {
+    background-color: transparent;
+}
+@media screen and (min-width: 900px) {
+    .burger-menu_menu {
+        display: none;
+    }
+}

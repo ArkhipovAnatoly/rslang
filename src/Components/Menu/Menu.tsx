@@ -1,38 +1,19 @@
-
-import './Home.css';
+import './Menu.css'
 import { Link, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 
-const Header = ({menuActive, setMenuActive} : {menuActive: boolean, setMenuActive: (value: boolean) => void }) => {
-    const { group, page } = useParams();
-    const [isAuth, setIsAuth] = useState<Boolean>(false);
 
-    useEffect(() => {
-        const token = localStorage.getItem('token') as string;
-        const userId = localStorage.getItem('userId') as string;
-        if (token !== null && userId !== null) {
-            setIsAuth(true);
-        } else {
-            setIsAuth(false);
-        }
-    }, []);
-    return (
-        <div className="wrapper row1">
-            <div id="header" className="clear">
-                <div id="logo" className="fl_left">
-                    <h1>
-                        <Link to="/">RSLang</Link>
-                    </h1>
-                </div>
-                <nav id="mainav" 
-                className="fl_right"
-                >
-                    <ul className="clear">
-                        <li className='active'>
+
+const Menu = ({menuActive, setMenuActive} : {menuActive: boolean, setMenuActive: (value: boolean) => void }) => {
+  const { group, page } = useParams();
+return(
+  <div className={menuActive ? 'burger-menu_menu active' : 'burger-menu_menu'} 
+  role='presentation'
+  onClick= {() => setMenuActive(false)}>
+                    <ul className="burger-menu_items">
+                        <li className="active">
                             <Link to="/">Главная</Link>
                         </li>
-
-                        <li >
+                        <li>
                             <Link to="/book/1/1">Учебник</Link>
                             <ul>
                                 <li>
@@ -68,33 +49,14 @@ const Header = ({menuActive, setMenuActive} : {menuActive: boolean, setMenuActiv
                                 </li>
                             </ul>
                         </li>
-
                         <li>
-                            {isAuth ? (
-                                <Link to="/statistics">{localStorage.getItem('name')}</Link>
-                            ) : (
-                                <Link to="/authorization">Войти</Link>
-                            )}
+                            <Link to="/statistics">Статистика</Link>
                         </li>
-
                         <li>
-                            {isAuth && (
-                                <Link to="/" onClick={() => localStorage.clear()}>
-                                    Выйти
-                                </Link>
-                            )}
+                            <Link to="/authorization">Войти</Link>
                         </li>
                     </ul>
-                </nav>
-                <div className="burger-menu" 
-            role='presentation'
-            onClick={() => setMenuActive(!menuActive)}>
-            <span/>
-        </div>
-                
-            </div>
-        </div>
-    );
-};
-
-export default Header;
+                </div>
+)
+}
+export default Menu;

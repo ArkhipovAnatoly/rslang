@@ -558,3 +558,81 @@ nav .nav-wrapper {
         width: 100%;
     }
 }
+
+.checkbox-first__label{
+    cursor: pointer;
+    user-select: none;
+}
+.checkbox-first__label input:checked + .checkbox {
+    border-color: #25b9d4;
+}
+.checkbox-first__label .checkbox svg {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+}
+.checkbox-first__label input:checked + .checkbox svg path {
+    fill: #25b9d4;
+}
+.checkbox-first__label input:checked + .checkbox svg polyline {
+    stroke-dashoffset: 0;
+}
+.checkbox-first__label:hover .checkbox svg path {
+    stroke-dashoffset: 0;
+}
+.checkbox-first__label .checkbox {
+    position: relative;
+    top: 2px;
+    float: left;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border-radius: 3px;
+    border: 2px solid #c8ccd4;
+}
+.checkbox-first__label .checkbox svg {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+}
+.checkbox-first__label .checkbox svg path {
+    fill: none;
+    stroke: #25b9d4;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 71px;
+    stroke-dashoffset: 71px;
+    transition: all 0.6s ease;
+}
+.checkbox-first__label .checkbox svg polyline {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 18px;
+    stroke-dashoffset: 18px;
+    transition: all 0.3s ease;
+}
+.checkbox-first__label > span {
+    pointer-events: none;
+    vertical-align: middle;
+}
+.checkbox {
+    position: relative;
+    top: 2px;
+    float: left;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border-radius: 3px;
+    border: 2px solid #c8ccd4;
+}
+.checkbox-first__input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    z-index: -1;
+}

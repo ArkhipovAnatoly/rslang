@@ -1,11 +1,17 @@
+import { useState } from 'react';
 import './Home.css';
 import { Link } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
+import Menu from '../Menu/Menu';
 
-const Home = () => (
+
+const Home = () => {
+    const [menuActive, setMenuActive] = useState<boolean>(false);
+    return(
     <div className="home">
-        <Header />
+        <Header menuActive={menuActive} setMenuActive={setMenuActive}/>
+        <Menu menuActive={menuActive} setMenuActive={setMenuActive}/>
         <div className="wrapper row2 bgded">
             <div className="overlay">
                 <h2>Преимущества</h2>
@@ -52,7 +58,7 @@ const Home = () => (
         </div>
         <div className="wrapper row3">
             <main className="container clear">
-                <div className="group">
+                <div className="home_group">
                     <div className="one_half first">
                         <h2 className="heading btmspace-50">Презентация</h2>
                         <figure id="featuredpost">
@@ -117,6 +123,7 @@ const Home = () => (
         </div>
         <Footer />
     </div>
-);
+
+)};
 
 export default Home;
