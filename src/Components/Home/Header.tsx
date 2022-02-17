@@ -1,9 +1,8 @@
-
 import './Home.css';
 import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
-const Header = ({menuActive, setMenuActive} : {menuActive: boolean, setMenuActive: (value: boolean) => void }) => {
+const Header = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuActive: (value: boolean) => void }) => {
     const { group, page } = useParams();
     const [isAuth, setIsAuth] = useState<Boolean>(false);
 
@@ -24,15 +23,13 @@ const Header = ({menuActive, setMenuActive} : {menuActive: boolean, setMenuActiv
                         <Link to="/">RSLang</Link>
                     </h1>
                 </div>
-                <nav id="mainav" 
-                className="fl_right"
-                >
+                <nav id="mainav" className="fl_right">
                     <ul className="clear">
-                        <li className='active'>
+                        <li className="active">
                             <Link to="/">Главная</Link>
                         </li>
 
-                        <li >
+                        <li>
                             <Link to="/book/1/1">Учебник</Link>
                             <ul>
                                 <li>
@@ -79,19 +76,22 @@ const Header = ({menuActive, setMenuActive} : {menuActive: boolean, setMenuActiv
 
                         <li>
                             {isAuth && (
-                                <Link to="/" onClick={() => localStorage.clear()}>
+                                <Link
+                                    to="/"
+                                    onClick={() => {
+                                        localStorage.clear();
+                                        setIsAuth(false);
+                                    }}
+                                >
                                     Выйти
                                 </Link>
                             )}
                         </li>
                     </ul>
                 </nav>
-                <div className="burger-menu" 
-            role='presentation'
-            onClick={() => setMenuActive(!menuActive)}>
-            <span/>
-        </div>
-                
+                <div className="burger-menu" role="presentation" onClick={() => setMenuActive(!menuActive)}>
+                    <span />
+                </div>
             </div>
         </div>
     );
