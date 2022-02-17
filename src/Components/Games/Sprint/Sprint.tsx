@@ -17,9 +17,7 @@ const Sprint = () => {
     const [currentGroup, setCurrentGroup] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [wordsToGuess, setWordsToGuess] = useState<DataWord[]>([]);
-    const [correctWordId, setCorrectWordId] = useState<string>('');
-    const [correctText, setCorrectText] = useState<string>('');
-    const [textTranslate, setTextTranslate] = useState<string>('');
+    // const [correctWordTranslate, setCorrectWordTranslate] = useState<string>('');
     const [wordIndex, setWordIndex] = useState<number>(0);
     const [className, setClassName] = useState<string>('answer');
     const [scoreRight, setScoreRight] = useState<number>(0);
@@ -56,44 +54,31 @@ const Sprint = () => {
         setClassName('answer');
         setShowAnswer(true);
         setShowMain(false);
-        setCorrectWordId(words[wordIndex].id);
-        setCorrectText('');
-        setTextTranslate('');
-        setCorrectText(words[wordIndex].word as string);
+        // setCorrectWordTranslate(words[wordIndex].wordTranslate);
 
         const arr: DataWord[] = [];
-        const generated: number[] = [];
         let num = 0;
-
         arr.push(words[wordIndex]);
-
-        do {
-            num = getRandomNumber(20);
-        } while (generated.includes(num) || num === wordIndex);
-
-        generated.push(num);
+        num = getRandomNumber(20);
         arr.push(words[num]);
-
-        setTextTranslate(words[num].wordTranslate);
-
-        const shuffledWordsToGuess = shuffle(arr);
-
-        setWordsToGuess(shuffledWordsToGuess);
-        setWordIndex(wordIndex + 1);
+        setWordsToGuess(arr);
         setClassName('answer show');
     };
 
     const viewRightAnswer = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
+        const correct = wordsToGuess[0].wordTranslate;
+        const variant = words.find((v) => v.id === dataset.answer)?.wordTranslate;
+        console.log(wordsToGuess[0].wordTranslate);
+        console.log(variant);
 
-        if (dataset.answer === correctWordId) {
-            console.log('true');
+        if (correct === variant) {
             setScoreRight(scoreRight + 1);
         } else {
             console.log('false');
             // ещё нужно сохранять слова для отображения в конце!
         }
-
+        setWordIndex(wordIndex + 1);
         generateWordsToGuess();
     };
 
@@ -190,16 +175,21 @@ const Sprint = () => {
                                         </CountdownCircleTimer>
                                     </div>
                                     <div className="question-container">
-                                        <div className="question">{correctText}</div>
+                                        <div className="question">{wordsToGuess[0].word}</div>
                                         <span className="this">ЭТО</span>
-                                        <div className="question">{textTranslate}</div>
+                                        <div className="question">{wordsToGuess[1].wordTranslate}</div>
                                     </div>
                                 </div>
 
                                 <div className="btns" onClick={viewRightAnswer} aria-hidden>
-                                    {wordsToGuess.map((word) => (
-                                        <div key={word.id} data-answer={word.id} className={className} aria-hidden>
-                                            {word.wordTranslate}
+                                    {wordsToGuess.map((word, i) => (
+                                        <div
+                                            key={Math.random() * 1000}
+                                            data-answer={word.id}
+                                            className={className}
+                                            aria-hidden
+                                        >
+                                            {i === 0 ? 'ДА' : 'НЕТ'}
                                         </div>
                                     ))}
                                 </div>
