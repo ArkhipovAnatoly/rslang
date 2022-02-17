@@ -73,6 +73,14 @@ const Header = () => {
                                 <Link to="/authorization">Войти</Link>
                             )}
                         </li>
+
+                        <li>
+                            {isAuth && (
+                                <Link to="/" onClick={() => localStorage.clear()}>
+                                    Выйти
+                                </Link>
+                            )}
+                        </li>
                     </ul>
                 </nav>
             </div>
