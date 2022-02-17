@@ -1,15 +1,10 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './AudioGame.css';
-
 import Header from '../../Home/Header';
 import Footer from '../../Home/Footer';
-
 import Service, { DataAggregatedWordsById, DataWord } from '../../../Service';
-=======
 import Menu from '../../Menu/Menu';
-import Service, { DataWord } from '../../../Service';
-
 import shuffle from '../../../Utils/shaffleArray';
 import getRandomNumber from '../../../Utils/random';
 
@@ -30,20 +25,16 @@ const AudioGame = () => {
     const [wordIndex, setWordIndex] = useState<number>(0);
     const [wordLength, setWordLength] = useState<number>(-1);
     const [imgSrc, setImgSrc] = useState<string>('');
-
     const [btnNum, setBtnNum] = useState<string>('');
     const [message, setMessage] = useState<string>('');
     const [isAnswered, setIsAnswered] = useState<boolean>(false);
-    const [className, setClassName] = useState<string>('');
     const [isDisabled, setIsDisabled] = useState<boolean[]>(Array.from({ length: 5 }, () => false));
     const [isAuth, setIsAuth] = useState<boolean>(false);
     const [isFinished, setIsFinished] = useState<boolean>(false);
     const [isNextDisabled, setIsNextDisabled] = useState<boolean>(true);
     const [groupText, setGroupText] = useState<string>('Выбраны слова уроня А1');
-
     const [className, setClassName] = useState<string>('answer');
     const [menuActive, setMenuActive] = useState<boolean>(false);
-
 
     const player = new Audio();
 
@@ -336,8 +327,8 @@ const AudioGame = () => {
 
     return (
         <div className="games-page">
-            <Header menuActive={menuActive} setMenuActive={setMenuActive}/>
-            <Menu menuActive={menuActive} setMenuActive={setMenuActive}/>
+            <Header menuActive={menuActive} setMenuActive={setMenuActive} />
+            <Menu menuActive={menuActive} setMenuActive={setMenuActive} />
             <div className="card">
                 <div className="card-content">
                     <div className="game-content">
