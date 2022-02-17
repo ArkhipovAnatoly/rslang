@@ -23,6 +23,7 @@ const AudioGame = () => {
     const [correctWordId, setCorrectWordId] = useState<string>('');
     const [correctText, setCorrectText] = useState<string>('');
     const [wordIndex, setWordIndex] = useState<number>(0);
+    const [wordLength, setWordLength] = useState<number>(-1);
     const [imgSrc, setImgSrc] = useState<string>('');
     const [btnNum, setBtnNum] = useState<string>('');
     const [message, setMessage] = useState<string>('');
@@ -63,9 +64,10 @@ const AudioGame = () => {
             wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
         }
 
-        /*       const token = localStorage.getItem('token') as string;
-            const userId = localStorage.getItem('userId') as string; */
-        /*             const learnedWords = (await Service.aggregatedWords(
+        if (isAuth && group && page) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            const learnedWords = (await Service.aggregatedWords(
                 {
                     userId,
                     group: '',
@@ -74,11 +76,26 @@ const AudioGame = () => {
                     filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
                 },
                 token
-            )) as DataWord[]; */
+            )) as DataWord[];
+            if (typeof learnedWords === 'number') {
+                setIsAuth(false);
+                localStorage.clear();
+                navigator('/authorization');
+                return;
+            }
 
+            learnedWords.forEach((v) => {
+                wordsPartial.forEach((k, i) => {
+                    if (k.id === v._id) {
+                        wordsPartial.splice(i, 1);
+                    }
+                });
+            });
+        }
         const shuffledWords = shuffle(wordsPartial);
         setWords(shuffledWords);
-    }, [currentPage, group, page, currentGroup]);
+        setWordLength(wordsPartial.length);
+    }, [currentPage, group, page, currentGroup, isAuth, navigator]);
 
     useEffect(() => {
         fetchPartialWords();
@@ -112,13 +129,13 @@ const AudioGame = () => {
         }
         const shuffledWordsToGuess = shuffle(arr);
         setWordsToGuess(shuffledWordsToGuess);
-        setWordIndex(wordIndex + 1);
+
         setTimeout(() => {
             // setClassName(...'show');
         }, 500);
     };
 
-    const addWord = async (wordId: string) => {
+    const createCorrectWord = async (wordId: string) => {
         if (isAuth) {
             const token = localStorage.getItem('token') as string;
             const userId = localStorage.getItem('userId') as string;
@@ -129,30 +146,38 @@ const AudioGame = () => {
                 navigator('/authorization');
             }
             if (!word[0]?.userWord) {
-                console.log(word[0]?.userWord);
                 await Service.createUserWord({ userId, wordId }, token, {
-                    difficulty: 'guessed',
+                    difficulty: 'answered',
                     optional: { guessedCount: '1', testFieldBoolean: true },
                 });
             } else {
-                let guessedCount: number = +word[0].userWord.optional.guessedCount;
+                let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
+                const notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
                 guessedCount += 1;
-                if (word[0]?.userWord?.difficulty === 'hard' && guessedCount >= 5) {
+                if (word[0]?.userWord?.difficulty === 'hard' && guessedCount >= 5 && notGuessedCount <= 1) {
+                    const optional = word[0]?.userWord.optional;
                     await Service.updateUserWord({ userId, wordId }, token, {
                         difficulty: 'learned',
-                        optional: { guessedCount: `${guessedCount}`, testFieldBoolean: true },
+                        optional: { ...optional, guessedCount: `${guessedCount}` },
                     });
-                } else if (word[0]?.userWord?.difficulty === 'guessed') {
+                } else if (word[0]?.userWord?.difficulty === 'answered' && guessedCount >= 3 && notGuessedCount <= 1) {
+                    const optional = word[0]?.userWord.optional;
                     await Service.updateUserWord({ userId, wordId }, token, {
                         difficulty: 'learned',
-                        optional: { guessedCount: `${guessedCount}`, testFieldBoolean: true },
+                        optional: { ...optional, guessedCount: `${guessedCount}` },
+                    });
+                } else {
+                    const optional = word[0]?.userWord.optional;
+                    await Service.updateUserWord({ userId, wordId }, token, {
+                        difficulty: 'answered',
+                        optional: { ...optional, guessedCount: `${guessedCount}` },
                     });
                 }
             }
         }
     };
 
-    const removeWord = async (wordId: string) => {
+    const createIncorrectWord = async (wordId: string) => {
         if (isAuth) {
             const token = localStorage.getItem('token') as string;
             const userId = localStorage.getItem('userId') as string;
@@ -162,10 +187,19 @@ const AudioGame = () => {
                 localStorage.clear();
                 navigator('/authorization');
             }
-            if (word[0]?.userWord) {
+
+            if (!word[0]?.userWord) {
+                await Service.createUserWord({ userId, wordId }, token, {
+                    difficulty: 'answered',
+                    optional: { notGuessedCount: '1', testFieldBoolean: true },
+                });
+            } else {
+                let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
+                const optional = word[0]?.userWord.optional;
+                notGuessedCount += 1;
                 await Service.updateUserWord({ userId, wordId }, token, {
-                    difficulty: 'learned',
-                    optional: { guessedCount: '0', testFieldBoolean: true },
+                    difficulty: 'answered',
+                    optional: { ...optional, notGuessedCount: `${notGuessedCount}` },
                 });
             }
         }
@@ -196,25 +230,26 @@ const AudioGame = () => {
             setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
             setMessage('Верно!');
             setClassName('correct');
-            addWord(variantWordId);
+            createCorrectWord(variantWordId);
         } else {
             setCorrectText(correctWord?.wordTranslate as string);
             setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
             setMessage('Ошибка');
             setClassName('incorrect');
-            removeWord(variantWordId);
+            createIncorrectWord(correctWord?.id as string);
         }
         setIsAnswered(true);
         setIsNextDisabled(false);
+        setWordIndex(wordIndex + 1);
     };
 
     useEffect(() => {
-        if (wordIndex === 20) {
+        if (wordIndex === wordLength - 1) {
             setWordIndex(0);
             setIsFinished(true);
             setShowMain(false);
         }
-    }, [wordIndex, currentPage]);
+    }, [wordIndex, wordLength]);
 
     useEffect(() => {
         if (currentPage === 30) {
@@ -240,22 +275,22 @@ const AudioGame = () => {
     useMemo(() => {
         switch (currentGroup) {
             case 1:
-                setGroupText('Выбраны слова уроня A1');
+                setGroupText('Выбраны слова уровня A1');
                 break;
             case 2:
-                setGroupText('Выбраны слова уроня A2');
+                setGroupText('Выбраны слова уровня A2');
                 break;
             case 3:
-                setGroupText('Выбраны слова уроня B1');
+                setGroupText('Выбраны слова уровня B1');
                 break;
             case 4:
-                setGroupText('Выбраны слова уроня B2');
+                setGroupText('Выбраны слова уровня B2');
                 break;
             case 5:
-                setGroupText('Выбраны слова уроня C1');
+                setGroupText('Выбраны слова уровня C1');
                 break;
             case 6:
-                setGroupText('Выбраны слова уроня C2');
+                setGroupText('Выбраны слова уровня C2');
                 break;
 
             default:
@@ -266,22 +301,22 @@ const AudioGame = () => {
     useMemo(() => {
         switch (group) {
             case '1':
-                setGroupText('Слова уроня A1');
+                setGroupText('Слова уровня A1');
                 break;
             case '2':
-                setGroupText('Слова уроня A2');
+                setGroupText('Слова уровня A2');
                 break;
             case '3':
-                setGroupText('Слова уроня B1');
+                setGroupText('Слова уровня B1');
                 break;
             case '4':
-                setGroupText('Слова уроня B2');
+                setGroupText('Слова уровня B2');
                 break;
             case '5':
-                setGroupText('Слова уроня C1');
+                setGroupText('Слова уровня C1');
                 break;
             case '6':
-                setGroupText('Слова уроня C2');
+                setGroupText('Слова уровня C2');
                 break;
 
             default:
@@ -346,6 +381,8 @@ const AudioGame = () => {
                                             className="material-icons align-left"
                                             onClick={() => {
                                                 setIsFinished(false);
+                                                setShowAnswer(false);
+                                                setShowMain(true);
                                                 setGuessedWordsIDs([]);
                                                 setNotGuessedWordsIDs([]);
                                                 setCurrentPage(currentPage + 1);
@@ -393,7 +430,9 @@ const AudioGame = () => {
                                                             return null;
                                                         })
                                                     ) : (
-                                                        <td />
+                                                        <tr>
+                                                            <td>Тут пусто</td>
+                                                        </tr>
                                                     )}
                                                 </tbody>
                                             </table>
@@ -434,7 +473,9 @@ const AudioGame = () => {
                                                             return null;
                                                         })
                                                     ) : (
-                                                        <td />
+                                                        <tr>
+                                                            <td>Тут пусто</td>
+                                                        </tr>
                                                     )}
                                                 </tbody>
                                             </table>
@@ -478,19 +519,25 @@ const AudioGame = () => {
                                         onClick={generateWordsToGuess}
                                         type="button"
                                     >
-                                        Следующий
+                                        {isFinished ? 'Еще раз' : 'Следующее слово'}
                                     </button>
                                 )}
-                                <span>`Количество слов,оствшихся для изучения {words.length}` </span>
+                                <span>
+                                    {isAuth
+                                        ? `Количество слов,оствшихся для изучения на странице ${page}: ${words.length}`
+                                        : ''}{' '}
+                                </span>
                                 <div
                                     className="btn-end"
                                     aria-hidden
                                     onClick={() => {
-                                        setShowAnswer(false);
-                                        setShowMain(true);
+                                        // setShowAnswer(false);
+                                        // setShowMain(true);
                                         setWordIndex(0);
                                         setCurrentPage(0);
                                         setCurrentGroup(0);
+                                        setIsFinished(true);
+                                        setClassName('');
                                     }}
                                 >
                                     Закончить игру
