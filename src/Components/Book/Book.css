@@ -536,7 +536,9 @@ h2 {
 nav .nav-wrapper {
     padding: 0 20px;
 }
-
+.pagination li a {
+    color: inherit;
+}
 .cat-name {
     margin-left: 800px;
 }
@@ -559,7 +561,7 @@ nav .nav-wrapper {
     }
 }
 
-.checkbox-first__label{
+.checkbox-first__label {
     cursor: pointer;
     user-select: none;
 }
