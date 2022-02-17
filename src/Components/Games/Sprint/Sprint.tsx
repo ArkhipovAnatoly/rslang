@@ -1,15 +1,16 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './Sprint.css';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Header from '../../Home/Header';
 import Menu from '../../Menu/Menu';
 import Footer from '../../Home/Footer';
-import Service, { DataWord } from '../../../Service';
+import Service, { DataAggregatedWordsById, DataWord } from '../../../Service';
 import shuffle from '../../../Utils/shaffleArray';
 import getRandomNumber from '../../../Utils/random';
 
 const Sprint = () => {
+    const navigator = useNavigate();
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
     const [showMain, setShowMain] = useState(true);
@@ -24,7 +25,25 @@ const Sprint = () => {
     const [className, setClassName] = useState<string>('answer');
     const [scoreRight, setScoreRight] = useState<number>(0);
     const [menuActive, setMenuActive] = useState<boolean>(false);
-    const [groupText, setGroupText] = useState<string>('Выбраны слова уроня А1');
+    const [isDisabled, setIsDisabled] = useState<boolean>(true);
+    const [groupText, setGroupText] = useState<string>('');
+    const [isAuth, setIsAuth] = useState<boolean>(false);
+    const [wordLength, setWordLength] = useState<number>(-1);
+    const [isFinished, setIsFinished] = useState<boolean>(false);
+    const [correctWordId, setCorrectWordId] = useState<string>('');
+    const [guessedWordsIDs, setGuessedWordsIDs] = useState<string[]>([]);
+    const [notGuessedWordsIDs, setNotGuessedWordsIDs] = useState<string[]>([]);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token') as string;
+        const userId = localStorage.getItem('userId') as string;
+        if (token !== null && userId !== null) {
+            setIsAuth(true);
+        } else {
+            setIsAuth(false);
+        }
+    }, []);
+
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
 
@@ -33,20 +52,49 @@ const Sprint = () => {
         }
 
         setCurrentGroup(+dataset.group);
+        setIsDisabled(false);
     };
 
     const fetchPartialWords = useCallback(async () => {
         let wordsPartial: DataWord[] = [];
-
         if (group && page) {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
         } else {
-            wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
+            wordsPartial = (await Service.getWords(currentGroup - 1, currentPage)) as DataWord[];
+        }
+
+        if (isAuth && group && page) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            const learnedWords = (await Service.aggregatedWords(
+                {
+                    userId,
+                    group: '',
+                    page: '',
+                    wordsPerPage: '20',
+                    filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
+                },
+                token
+            )) as DataWord[];
+            if (typeof learnedWords === 'number') {
+                setIsAuth(false);
+                localStorage.clear();
+                navigator('/authorization');
+                return;
+            }
+
+            learnedWords.forEach((v) => {
+                wordsPartial.forEach((k, i) => {
+                    if (k.id === v._id) {
+                        wordsPartial.splice(i, 1);
+                    }
+                });
+            });
         }
         const shuffledWords = shuffle(wordsPartial);
-
         setWords(shuffledWords);
-    }, [currentPage, group, page, currentGroup]);
+        setWordLength(wordsPartial.length);
+    }, [currentPage, group, page, currentGroup, isAuth, navigator]);
 
     useEffect(() => {
         fetchPartialWords();
@@ -57,6 +105,7 @@ const Sprint = () => {
         setShowAnswer(true);
         setShowMain(false);
         setQuestionWord(words[wordIndex].word);
+        setCorrectWordId(words[wordIndex].id);
         const arr: DataWord[] = [];
         const generated: number[] = [];
         let num = 0;
@@ -82,15 +131,100 @@ const Sprint = () => {
         setClassName('answer show');
     };
 
+    const createCorrectWord = async (wordId: string) => {
+        if (isAuth) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            const word = (await Service.aggregatedWordsById({ userId, wordId }, token)) as DataAggregatedWordsById[];
+            if (typeof word === 'number') {
+                setIsAuth(false);
+                localStorage.clear();
+                navigator('/authorization');
+            }
+            if (!word[0]?.userWord) {
+                await Service.createUserWord({ userId, wordId }, token, {
+                    difficulty: 'answered',
+                    optional: { guessedCount: '1', testFieldBoolean: true },
+                });
+            } else {
+                let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
+                const notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
+                guessedCount += 1;
+                if (word[0]?.userWord?.difficulty === 'hard' && guessedCount >= 5 && notGuessedCount <= 1) {
+                    const optional = word[0]?.userWord.optional;
+                    await Service.updateUserWord({ userId, wordId }, token, {
+                        difficulty: 'learned',
+                        optional: { ...optional, guessedCount: `${guessedCount}` },
+                    });
+                } else if (word[0]?.userWord?.difficulty === 'answered' && guessedCount >= 3 && notGuessedCount <= 1) {
+                    const optional = word[0]?.userWord.optional;
+                    await Service.updateUserWord({ userId, wordId }, token, {
+                        difficulty: 'learned',
+                        optional: { ...optional, guessedCount: `${guessedCount}` },
+                    });
+                } else {
+                    const optional = word[0]?.userWord.optional;
+                    await Service.updateUserWord({ userId, wordId }, token, {
+                        difficulty: 'answered',
+                        optional: { ...optional, guessedCount: `${guessedCount}` },
+                    });
+                }
+            }
+        }
+    };
+
+    const createIncorrectWord = async (wordId: string) => {
+        if (isAuth) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            const word = (await Service.aggregatedWordsById({ userId, wordId }, token)) as DataAggregatedWordsById[];
+            if (typeof word === 'number') {
+                setIsAuth(false);
+                localStorage.clear();
+                navigator('/authorization');
+            }
+
+            if (!word[0]?.userWord) {
+                await Service.createUserWord({ userId, wordId }, token, {
+                    difficulty: 'answered',
+                    optional: { notGuessedCount: '1', testFieldBoolean: true },
+                });
+            } else {
+                let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
+                const optional = word[0]?.userWord.optional;
+                notGuessedCount += 1;
+                await Service.updateUserWord({ userId, wordId }, token, {
+                    difficulty: 'answered',
+                    optional: { ...optional, notGuessedCount: `${notGuessedCount}` },
+                });
+            }
+        }
+    };
+
     const viewRightAnswer = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
+        if (!dataset.id) return;
+        const variantWordId = dataset.id;
 
         if (dataset.answer === answer) {
             setScoreRight(scoreRight + 1);
+            setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
+            createCorrectWord(dataset.id as string);
+        } else {
+            setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
+            createIncorrectWord(correctWordId);
         }
-
+        setWordIndex(wordIndex + 1);
         generateWordsToGuess();
     };
+
+    useEffect(() => {
+        if (wordIndex === wordLength - 1) {
+            setWordIndex(0);
+            setIsFinished(true);
+            setShowMain(false);
+        }
+    }, [wordIndex, wordLength]);
 
     useEffect(() => {
         if (group && page && wordIndex === 20) {
@@ -203,17 +337,107 @@ const Sprint = () => {
                                 <span className="group-text"> {!group ? groupText : groupText} </span>
                             </div>
                         )}
-                        <div
+                        <button
                             className="btn-start"
                             style={{ display: showMain ? 'block' : 'none' }}
                             aria-hidden
+                            disabled={group && page ? false : isDisabled}
+                            type="button"
                             onClick={generateWordsToGuess}
                         >
                             Начать игру
-                        </div>
+                        </button>
 
                         {showAnswer && (
                             <div className="game-container">
+                                {isFinished && (
+                                    <div className="result">
+                                        <i
+                                            style={{ cursor: 'pointer' }}
+                                            aria-hidden
+                                            className="material-icons align-left"
+                                            onClick={() => {
+                                                setIsFinished(false);
+                                                setShowAnswer(false);
+                                                setShowMain(true);
+                                                setWordIndex(0);
+                                                setCurrentPage(0);
+                                                setCurrentGroup(0);
+                                                setGuessedWordsIDs([]);
+                                                setNotGuessedWordsIDs([]);
+                                                setCurrentPage(currentPage + 1);
+                                            }}
+                                        >
+                                            close
+                                        </i>
+
+                                        <h4 className="result-title">Результаты</h4>
+                                        <div className="result-info">
+                                            <table className="highlight">
+                                                <thead>
+                                                    <tr>
+                                                        <th style={{ color: 'green' }}>Знаю</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {guessedWordsIDs.length ? (
+                                                        guessedWordsIDs.map((wordID) => {
+                                                            const index = words.findIndex((word) => word.id === wordID);
+                                                            if (index !== -1) {
+                                                                return (
+                                                                    <tr key={Math.random() * 1000}>
+                                                                        <td
+                                                                            key={words[index].id}
+                                                                            className="collection-item"
+                                                                        >
+                                                                            {words[index].word}
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        })
+                                                    ) : (
+                                                        <tr>
+                                                            <td>Тут пусто</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                            <table className="highlight">
+                                                <thead>
+                                                    <tr>
+                                                        <th style={{ color: 'red' }}>Не Знаю</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {notGuessedWordsIDs.length ? (
+                                                        notGuessedWordsIDs.map((wordID) => {
+                                                            const index = words.findIndex((word) => word.id === wordID);
+                                                            if (index !== -1) {
+                                                                return (
+                                                                    <tr key={Math.random() * 1000}>
+                                                                        <td
+                                                                            key={words[index].id}
+                                                                            className="collection-item"
+                                                                        >
+                                                                            {words[index].word}
+                                                                        </td>
+                                                                    </tr>
+                                                                );
+                                                            }
+                                                            return null;
+                                                        })
+                                                    ) : (
+                                                        <tr>
+                                                            <td>Тут пусто</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="game-question">
                                     <div className="score">
                                         Количество правильных ответов
@@ -238,9 +462,10 @@ const Sprint = () => {
                                 </div>
 
                                 <div className="btns" onClick={viewRightAnswer} aria-hidden>
-                                    {wordsToGuess.map((_, i) => (
+                                    {wordsToGuess.map((v, i) => (
                                         <div
                                             key={Math.random() * 1000}
+                                            data-id={v.id}
                                             data-answer={i === 0 ? 'YES' : 'NO'}
                                             className={className}
                                             aria-hidden
@@ -254,9 +479,8 @@ const Sprint = () => {
                                     className="btn-exit"
                                     aria-hidden
                                     onClick={() => {
-                                        setShowAnswer(false);
-                                        setShowMain(true);
-                                        setWordIndex(0);
+                                        setIsFinished(true);
+                                        setScoreRight(0);
                                     }}
                                 >
                                     Закончить игру
