@@ -247,7 +247,7 @@ const Book = () => {
                 </div>
             </nav> */}
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
-            <Menu menuActive={menuActive} setMenuActive={setMenuActive}/>
+            <Menu menuActive={menuActive} setMenuActive={setMenuActive} />
             <a
                 style={{ display: visible ? 'block' : 'none' }}
                 href="#top"

@@ -11,8 +11,8 @@ const Games = () => {
     const [menuActive, setMenuActive] = useState<boolean>(false);
     return (
         <div className="games-page">
-            <Header menuActive={menuActive} setMenuActive={setMenuActive}/>
-            <Menu menuActive={menuActive} setMenuActive={setMenuActive}/>
+            <Header menuActive={menuActive} setMenuActive={setMenuActive} />
+            <Menu menuActive={menuActive} setMenuActive={setMenuActive} />
             <div className="cards">
                 <div className="card">
                     <div className="card-image waves-effect waves-block waves-light">

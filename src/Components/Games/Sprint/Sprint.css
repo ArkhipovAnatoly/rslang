@@ -1,64 +1,64 @@
 .question-container {
-  padding: 10px 0 30px;
+    padding: 10px 0 30px;
 }
 
 .timer {
-  margin: 0 auto;
-  justify-content: center;
-  display: flex;
+    margin: 0 auto;
+    justify-content: center;
+    display: flex;
 }
 
 .question {
-  position: relative;
-  color: #143889;
-  font: bold 40px 'Neucha', cursive;
-  line-height: 20px;
-  margin: 30px 0;
+    position: relative;
+    color: #143889;
+    font: bold 40px 'Neucha', cursive;
+    line-height: 20px;
+    margin: 30px 0;
 }
 
 .this {
-  color: darkcyan;
-  position: relative;
-  font: bold 20px 'Neucha', cursive;
-  margin: 10px 0 30px;
+    color: darkcyan;
+    position: relative;
+    font: bold 20px 'Neucha', cursive;
+    margin: 10px 0 30px;
 }
 
 .btns {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
 }
 
 .score {
-  color: rgb(248, 132, 0);
-  position: relative;
-  font: bold 20px 'Neucha', cursive;
-  margin: 10px 0 30px;
+    color: rgb(248, 132, 0);
+    position: relative;
+    font: bold 20px 'Neucha', cursive;
+    margin: 10px 0 30px;
 }
 
 .score-right {
-  padding-left: 5px;
-  color: tomato;
+    padding-left: 5px;
+    color: tomato;
 }
 
 .show {
-  width: 200px;
-  height: 35px;
-  padding: 5px;
-  background-color: rgb(7 3 94 / 60%);
-  color: white;
-  cursor: pointer;
-  opacity: 0;
-  border-radius: 20px;
+    width: 200px;
+    height: 35px;
+    padding: 5px;
+    background-color: rgb(7 3 94 / 60%);
+    color: white;
+    cursor: pointer;
+    opacity: 0;
+    border-radius: 20px;
 }
 
 .btn-exit {
-  width: 200px;
-  height: 35px;
-  padding: 5px;
-  color: white;
-  cursor: pointer;
-  border-radius: 20px;
-  margin: 70px auto 30px;
-  background-color: #ee6e73;
+    width: 200px;
+    height: 35px;
+    padding: 5px;
+    color: white;
+    cursor: pointer;
+    border-radius: 20px;
+    margin: 70px auto 30px;
+    background-color: #ee6e73;
 }

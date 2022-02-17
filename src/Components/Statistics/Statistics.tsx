@@ -9,7 +9,7 @@ const Statistics = () => {
     return (
         <div className="statistics_wrapper">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
-            <Menu menuActive={menuActive} setMenuActive={setMenuActive}/>
+            <Menu menuActive={menuActive} setMenuActive={setMenuActive} />
             <Footer />
         </div>
     );

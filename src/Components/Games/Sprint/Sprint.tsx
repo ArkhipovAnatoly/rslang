@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import React, { useCallback, useEffect, useState } from 'react';
 import './Sprint.css';
-import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Header from '../../Home/Header';
 import Menu from '../../Menu/Menu';
 import Footer from '../../Home/Footer';
@@ -22,16 +22,16 @@ const Sprint = () => {
     const [textTranslate, setTextTranslate] = useState<string>('');
     const [wordIndex, setWordIndex] = useState<number>(0);
     const [className, setClassName] = useState<string>('answer');
-    const [scoreRight, setScoreRight] = useState<number>(0); 
-    const [menuActive, setMenuActive] = useState<boolean>(false);   
+    const [scoreRight, setScoreRight] = useState<number>(0);
+    const [menuActive, setMenuActive] = useState<boolean>(false);
 
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
-        
+
         if (!dataset.group) {
             return;
         }
-        
+
         setCurrentGroup(+dataset.group);
     };
 
@@ -44,14 +44,13 @@ const Sprint = () => {
             wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
         }
         const shuffledWords = shuffle(wordsPartial);
-       
+
         setWords(shuffledWords);
     }, [currentPage, group, page, currentGroup]);
 
     useEffect(() => {
         fetchPartialWords();
     }, [fetchPartialWords]);
-
 
     const generateWordsToGuess = () => {
         setClassName('answer');
@@ -61,7 +60,7 @@ const Sprint = () => {
         setCorrectText('');
         setTextTranslate('');
         setCorrectText(words[wordIndex].word as string);
-        
+
         const arr: DataWord[] = [];
         const generated: number[] = [];
         let num = 0;
@@ -74,12 +73,11 @@ const Sprint = () => {
 
         generated.push(num);
         arr.push(words[num]);
-       
 
         setTextTranslate(words[num].wordTranslate);
-        
+
         const shuffledWordsToGuess = shuffle(arr);
-        
+
         setWordsToGuess(shuffledWordsToGuess);
         setWordIndex(wordIndex + 1);
         setClassName('answer show');
@@ -88,11 +86,11 @@ const Sprint = () => {
     const viewRightAnswer = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
 
-        if( dataset.answer === correctWordId) {
-            console.log("true")
+        if (dataset.answer === correctWordId) {
+            console.log('true');
             setScoreRight(scoreRight + 1);
         } else {
-            console.log("false")
+            console.log('false');
             // ещё нужно сохранять слова для отображения в конце!
         }
 
@@ -112,7 +110,7 @@ const Sprint = () => {
         if (currentPage === 30) {
             setCurrentPage(0);
             setCurrentGroup(currentGroup + 1);
-            
+
             if (currentGroup === 6) {
                 setCurrentGroup(0);
             }
@@ -122,7 +120,7 @@ const Sprint = () => {
     return (
         <div className="games-page">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
-            <Menu menuActive={menuActive} setMenuActive={setMenuActive}/>
+            <Menu menuActive={menuActive} setMenuActive={setMenuActive} />
             <div className="card">
                 <div className="card-content">
                     <div className="game-content">
@@ -172,13 +170,13 @@ const Sprint = () => {
                         >
                             Начать игру
                         </div>
-  
+
                         {showAnswer && (
                             <div className="game-container">
-                                 
                                 <div className="game-question">
-                                    <div className="score">Количество правильных ответов
-                                        <span className='score-right'>{scoreRight}</span>
+                                    <div className="score">
+                                        Количество правильных ответов
+                                        <span className="score-right">{scoreRight}</span>
                                     </div>
 
                                     <div className="timer">
@@ -192,7 +190,7 @@ const Sprint = () => {
                                         </CountdownCircleTimer>
                                     </div>
                                     <div className="question-container">
-                                        <div className="question">{correctText}</div> 
+                                        <div className="question">{correctText}</div>
                                         <span className="this">ЭТО</span>
                                         <div className="question">{textTranslate}</div>
                                     </div>
@@ -202,20 +200,23 @@ const Sprint = () => {
                                     {wordsToGuess.map((word) => (
                                         <div key={word.id} data-answer={word.id} className={className} aria-hidden>
                                             {word.wordTranslate}
-
                                         </div>
                                     ))}
                                 </div>
-                                
-                                <div className="btn-exit" aria-hidden onClick={() => {
+
+                                <div
+                                    className="btn-exit"
+                                    aria-hidden
+                                    onClick={() => {
                                         setShowAnswer(false);
                                         setShowMain(true);
                                         setWordIndex(0);
-                                    }}>
+                                    }}
+                                >
                                     Закончить игру
                                 </div>
                             </div>
-                        )} 
+                        )}
                     </div>
                 </div>
             </div>
