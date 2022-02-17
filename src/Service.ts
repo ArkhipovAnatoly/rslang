@@ -69,6 +69,7 @@ export type DataAggregatedWordsById = {
         difficulty: string;
         optional: {
             guessedCount: string;
+            notGuessedCount: string;
         };
     };
 };
