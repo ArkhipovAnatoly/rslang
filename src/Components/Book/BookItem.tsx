@@ -34,17 +34,25 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
     const [textHard, setTextHard] = useState<string>('Добавить в сложные');
     const [isAuth, setIsAuth] = useState<boolean>(false);
     const [isLearned, setIsLearned] = useState<boolean>(false);
+    const [totalCorrect, setTotalCorrect] = useState<number>(0);
+    const [totalInCorrect, setTotalInCorrect] = useState<number>(0);
 
     const imageUrl = `https://learn-english-words-app.herokuapp.com/${props.image}`;
     const audioMeaningUrl = `https://learn-english-words-app.herokuapp.com/${props.audioMeaning}`;
     const audioExampleUrl = `https://learn-english-words-app.herokuapp.com/${props.audioExample}`;
     const audioUrl = `https://learn-english-words-app.herokuapp.com/${props.audio}`;
 
-    const fetchHardWords = useCallback(async () => {
+    const setWordParams = useCallback(async () => {
         if (isAuth) {
             const token = localStorage.getItem('token') as string;
             const userId = localStorage.getItem('userId') as string;
             const word = (await Service.aggregatedWordsById({ userId, wordId }, token)) as DataAggregatedWordsById[];
+            if (typeof word === 'number') {
+                setIsAuth(false);
+                localStorage.clear();
+                navigator('/authorization');
+                return;
+            }
             if (word[0]?.userWord?.difficulty === 'hard' && checkBoxHard.current !== null) {
                 (checkBoxHard.current as HTMLInputElement).checked = true;
                 setTextHard('Убрать из сложных');
@@ -60,12 +68,18 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                 }
                 totalLearnedWords += 1;
             }
+            if (word[0]?.userWord?.optional?.guessedCount) {
+                setTotalCorrect(+word[0].userWord.optional.guessedCount);
+            }
+            if (word[0]?.userWord?.optional?.notGuessedCount) {
+                setTotalInCorrect(+word[0].userWord.optional.notGuessedCount);
+            }
         }
-    }, [wordId, isAuth]);
+    }, [wordId, isAuth, navigator]);
 
     useEffect(() => {
-        fetchHardWords();
-    }, [fetchHardWords]);
+        setWordParams();
+    }, [setWordParams]);
 
     useEffect(() => {
         if (isLearned) {
@@ -219,6 +233,11 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                                     <span>{textHard}</span>
                                 </label>
                             </div>
+                        </div>
+                        <div className="card-action">
+                            <p>Статистика слова:</p>
+                            <p>Правильных ответов в играх: {totalCorrect}</p>
+                            <p>Ошибочных ответов в играх: {totalInCorrect}</p>
                         </div>
                     </div>
                 </div>
