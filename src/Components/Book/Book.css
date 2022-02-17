@@ -473,7 +473,7 @@ h2 {
 }
 .card-action_inner {
     display: flex;
-    margin-top: 15px;
+    margin: 15px;
     justify-content: space-between;
 }
 
@@ -566,7 +566,7 @@ nav .nav-wrapper {
     user-select: none;
 }
 .checkbox-first__label input:checked + .checkbox {
-    border-color: #25b9d4;
+    border-color: #4e9c36;
 }
 .checkbox-first__label .checkbox svg {
     position: absolute;
@@ -574,7 +574,7 @@ nav .nav-wrapper {
     left: -2px;
 }
 .checkbox-first__label input:checked + .checkbox svg path {
-    fill: #25b9d4;
+    fill: #4dd425;
 }
 .checkbox-first__label input:checked + .checkbox svg polyline {
     stroke-dashoffset: 0;
@@ -599,7 +599,7 @@ nav .nav-wrapper {
 }
 .checkbox-first__label .checkbox svg path {
     fill: none;
-    stroke: #25b9d4;
+    stroke: #3ada09;
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -637,4 +637,65 @@ nav .nav-wrapper {
     height: 0;
     opacity: 0;
     z-index: -1;
+}
+
+.border {
+    margin: 10px auto;
+}
+.border-top, 
+.border-bottom {
+    border: 3px solid #AF8B52;
+    height: 12px;
+    position: relative;
+}
+.border-top:before, 
+.border-top:after, 
+.border-bottom:before, 
+.border-bottom:after {
+    content: "";
+    position: absolute;
+    border: 3px solid #AF8B52;
+    width: 20px;
+    height: 20px;
+}
+.border-top:before {
+    border-radius: 0 100%;
+    left: -26px;
+    top: -26px;
+}
+.border-top:after {
+    border-radius: 100% 0;
+    right: -26px;
+    top: -26px;
+}
+.border-bottom:before {
+    border-radius: 100% 0;
+    left: -26px;
+    bottom: -26px;
+}
+.border-bottom:after {
+    border-radius: 0 100%;
+    right: -26px;
+    bottom: -26px;
+}
+.center {
+    border-left: 3px solid #AF8B52;
+    border-right: 3px solid #AF8B52;
+}
+.card-rez{
+    margin: 0;
+    color: #AF8B52;
+    font-family: 'Open Sans', sans-serif;
+    font-style: italic;
+    font-weight: 300;
+    text-align: center;
+    line-height: 1.5;
+}
+
+label span {
+    color: #684f29;
+    background-color: inherit;
+}
+.card {
+    margin: 10px auto;
 }
