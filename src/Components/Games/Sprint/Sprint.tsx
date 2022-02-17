@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import React, { useCallback, useEffect, useState } from 'react';
 import './Sprint.css';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
@@ -24,33 +24,7 @@ const Sprint = () => {
     const [className, setClassName] = useState<string>('answer');
     const [scoreRight, setScoreRight] = useState<number>(0);
     const [menuActive, setMenuActive] = useState<boolean>(false);
-
-    const handlerGroup = (event: React.MouseEvent) => {
-        const { dataset } = event.target as HTMLDivElement;
-
-        if (!dataset.group) {
-            return;
-        }
-
-        setCurrentGroup(+dataset.group);
-    };
-
-    const fetchPartialWords = useCallback(async () => {
-        let wordsPartial: DataWord[] = [];
-
-        if (group && page) {
-            wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
-        } else {
-            wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
-        }
-        const shuffledWords = shuffle(wordsPartial);
-
-        setWords(shuffledWords);
-    }, [currentPage, group, page, currentGroup]);
-
-    useEffect(() => {
-        fetchPartialWords();
-    }, [fetchPartialWords]);
+    const navigator = useNavigate();
 
     const generateWordsToGuess = () => {
         setClassName('answer');
@@ -82,6 +56,62 @@ const Sprint = () => {
         setWordIndex(wordIndex + 1);
         setClassName('answer show');
     };
+
+    const handlerGroup = (event: React.MouseEvent) => {
+        const { dataset } = event.target as HTMLDivElement;
+
+        switch (dataset.group) {
+            case '1':
+                navigator('/sprint/1/1');
+                generateWordsToGuess();
+                break;
+            case '2':
+                navigator('/sprint/2/1');
+                generateWordsToGuess();
+                break;
+            case '3':
+                navigator('/sprint/3/1');
+                generateWordsToGuess();
+                break;
+            case '4':
+                navigator('/sprint/4/1');
+                generateWordsToGuess();
+                break;
+            case '5':
+                navigator('/sprint/5/1');
+                generateWordsToGuess();
+                break;
+            case '6':
+                navigator('/sprint/6/1');
+                generateWordsToGuess();
+                break;
+            default:
+                break;
+        }
+
+        if (!dataset.group) {
+            return;
+        }
+
+        setCurrentGroup(+dataset.group);
+    };
+
+    const fetchPartialWords = useCallback(async () => {
+        let wordsPartial: DataWord[] = [];
+
+        if (group && page) {
+            wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
+        } else {
+            wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
+        }
+        const shuffledWords = shuffle(wordsPartial);
+
+        setWords(shuffledWords);
+    }, [currentPage, group, page, currentGroup]);
+
+    useEffect(() => {
+        fetchPartialWords();
+    }, [fetchPartialWords]);
 
     const viewRightAnswer = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
@@ -131,12 +161,11 @@ const Sprint = () => {
                                     setShowMain(!showMain);
                                 }}
                             >
-                                <h1>Игра Спринг</h1>
-                                <h2 style={{ display: group && page ? 'block' : 'none' }}>
+                                <h1>Игра Спринт</h1>
+                                <h2>
                                     Выберите уровень сложности
                                 </h2>
                                 <div
-                                    style={{ display: group && page ? 'flex' : 'none' }}
                                     className="groups"
                                     aria-hidden
                                     onClick={handlerGroup}
@@ -182,9 +211,9 @@ const Sprint = () => {
                                     <div className="timer">
                                         <CountdownCircleTimer
                                             isPlaying
-                                            duration={60}
+                                            duration={30}
                                             colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-                                            colorsTime={[7, 5, 2, 0]}
+                                            colorsTime={[20, 10, 5, 0]}
                                         >
                                             {({ remainingTime }) => remainingTime}
                                         </CountdownCircleTimer>
