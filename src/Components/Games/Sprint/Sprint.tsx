@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './Sprint.css';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Header from '../../Home/Header';
@@ -17,12 +17,14 @@ const Sprint = () => {
     const [currentGroup, setCurrentGroup] = useState<number>(0);
     const [currentPage, setCurrentPage] = useState<number>(0);
     const [wordsToGuess, setWordsToGuess] = useState<DataWord[]>([]);
-    // const [correctWordTranslate, setCorrectWordTranslate] = useState<string>('');
+    const [answer, setAnswer] = useState<string>('');
+    const [questionWord, setQuestionWord] = useState<string>('');
+    const [questionWordTranslate, setQuestionWordTranslate] = useState<string>('');
     const [wordIndex, setWordIndex] = useState<number>(0);
     const [className, setClassName] = useState<string>('answer');
     const [scoreRight, setScoreRight] = useState<number>(0);
     const [menuActive, setMenuActive] = useState<boolean>(false);
-
+    const [groupText, setGroupText] = useState<string>('Выбраны слова уроня А1');
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
 
@@ -54,31 +56,39 @@ const Sprint = () => {
         setClassName('answer');
         setShowAnswer(true);
         setShowMain(false);
-        // setCorrectWordTranslate(words[wordIndex].wordTranslate);
-
+        setQuestionWord(words[wordIndex].word);
         const arr: DataWord[] = [];
+        const generated: number[] = [];
         let num = 0;
+
         arr.push(words[wordIndex]);
-        num = getRandomNumber(20);
+
+        do {
+            num = getRandomNumber(20);
+        } while (generated.includes(num));
+
+        generated.push(num);
         arr.push(words[num]);
+
+        setQuestionWordTranslate(words[num].wordTranslate);
+
+        if (arr[0].id === arr[1].id) {
+            setAnswer('YES');
+        } else {
+            setAnswer('NO');
+        }
         setWordsToGuess(arr);
+        setWordIndex(wordIndex + 1);
         setClassName('answer show');
     };
 
     const viewRightAnswer = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
-        const correct = wordsToGuess[0].wordTranslate;
-        const variant = words.find((v) => v.id === dataset.answer)?.wordTranslate;
-        console.log(wordsToGuess[0].wordTranslate);
-        console.log(variant);
 
-        if (correct === variant) {
+        if (dataset.answer === answer) {
             setScoreRight(scoreRight + 1);
-        } else {
-            console.log('false');
-            // ещё нужно сохранять слова для отображения в конце!
         }
-        setWordIndex(wordIndex + 1);
+
         generateWordsToGuess();
     };
 
@@ -101,6 +111,56 @@ const Sprint = () => {
             }
         }
     }, [currentPage, currentGroup]);
+    useMemo(() => {
+        switch (currentGroup) {
+            case 1:
+                setGroupText('Выбраны слова уровня A1');
+                break;
+            case 2:
+                setGroupText('Выбраны слова уровня A2');
+                break;
+            case 3:
+                setGroupText('Выбраны слова уровня B1');
+                break;
+            case 4:
+                setGroupText('Выбраны слова уровня B2');
+                break;
+            case 5:
+                setGroupText('Выбраны слова уровня C1');
+                break;
+            case 6:
+                setGroupText('Выбраны слова уровня C2');
+                break;
+
+            default:
+                break;
+        }
+    }, [currentGroup]);
+    useMemo(() => {
+        switch (group) {
+            case '1':
+                setGroupText('Слова уровня A1');
+                break;
+            case '2':
+                setGroupText('Слова уровня A2');
+                break;
+            case '3':
+                setGroupText('Слова уровня B1');
+                break;
+            case '4':
+                setGroupText('Слова уровня B2');
+                break;
+            case '5':
+                setGroupText('Слова уровня C1');
+                break;
+            case '6':
+                setGroupText('Слова уровня C2');
+                break;
+
+            default:
+                break;
+        }
+    }, [group]);
 
     return (
         <div className="games-page">
@@ -110,18 +170,13 @@ const Sprint = () => {
                 <div className="card-content">
                     <div className="game-content">
                         {showMain && (
-                            <div
-                                aria-hidden
-                                onClick={() => {
-                                    setShowMain(!showMain);
-                                }}
-                            >
-                                <h1>Игра Спринг</h1>
-                                <h2 style={{ display: group && page ? 'block' : 'none' }}>
+                            <div>
+                                <h1>Игра Спринт</h1>
+                                <h2 style={{ display: group && page ? 'none' : 'block' }}>
                                     Выберите уровень сложности
                                 </h2>
                                 <div
-                                    style={{ display: group && page ? 'flex' : 'none' }}
+                                    style={{ display: group && page ? 'none' : 'flex' }}
                                     className="groups"
                                     aria-hidden
                                     onClick={handlerGroup}
@@ -145,6 +200,7 @@ const Sprint = () => {
                                         C2
                                     </span>
                                 </div>
+                                <span className="group-text"> {!group ? groupText : groupText} </span>
                             </div>
                         )}
                         <div
@@ -175,17 +231,17 @@ const Sprint = () => {
                                         </CountdownCircleTimer>
                                     </div>
                                     <div className="question-container">
-                                        <div className="question">{wordsToGuess[0].word}</div>
+                                        <div className="question">{questionWord}</div>
                                         <span className="this">ЭТО</span>
-                                        <div className="question">{wordsToGuess[1].wordTranslate}</div>
+                                        <div className="question">{questionWordTranslate}</div>
                                     </div>
                                 </div>
 
                                 <div className="btns" onClick={viewRightAnswer} aria-hidden>
-                                    {wordsToGuess.map((word, i) => (
+                                    {wordsToGuess.map((_, i) => (
                                         <div
                                             key={Math.random() * 1000}
-                                            data-answer={word.id}
+                                            data-answer={i === 0 ? 'YES' : 'NO'}
                                             className={className}
                                             aria-hidden
                                         >
