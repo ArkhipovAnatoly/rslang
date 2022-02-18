@@ -37,8 +37,6 @@ const AudioGame = () => {
     const [className, setClassName] = useState<string>('answer');
     const [menuActive, setMenuActive] = useState<boolean>(false);
 
-    const player = new Audio();
-
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
@@ -61,6 +59,7 @@ const AudioGame = () => {
 
     const fetchPartialWords = useCallback(async () => {
         let wordsPartial: DataWord[] = [];
+
         if (group && page) {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
         } else {
@@ -104,7 +103,8 @@ const AudioGame = () => {
         fetchPartialWords();
     }, [fetchPartialWords]);
 
-    const generateWordsToGuess = () => {
+    const generateWordsToGuess = useCallback(() => {
+        setClassName('');
         setIsNextDisabled(true);
         setIsDisabled(Array.from({ length: 5 }, () => false));
         setBtnNum('');
@@ -115,7 +115,7 @@ const AudioGame = () => {
         setCorrectWordId(words[wordIndex].id);
         setCorrectText('');
         setImgSrc('');
-
+        const player = new Audio();
         const audioUrl = `https://learn-english-words-app.herokuapp.com/${words[wordIndex].audio}`;
         player.src = audioUrl;
         player.play();
@@ -132,114 +132,152 @@ const AudioGame = () => {
         }
         const shuffledWordsToGuess = shuffle(arr);
         setWordsToGuess(shuffledWordsToGuess);
-    };
+    }, [wordIndex, words]);
 
-    const createCorrectWord = async (wordId: string) => {
-        if (isAuth) {
-            const token = localStorage.getItem('token') as string;
-            const userId = localStorage.getItem('userId') as string;
-            const word = (await Service.aggregatedWordsById({ userId, wordId }, token)) as DataAggregatedWordsById[];
-            if (typeof word === 'number') {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
-            }
-            if (!word[0]?.userWord) {
-                await Service.createUserWord({ userId, wordId }, token, {
-                    difficulty: 'answered',
-                    optional: { guessedCount: '1', testFieldBoolean: true },
-                });
-            } else {
-                let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
-                const notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
-                guessedCount += 1;
-                if (word[0]?.userWord?.difficulty === 'hard' && guessedCount >= 5 && notGuessedCount <= 1) {
-                    const optional = word[0]?.userWord.optional;
-                    await Service.updateUserWord({ userId, wordId }, token, {
-                        difficulty: 'learned',
-                        optional: { ...optional, guessedCount: `${guessedCount}` },
-                    });
-                } else if (word[0]?.userWord?.difficulty === 'answered' && guessedCount >= 3 && notGuessedCount <= 1) {
-                    const optional = word[0]?.userWord.optional;
-                    await Service.updateUserWord({ userId, wordId }, token, {
-                        difficulty: 'learned',
-                        optional: { ...optional, guessedCount: `${guessedCount}` },
+    const createCorrectWord = useCallback(
+        async (wordId: string) => {
+            if (isAuth) {
+                const token = localStorage.getItem('token') as string;
+                const userId = localStorage.getItem('userId') as string;
+                const word = (await Service.aggregatedWordsById(
+                    { userId, wordId },
+                    token
+                )) as DataAggregatedWordsById[];
+                if (typeof word === 'number') {
+                    setIsAuth(false);
+                    localStorage.clear();
+                    navigator('/authorization');
+                }
+                if (!word[0]?.userWord) {
+                    await Service.createUserWord({ userId, wordId }, token, {
+                        difficulty: 'answered',
+                        optional: { guessedCount: '1', testFieldBoolean: true },
                     });
                 } else {
+                    let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
+                    const notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
+                    guessedCount += 1;
+                    if (word[0]?.userWord?.difficulty === 'hard' && guessedCount >= 5 && notGuessedCount <= 1) {
+                        const optional = word[0]?.userWord.optional;
+                        await Service.updateUserWord({ userId, wordId }, token, {
+                            difficulty: 'learned',
+                            optional: { ...optional, guessedCount: `${guessedCount}` },
+                        });
+                    } else if (
+                        word[0]?.userWord?.difficulty === 'answered' &&
+                        guessedCount >= 3 &&
+                        notGuessedCount <= 1
+                    ) {
+                        const optional = word[0]?.userWord.optional;
+                        await Service.updateUserWord({ userId, wordId }, token, {
+                            difficulty: 'learned',
+                            optional: { ...optional, guessedCount: `${guessedCount}` },
+                        });
+                    } else {
+                        const optional = word[0]?.userWord.optional;
+                        await Service.updateUserWord({ userId, wordId }, token, {
+                            difficulty: 'answered',
+                            optional: { ...optional, guessedCount: `${guessedCount}` },
+                        });
+                    }
+                }
+            }
+        },
+        [isAuth, navigator]
+    );
+
+    const createIncorrectWord = useCallback(
+        async (wordId: string) => {
+            if (isAuth) {
+                const token = localStorage.getItem('token') as string;
+                const userId = localStorage.getItem('userId') as string;
+                const word = (await Service.aggregatedWordsById(
+                    { userId, wordId },
+                    token
+                )) as DataAggregatedWordsById[];
+                if (typeof word === 'number') {
+                    setIsAuth(false);
+                    localStorage.clear();
+                    navigator('/authorization');
+                }
+
+                if (!word[0]?.userWord) {
+                    await Service.createUserWord({ userId, wordId }, token, {
+                        difficulty: 'answered',
+                        optional: { notGuessedCount: '1', testFieldBoolean: true },
+                    });
+                } else {
+                    let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
                     const optional = word[0]?.userWord.optional;
+                    notGuessedCount += 1;
                     await Service.updateUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
-                        optional: { ...optional, guessedCount: `${guessedCount}` },
+                        optional: { ...optional, notGuessedCount: `${notGuessedCount}` },
                     });
                 }
             }
-        }
-    };
+        },
+        [isAuth, navigator]
+    );
 
-    const createIncorrectWord = async (wordId: string) => {
-        if (isAuth) {
-            const token = localStorage.getItem('token') as string;
-            const userId = localStorage.getItem('userId') as string;
-            const word = (await Service.aggregatedWordsById({ userId, wordId }, token)) as DataAggregatedWordsById[];
-            if (typeof word === 'number') {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
+    const checkAnswer = useCallback(
+        (event?: React.MouseEvent, key?: string) => {
+            let currentBtnNum = '';
+            const disabledArr = Array.from({ length: 5 }, () => false);
+            let variantWordId = '';
+            const target = event?.target as HTMLDivElement;
+            if (target) {
+                const { dataset } = target;
+                if (!dataset.answer) return;
+                variantWordId = dataset.answer;
+                currentBtnNum = dataset.num as string;
+            } else if (key) {
+                variantWordId = wordsToGuess[+key].id;
+                currentBtnNum = key;
             }
+            setBtnNum(currentBtnNum);
+            disabledArr.forEach((_, i) => {
+                if (i !== +(currentBtnNum as string)) {
+                    disabledArr[i] = true;
+                }
+            });
+            setIsDisabled(disabledArr);
 
-            if (!word[0]?.userWord) {
-                await Service.createUserWord({ userId, wordId }, token, {
-                    difficulty: 'answered',
-                    optional: { notGuessedCount: '1', testFieldBoolean: true },
-                });
+            const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
+            setImgSrc(imgUrl);
+            if (variantWordId === correctWordId) {
+                if (guessedWordsIDs.includes(variantWordId)) {
+                    return;
+                }
+
+                setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
+                setMessage('Верно!');
+                setClassName('correct');
+                createCorrectWord(variantWordId);
             } else {
-                let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
-                const optional = word[0]?.userWord.optional;
-                notGuessedCount += 1;
-                await Service.updateUserWord({ userId, wordId }, token, {
-                    difficulty: 'answered',
-                    optional: { ...optional, notGuessedCount: `${notGuessedCount}` },
-                });
+                setCorrectText(correctWord?.wordTranslate as string);
+                setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
+                setMessage('Ошибка');
+                setClassName('incorrect');
+                createIncorrectWord(correctWord?.id as string);
             }
-        }
-    };
-
-    const checkAnswer = (event: React.MouseEvent) => {
-        const target = event.target as HTMLDivElement;
-        const { dataset } = target;
-        if (!dataset.answer) return;
-        const currentBtnNum = dataset.num as string;
-        setBtnNum(currentBtnNum);
-        const disabledArr = Array.from({ length: 5 }, () => false);
-        disabledArr.forEach((_, i) => {
-            if (i !== +(currentBtnNum as string)) {
-                disabledArr[i] = true;
-            }
-        });
-        setIsDisabled(disabledArr);
-        const variantWordId = dataset.answer;
-        const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
-        setImgSrc(imgUrl);
-        if (variantWordId === correctWordId) {
-            if (guessedWordsIDs.includes(variantWordId)) {
-                return;
-            }
-
-            setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
-            setMessage('Верно!');
-            setClassName('correct');
-            createCorrectWord(variantWordId);
-        } else {
-            setCorrectText(correctWord?.wordTranslate as string);
-            setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
-            setMessage('Ошибка');
-            setClassName('incorrect');
-            createIncorrectWord(correctWord?.id as string);
-        }
-        setIsAnswered(true);
-        setIsNextDisabled(false);
-        setWordIndex(wordIndex + 1);
-    };
+            setIsAnswered(true);
+            setIsNextDisabled(false);
+            setWordIndex(wordIndex + 1);
+        },
+        [
+            correctWord?.id,
+            correctWord?.image,
+            correctWord?.wordTranslate,
+            correctWordId,
+            createCorrectWord,
+            createIncorrectWord,
+            guessedWordsIDs,
+            notGuessedWordsIDs,
+            wordIndex,
+            wordsToGuess,
+        ]
+    );
 
     useEffect(() => {
         if (wordIndex === wordLength - 1) {
@@ -260,6 +298,7 @@ const AudioGame = () => {
     }, [currentPage, currentGroup]);
 
     const audioHandler = (event: React.MouseEvent) => {
+        const player = new Audio();
         const { audio } = (event.target as HTMLElement).dataset;
         const audioUrl = `https://learn-english-words-app.herokuapp.com/${audio}`;
         if (player.paused) {
@@ -322,13 +361,38 @@ const AudioGame = () => {
         }
     }, [group]);
 
+    useEffect(() => {
+        const keyBoardHandler = (event: KeyboardEvent) => {
+            if ((event.code === 'Enter' || event.code === 'Space') && isAnswered) {
+                generateWordsToGuess();
+            } else if (showMain && event.code === 'Enter') {
+                generateWordsToGuess();
+            } else if (event.code === 'Escape' && showAnswer) {
+                setIsFinished(true);
+                setClassName('');
+            } else if ((showMain || showAnswer) && +event.key >= 1 && +event.key <= 5 && !isAnswered) {
+                if (showMain) {
+                    setCurrentGroup(+event.key);
+                    setIsDisabledStart(false);
+                } else if (showAnswer) {
+                    checkAnswer(undefined, `${+event.key - 1}`);
+                }
+            }
+        };
+        document.addEventListener('keydown', keyBoardHandler);
+
+        return () => {
+            document.removeEventListener('keydown', keyBoardHandler);
+        };
+    }, [showMain, showAnswer, isAnswered, checkAnswer, generateWordsToGuess]);
+
     return (
-        <div className="games-page">
+        <div className="games-page ">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
             <Menu menuActive={menuActive} setMenuActive={setMenuActive} />
             <div className="card">
                 <div className="card-content">
-                    <div className="game-content">
+                    <div className="game-content audio-game">
                         {showMain && (
                             <div>
                                 <h1>Игра Аудиовызов</h1>
@@ -358,7 +422,7 @@ const AudioGame = () => {
                                         C2
                                     </span>
                                 </div>
-                                <span className="group-text"> {!group ? groupText : groupText} </span>
+                                <span className="group-text"> {groupText} </span>
                             </div>
                         )}
                         <button
@@ -389,7 +453,8 @@ const AudioGame = () => {
                                                 setCurrentGroup(0);
                                                 setGuessedWordsIDs([]);
                                                 setNotGuessedWordsIDs([]);
-                                                setCurrentPage(currentPage + 1);
+                                                setIsDisabledStart(true);
+                                                setGroupText('');
                                             }}
                                         >
                                             close
@@ -510,7 +575,7 @@ const AudioGame = () => {
                                             aria-hidden
                                             type="button"
                                         >
-                                            {btnNum && i === +btnNum ? message : word.wordTranslate}
+                                            {btnNum && i === +btnNum ? message : `${i + 1}.  ${word.wordTranslate}`}
                                         </button>
                                     ))}
                                 </div>
@@ -523,7 +588,7 @@ const AudioGame = () => {
                                         onClick={generateWordsToGuess}
                                         type="button"
                                     >
-                                        {isFinished ? 'Еще раз' : 'Следующее слово'}
+                                        Следующее слово
                                     </button>
                                 )}
                                 <span>
