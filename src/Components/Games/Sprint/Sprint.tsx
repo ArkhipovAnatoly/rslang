@@ -32,7 +32,6 @@ const Sprint = () => {
     const [correctWordId, setCorrectWordId] = useState<string>('');
     const [guessedWordsIDs, setGuessedWordsIDs] = useState<string[]>([]);
     const [notGuessedWordsIDs, setNotGuessedWordsIDs] = useState<string[]>([]);
-    const [isAnswered, setIsAnswered] = useState<boolean>(false);
     const [isDisabledStart, setIsDisabledStart] = useState<boolean>(true);
 
     useEffect(() => {
@@ -133,7 +132,6 @@ const Sprint = () => {
         setClassName('answer');
         setShowAnswer(true);
         setShowMain(false);
-        setIsAnswered(false);
         setQuestionWord(words[wordIndex].word);
         setCorrectWordId(words[wordIndex].id);
 
@@ -255,8 +253,10 @@ const Sprint = () => {
                 variantWordId = dataset.id;
                 variantAnswer = dataset.answer as string;
             } else if (key) {
-                variantWordId = wordsToGuess[+key].id;
-                variantAnswer = key;
+                variantWordId = wordsToGuess[+key - 1].id;
+                variantAnswer = key === '1' ? 'YES' : 'NO';
+                console.log(`answer=${answer}`);
+                console.log(`variantAnswer=${variantAnswer}`);
             }
 
             if (variantAnswer === answer) {
@@ -267,7 +267,7 @@ const Sprint = () => {
                 setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
                 createIncorrectWord(correctWordId);
             }
-            setIsAnswered(true);
+
             setWordIndex(wordIndex + 1);
             generateWordsToGuess();
         },
@@ -367,21 +367,17 @@ const Sprint = () => {
 
     useEffect(() => {
         const keyBoardHandler = (event: KeyboardEvent) => {
-            if ((event.code === 'Enter' || event.code === 'Space') && isAnswered) {
+            if (showMain && event.code === 'Enter') {
                 generateWordsToGuess();
-            } else if (showMain && event.code === 'Enter') {
-                generateWordsToGuess();
-            } else if (event.code === 'Escape' && showAnswer) {
+            }
+            if (event.code === 'Escape' && showAnswer) {
                 setIsFinished(true);
                 setClassName('');
-            } else if ((showMain || showAnswer) && (+event.key === 1 || +event.key === 2) && !isAnswered) {
-                if (showMain) {
-                    setCurrentGroup(+event.key);
-                    setIsDisabledStart(false);
-                } else if (showAnswer) {
-                    const keyboardAnswer: string = event.key === '1' ? 'YES' : 'NO';
-                    checkAnswer(undefined, keyboardAnswer);
-                }
+            } else if (showMain && +event.key >= 1 && +event.key <= 6) {
+                setCurrentGroup(+event.key);
+                setIsDisabledStart(false);
+            } else if (showAnswer && (+event.key === 1 || +event.key === 2)) {
+                checkAnswer(undefined, `${event.key}`);
             }
         };
         document.addEventListener('keydown', keyBoardHandler);
@@ -389,7 +385,7 @@ const Sprint = () => {
         return () => {
             document.removeEventListener('keydown', keyBoardHandler);
         };
-    }, [showMain, showAnswer, isAnswered, checkAnswer, generateWordsToGuess]);
+    }, [showMain, showAnswer, checkAnswer, generateWordsToGuess]);
 
     return (
         <div className="games-page">

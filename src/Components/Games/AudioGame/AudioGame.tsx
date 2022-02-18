@@ -409,13 +409,11 @@ const AudioGame = () => {
             } else if (event.code === 'Escape' && showAnswer) {
                 setIsFinished(true);
                 setClassName('');
-            } else if ((showMain || showAnswer) && +event.key >= 1 && +event.key <= 5 && !isAnswered) {
-                if (showMain) {
-                    setCurrentGroup(+event.key);
-                    setIsDisabledStart(false);
-                } else if (showAnswer) {
-                    checkAnswer(undefined, `${+event.key - 1}`);
-                }
+            } else if (showMain && +event.key >= 1 && +event.key <= 6) {
+                setCurrentGroup(+event.key);
+                setIsDisabledStart(false);
+            } else if (showAnswer && +event.key >= 1 && +event.key <= 5 && !isAnswered) {
+                checkAnswer(undefined, `${+event.key - 1}`);
             }
         };
         document.addEventListener('keydown', keyBoardHandler);
