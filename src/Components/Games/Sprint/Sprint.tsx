@@ -25,6 +25,7 @@ const Sprint = () => {
     const [className, setClassName] = useState<string>('answer');
     const [scoreRight, setScoreRight] = useState<number>(0);
     const [menuActive, setMenuActive] = useState<boolean>(false);
+
     const [groupText, setGroupText] = useState<string>('');
     const [isAuth, setIsAuth] = useState<boolean>(false);
     const [wordLength, setWordLength] = useState<number>(-1);
@@ -125,6 +126,7 @@ const Sprint = () => {
         fetchPartialWords();
     }, [fetchPartialWords]);
 
+
     const generateWordsToGuess = useCallback(() => {
         let num: number = 0;
         const arr: DataWord[] = [];
@@ -154,6 +156,7 @@ const Sprint = () => {
         setWordIndex(wordIndex + 1);
         setClassName('answer show');
     }, [wordIndex, words]);
+
 
     const createCorrectWord = useCallback(
         async (wordId: string) => {
@@ -206,6 +209,27 @@ const Sprint = () => {
         },
         [isAuth, navigator]
     );
+
+    const fetchPartialWords = useCallback(async () => {
+        let wordsPartial: DataWord[] = [];
+
+        if (group && page) {
+            wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
+        } else {
+            wordsPartial = (await Service.getWords(currentGroup, currentPage)) as DataWord[];
+        }
+        const shuffledWords = shuffle(wordsPartial);
+
+        setWords(shuffledWords);
+    }, [currentPage, group, page, currentGroup]);
+
+    useEffect(() => {
+        fetchPartialWords();
+    }, [fetchPartialWords]);
+
+    const viewRightAnswer = (event: React.MouseEvent) => {
+        const { dataset } = event.target as HTMLDivElement;
+
 
     const createIncorrectWord = useCallback(
         async (wordId: string) => {
@@ -400,6 +424,7 @@ const Sprint = () => {
                                 </h2>
                                 <div
                                     style={{ display: group && page ? 'none' : 'flex' }}
+
                                     className="groups"
                                     aria-hidden
                                     onClick={handlerGroup}
@@ -551,9 +576,9 @@ const Sprint = () => {
                                     <div className="timer">
                                         <CountdownCircleTimer
                                             isPlaying
-                                            duration={60}
+                                            duration={30}
                                             colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-                                            colorsTime={[7, 5, 2, 0]}
+                                            colorsTime={[20, 10, 5, 0]}
                                         >
                                             {({ remainingTime }) => remainingTime}
                                         </CountdownCircleTimer>

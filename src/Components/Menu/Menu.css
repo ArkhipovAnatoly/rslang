@@ -33,6 +33,10 @@
 .burger-menu_menu li li {
     background-color: transparent;
 }
+.burger-menu_items a.active,
+.burger-menu_items li a.active {
+    background-color: #dfa6f9;
+}
 @media screen and (min-width: 900px) {
     .burger-menu_menu {
         display: none;

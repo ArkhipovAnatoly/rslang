@@ -1,5 +1,5 @@
 import './Home.css';
-import { Link, useParams } from 'react-router-dom';
+import { Link, NavLink, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 const Header = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuActive: (value: boolean) => void }) => {
@@ -23,54 +23,61 @@ const Header = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuAct
                         <Link to="/">RSLang</Link>
                     </h1>
                 </div>
+                <div className='header_greeting'>
+                    {isAuth ? (
+                                <p>Приветствуем Вас,{localStorage.getItem('name')}!</p>
+                            ) : (
+                                <p>Приветствуем Вас!</p>
+                            )}
+                </div>
                 <nav id="mainav" className="fl_right">
                     <ul className="clear">
-                        <li className="active">
-                            <Link to="/">Главная</Link>
+                        <li>
+                            <NavLink to="/">Главная</NavLink>
                         </li>
 
                         <li>
-                            <Link to="/book/1/1">Учебник</Link>
+                            <NavLink to="/book/1/1">Учебник</NavLink>
                             <ul>
                                 <li>
-                                    <Link to="/book/1/1">Раздел1</Link>
+                                    <NavLink  to="/book/1/1">Раздел1</NavLink>
                                 </li>
                                 <li>
-                                    <Link to="/book/2/1">Раздел2</Link>
+                                    <NavLink to="/book/2/1">Раздел2</NavLink>
                                 </li>
                                 <li>
-                                    <Link to="/book/3/1">Раздел3</Link>
+                                    <NavLink to="/book/3/1">Раздел3</NavLink>
                                 </li>
                                 <li>
-                                    <Link to="/book/4/1">Раздел4</Link>
+                                    <NavLink to="/book/4/1">Раздел4</NavLink>
                                 </li>
                                 <li>
-                                    <Link to="/book/5/1">Раздел5</Link>
+                                    <NavLink to="/book/5/1">Раздел5</NavLink>
                                 </li>
                                 <li>
-                                    <Link to="/book/6/1">Раздел6</Link>
+                                    <NavLink to="/book/6/1">Раздел6</NavLink>
                                 </li>
                             </ul>
                         </li>
                         <li>
-                            <Link to={group && page ? `/games/${group}/${page}` : '/games'}>Игры</Link>
+                            <NavLink to={group && page ? `/games/${group}/${page}` : '/games'}>Игры</NavLink>
                             <ul>
                                 <li>
-                                    <Link to={group && page ? `/audioGame/${group}/${page}` : '/audioGame'}>
+                                    <NavLink to={group && page ? `/audioGame/${group}/${page}` : '/audioGame'}>
                                         Аудиовызов
-                                    </Link>
+                                    </NavLink>
                                 </li>
                                 <li>
-                                    <Link to={group && page ? `/sprint/${group}/${page}` : '/sprint'}>Спринт</Link>
+                                    <NavLink to={group && page ? `/sprint/${group}/${page}` : '/sprint'}>Спринт</NavLink>
                                 </li>
                             </ul>
                         </li>
 
                         <li>
                             {isAuth ? (
-                                <Link to="/statistics">{localStorage.getItem('name')}</Link>
+                                <NavLink to="/statistics">{localStorage.getItem('name')}</NavLink>
                             ) : (
-                                <Link to="/authorization">Войти</Link>
+                                <NavLink to="/authorization">Войти</NavLink>
                             )}
                         </li>
 

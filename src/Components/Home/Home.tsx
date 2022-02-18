@@ -25,7 +25,7 @@ const Home = () => {
                                 <li>Аудиосопровождение</li>
                             </ul>
                             <p className="link">
-                                <Link to="/">Read More &raquo;</Link>
+                                <Link to="/bookInfo">Read More &raquo;</Link>
                             </p>
                         </article>
                         <article className="one_third">
@@ -37,7 +37,7 @@ const Home = () => {
                                 <li>-процент правильных ответов за день</li>
                             </ul>
                             <p className="link">
-                                <Link to="/">Read More &raquo;</Link>
+                                <Link to="/statInfo">Read More &raquo;</Link>
                             </p>
                         </article>
                         <article className="one_third">
@@ -49,7 +49,7 @@ const Home = () => {
                                 <li>- восприятие на слух и навыки перевода</li>
                             </ul>
                             <p className="link">
-                                <Link to="/">Read More &raquo;</Link>
+                                <Link to="/gameInfo">Read More &raquo;</Link>
                             </p>
                         </article>
                     </div>
@@ -82,36 +82,21 @@ const Home = () => {
                                     <figure className="one_quarter first row3_1" />
                                     <article className="three_quarter">
                                         <h2 className="heading">Разработчик 1</h2>
-                                        <p className="shortintro">Разработчик высший класс!&hellip;</p>
-                                        <p className="link">
-                                            <a className="btn" href="/">
-                                                Read More &raquo;
-                                            </a>
-                                        </p>
-                                    </article>
-                                </li>
-                                <li className="clear">
-                                    <figure className="one_quarter first row3_2" />
-                                    <article className="three_quarter">
-                                        <h2 className="heading">Разработчик 2</h2>
-                                        <p className="shortintro">Разработчик высший класс!&hellip;</p>
-                                        <p className="link">
-                                            <a className="btn" href="/">
-                                                Read More &raquo;
-                                            </a>
-                                        </p>
+                                        <p className="shortintro">Разработчик высший класс!</p>
                                     </article>
                                 </li>
                                 <li className="clear">
                                     <figure className="one_quarter first row3_3" />
                                     <article className="three_quarter">
+                                        <h2 className="heading">Дария</h2>
+                                        <p className="shortintro">Разработка дизайна, навигации по приложению, воссоедиение всех кусочков проекта в одно целое.</p>
+                                    </article>
+                                </li>
+                                <li className="clear">
+                                    <figure className="one_quarter first row3_2" />
+                                    <article className="three_quarter">
                                         <h2 className="heading">Разработчик 3</h2>
-                                        <p className="shortintro">Разработчик высший класс!&hellip;</p>
-                                        <p className="link">
-                                            <a className="btn" href="/">
-                                                Read More &raquo;
-                                            </a>
-                                        </p>
+                                        <p className="shortintro">Разработчик высший класс!</p>
                                     </article>
                                 </li>
                             </ul>

@@ -23,7 +23,8 @@ h2 {
 /* Header
 --------------------------------------------------------------------------------------------------------------- */
 #header {
-    align-items: center;
+    align-items: baseline;
+    box-shadow: 0 2px 2px 0 rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%), 0 1px 5px 0 rgb(0 0 0 / 20%);
 }
 .clear {
     display: flex;
@@ -40,6 +41,14 @@ h2 {
     text-transform: none;
     font-size: 40px;
     font-family: 'Charm', cursive;
+    text-shadow: 4px 4px 3px rgb(34 149 0 / 37%);
+}
+.header_greeting p {
+    font-family: 'Roboto', sans-serif;
+    color: #557c2b;
+    font-size: 24px;
+    margin: 0;
+    text-shadow: 4px 4px 3px rgb(34 149 0 / 37%);
 }
 .fl_right {
     display: flex;
@@ -169,10 +178,12 @@ h2 {
 .row3_3 {
     max-width: 107px;
     width: 100%;
-    background-image: url('../../../public/assets/img/row3-3.png');
+    background-image: url('../../../public/assets/img/IMG_20200409_121420.jpg');
     background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
+    background-position: center top 27%;
+    background-size: cover;
+    height: 107px;
+    margin: 0 30px;
 }
 /* Latest Posts */
 
@@ -364,7 +375,10 @@ h2 {
     transition: 0.3s;
 }
 .githab a {
-    padding: 0 10px;
+    padding: 0 25px;
+    background-image: url('../../../public/assets/img/git.png');
+    background-size: contain;
+    background-repeat: no-repeat;
 }
 /* Copyright
 --------------------------------------------------------------------------------------------------------------- */
@@ -673,22 +687,9 @@ td {
 
 /* Colours
 --------------------------------------------------------------------------------------------------------------- */
-body {
-    color: #888888;
-    background-color: #111111;
-}
 
 a {
     color: #8aba56;
-}
-
-hr,
-.borderedbox {
-    border-color: #d7d7d7;
-}
-label span {
-    color: #ff0000;
-    background-color: inherit;
 }
 .overlay {
     background-color: rgba(0, 0, 0, 0.6);
@@ -819,7 +820,7 @@ label span {
 #mainav li a {
     color: inherit;
 }
-#mainav .active a,
+#mainav a.active,
 #mainav a:hover,
 #mainav li:hover > a {
     color: #ffffff;

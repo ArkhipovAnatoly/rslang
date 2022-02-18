@@ -11,6 +11,11 @@ import AudioGame from './Components/Games/AudioGame/AudioGame';
 import Sprint from './Components/Games/Sprint/Sprint';
 import Home from './Components/Home/Home';
 import Statistics from './Components/Statistics/Statistics';
+import BookInfo from './Components/Home/About/BookInfo';
+import StatInfo from './Components/Home/About/StatInfo';
+import GameInfo from './Components/Home/About/GameInfo';
+
+
 
 function App() {
     return (
@@ -25,9 +30,13 @@ function App() {
                     <Route path="/games/:group/:page" element={<Games />} />
                     <Route path="/audioGame" element={<AudioGame />} />
                     <Route path="/audioGame/:group/:page" element={<AudioGame />} />
+                    <Route path="/sprint/" element={<Sprint />} />
                     <Route path="/sprint/:group/:page" element={<Sprint />} />
                     <Route path="/sprint" element={<Sprint />} />
                     <Route path="/statistics" element={<Statistics />} />
+                    <Route path="/bookInfo" element={<BookInfo/>} />
+                    <Route path="/statInfo" element={<StatInfo/>} />
+                    <Route path="/gameInfo" element={<GameInfo/>} />
                 </Routes>
             </GlobalContextProvider>
         </Router>

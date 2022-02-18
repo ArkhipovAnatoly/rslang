@@ -3,14 +3,14 @@ import './Home.css';
 const Footer = () => (
     <div className="wrapper row6">
         <div id="copyright" className="clear">
-            <a className="rss" href="https://rs.school/js/" rel="noopener">
+            <a className="rss" href="https://rs.school/js/" target="_blank" rel="noopener noreferrer">
                 {' '}
                 <span className="rss-year">`22</span>{' '}
             </a>
             <div className="githab">
-                <a href="/">Разработчик 1</a>
-                <a href="/">Разработчик 2</a>
-                <a href="/">Разработчик 3</a>
+                <a href="/" target="_blank" rel="noopener noreferrer">Анатолий</a>
+                <a href="https://github.com/DaryaEnina" target="_blank" rel="noopener noreferrer">Дария</a>
+                <a href="/" target="_blank" rel="noopener noreferrer">Марина</a>
             </div>
         </div>
     </div>

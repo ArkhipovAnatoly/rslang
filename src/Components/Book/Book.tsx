@@ -226,26 +226,6 @@ const Book = () => {
 
     return (
         <div id="wrapper">
-            {/* <nav>
-                <div id="top" className="nav-wrapper blue">
-                    <MediaQuery minWidth={605}>
-                        <Link to="/" className="brand-logo">
-                            RS-Lang
-                        </Link>
-                    </MediaQuery>
-
-                    <ul id="nav-mobile" className="right">
-                        <li>
-                            <Link to="/">Главная</Link>
-                        </li>
-                        <li>
-                            <Link to="/games">Игры</Link>
-                        </li>
-
-                        <li>{isAuth ? localStorage.getItem('name') : <Link to="/registration">Войти</Link>}</li>
-                    </ul>
-                </div>
-            </nav> */}
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
             <Menu menuActive={menuActive} setMenuActive={setMenuActive} />
             <a
