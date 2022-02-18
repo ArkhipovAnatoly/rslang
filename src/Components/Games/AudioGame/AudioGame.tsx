@@ -36,7 +36,7 @@ const AudioGame = () => {
     const [groupText, setGroupText] = useState<string>('');
     const [className, setClassName] = useState<string>('answer');
     const [menuActive, setMenuActive] = useState<boolean>(false);
-
+    const [audioUrl, setAudioUrl] = useState<string>('');
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
@@ -132,6 +132,12 @@ const AudioGame = () => {
     }, [fetchPartialWords]);
 
     const generateWordsToGuess = useCallback(() => {
+        let num: number = 0;
+        const arr: DataWord[] = [];
+        const generated: number[] = [];
+        const player = new Audio(`https://learn-english-words-app.herokuapp.com/${words[wordIndex].audio}`);
+        setAudioUrl(`https://learn-english-words-app.herokuapp.com/${words[wordIndex].audio}`);
+        player.play();
         setClassName('');
         setIsNextDisabled(true);
         setIsDisabled(Array.from({ length: 5 }, () => false));
@@ -143,14 +149,9 @@ const AudioGame = () => {
         setCorrectWordId(words[wordIndex].id);
         setCorrectText('');
         setImgSrc('');
-        const player = new Audio('');
-        const audioUrl = `https://learn-english-words-app.herokuapp.com/${words[wordIndex].audio}`;
-        player.src = audioUrl;
-        player.play();
-        const arr: DataWord[] = [];
-        const generated: number[] = [];
+
         arr.push(words[wordIndex]);
-        let num = 0;
+
         for (let index = 0; index < 4; index += 1) {
             do {
                 num = getRandomNumber(words.length);
@@ -250,10 +251,11 @@ const AudioGame = () => {
 
     const checkAnswer = useCallback(
         (event?: React.MouseEvent, key?: string) => {
-            let currentBtnNum = '';
+            let currentBtnNum: string = '';
+            let variantWordId: string = '';
             const disabledArr = Array.from({ length: 5 }, () => false);
-            let variantWordId = '';
             const target = event?.target as HTMLDivElement;
+
             if (target) {
                 const { dataset } = target;
                 if (!dataset.answer) return;
@@ -316,6 +318,15 @@ const AudioGame = () => {
     }, [wordIndex, wordLength]);
 
     useEffect(() => {
+        if (group && page && wordIndex === 20) {
+            setCurrentPage(currentPage + 1);
+        }
+        if (wordIndex === 20) {
+            setWordIndex(0);
+        }
+    }, [wordIndex, currentPage, group, page]);
+
+    useEffect(() => {
         if (currentPage === 30) {
             setCurrentPage(0);
             setCurrentGroup(currentGroup + 1);
@@ -326,9 +337,9 @@ const AudioGame = () => {
     }, [currentPage, currentGroup]);
 
     const audioHandler = (event: React.MouseEvent) => {
-        const player = new Audio('');
         const { audio } = (event.target as HTMLElement).dataset;
-        const audioUrl = `https://learn-english-words-app.herokuapp.com/${audio}`;
+        const player = new Audio(`https://learn-english-words-app.herokuapp.com/${audio}}`);
+
         if (player.paused) {
             player.src = audioUrl;
             player.play();
@@ -461,7 +472,7 @@ const AudioGame = () => {
                             onClick={generateWordsToGuess}
                             type="button"
                         >
-                            Начать игру
+                            Начать игру (Enter)
                         </button>
 
                         {showAnswer && (
@@ -586,6 +597,10 @@ const AudioGame = () => {
                                         aria-hidden
                                         style={{ cursor: 'pointer', color: 'red' }}
                                         className={`material-icon medium `}
+                                        onClick={() => {
+                                            const player = new Audio(audioUrl);
+                                            player.play();
+                                        }}
                                     >
                                         audiotrack
                                     </i>{' '}
@@ -603,7 +618,7 @@ const AudioGame = () => {
                                             aria-hidden
                                             type="button"
                                         >
-                                            {btnNum && i === +btnNum ? message : `${i + 1}.  ${word.wordTranslate}`}
+                                            {btnNum && i === +btnNum ? message : `(${i + 1})  ${word.wordTranslate}`}
                                         </button>
                                     ))}
                                 </div>
@@ -616,7 +631,7 @@ const AudioGame = () => {
                                         onClick={generateWordsToGuess}
                                         type="button"
                                     >
-                                        Следующее слово
+                                        Следующее слово (Пробел)
                                     </button>
                                 )}
 
@@ -628,7 +643,7 @@ const AudioGame = () => {
                                         setClassName('');
                                     }}
                                 >
-                                    Закончить игру
+                                    Закончить игру (Esc)
                                 </div>
                             </div>
                         )}
