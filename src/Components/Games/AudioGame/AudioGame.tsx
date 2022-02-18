@@ -115,7 +115,7 @@ const AudioGame = () => {
         setCorrectWordId(words[wordIndex].id);
         setCorrectText('');
         setImgSrc('');
-        const player = new Audio();
+        const player = new Audio('');
         const audioUrl = `https://learn-english-words-app.herokuapp.com/${words[wordIndex].audio}`;
         player.src = audioUrl;
         player.play();
@@ -298,7 +298,7 @@ const AudioGame = () => {
     }, [currentPage, currentGroup]);
 
     const audioHandler = (event: React.MouseEvent) => {
-        const player = new Audio();
+        const player = new Audio('');
         const { audio } = (event.target as HTMLElement).dataset;
         const audioUrl = `https://learn-english-words-app.herokuapp.com/${audio}`;
         if (player.paused) {
