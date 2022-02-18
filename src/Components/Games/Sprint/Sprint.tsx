@@ -25,7 +25,6 @@ const Sprint = () => {
     const [className, setClassName] = useState<string>('answer');
     const [scoreRight, setScoreRight] = useState<number>(0);
     const [menuActive, setMenuActive] = useState<boolean>(false);
-    const [isDisabled, setIsDisabled] = useState<boolean>(true);
     const [groupText, setGroupText] = useState<string>('');
     const [isAuth, setIsAuth] = useState<boolean>(false);
     const [wordLength, setWordLength] = useState<number>(-1);
@@ -33,6 +32,8 @@ const Sprint = () => {
     const [correctWordId, setCorrectWordId] = useState<string>('');
     const [guessedWordsIDs, setGuessedWordsIDs] = useState<string[]>([]);
     const [notGuessedWordsIDs, setNotGuessedWordsIDs] = useState<string[]>([]);
+    const [isAnswered, setIsAnswered] = useState<boolean>(false);
+    const [isDisabledStart, setIsDisabledStart] = useState<boolean>(true);
 
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
@@ -52,7 +53,7 @@ const Sprint = () => {
         }
 
         setCurrentGroup(+dataset.group);
-        setIsDisabled(false);
+        setIsDisabledStart(false);
     };
 
     const fetchPartialWords = useCallback(async () => {
@@ -82,14 +83,39 @@ const Sprint = () => {
                 navigator('/authorization');
                 return;
             }
+            const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
 
-            learnedWords.forEach((v) => {
+            learnedWordsFiltered.forEach((v) => {
                 wordsPartial.forEach((k, i) => {
                     if (k.id === v._id) {
                         wordsPartial.splice(i, 1);
                     }
                 });
             });
+            if (learnedWords.length !== 0 && learnedWords.length < 20 && +page !== 1) {
+                const allLearned = (await Service.aggregatedWords(
+                    {
+                        userId,
+                        group: '',
+                        page: '',
+                        wordsPerPage: '',
+                        filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
+                    },
+                    token
+                )) as DataWord[];
+                const prevPageLearnedWords = allLearned.filter((v) => v.group === +group - 1 && v.page === +page - 2);
+                const isPrevPageLearned = prevPageLearnedWords.length === 20;
+                if (!isPrevPageLearned) {
+                    const extraWords = (await Service.getWords(
+                        +(group as string) - 1,
+                        +(page as string) - 2
+                    )) as DataWord[];
+                    const extraWordsShuffled = shuffle(extraWords);
+                    for (let index = 0; index < learnedWordsFiltered.length; index += 1) {
+                        wordsPartial.push(extraWordsShuffled[index]);
+                    }
+                }
+            }
         }
         const shuffledWords = shuffle(wordsPartial);
         setWords(shuffledWords);
@@ -100,15 +126,16 @@ const Sprint = () => {
         fetchPartialWords();
     }, [fetchPartialWords]);
 
-    const generateWordsToGuess = () => {
+    const generateWordsToGuess = useCallback(() => {
+        let num: number = 0;
+        const arr: DataWord[] = [];
+        const generated: number[] = [];
         setClassName('answer');
         setShowAnswer(true);
         setShowMain(false);
+        setIsAnswered(false);
         setQuestionWord(words[wordIndex].word);
         setCorrectWordId(words[wordIndex].id);
-        const arr: DataWord[] = [];
-        const generated: number[] = [];
-        let num = 0;
 
         arr.push(words[wordIndex]);
 
@@ -118,7 +145,6 @@ const Sprint = () => {
 
         generated.push(num);
         arr.push(words[num]);
-
         setQuestionWordTranslate(words[num].wordTranslate);
 
         if (arr[0].id === arr[1].id) {
@@ -129,94 +155,135 @@ const Sprint = () => {
         setWordsToGuess(arr);
         setWordIndex(wordIndex + 1);
         setClassName('answer show');
-    };
+    }, [wordIndex, words]);
 
-    const createCorrectWord = async (wordId: string) => {
-        if (isAuth) {
-            const token = localStorage.getItem('token') as string;
-            const userId = localStorage.getItem('userId') as string;
-            const word = (await Service.aggregatedWordsById({ userId, wordId }, token)) as DataAggregatedWordsById[];
-            if (typeof word === 'number') {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
-            }
-            if (!word[0]?.userWord) {
-                await Service.createUserWord({ userId, wordId }, token, {
-                    difficulty: 'answered',
-                    optional: { guessedCount: '1', testFieldBoolean: true },
-                });
-            } else {
-                let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
-                const notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
-                guessedCount += 1;
-                if (word[0]?.userWord?.difficulty === 'hard' && guessedCount >= 5 && notGuessedCount <= 1) {
-                    const optional = word[0]?.userWord.optional;
-                    await Service.updateUserWord({ userId, wordId }, token, {
-                        difficulty: 'learned',
-                        optional: { ...optional, guessedCount: `${guessedCount}` },
-                    });
-                } else if (word[0]?.userWord?.difficulty === 'answered' && guessedCount >= 3 && notGuessedCount <= 1) {
-                    const optional = word[0]?.userWord.optional;
-                    await Service.updateUserWord({ userId, wordId }, token, {
-                        difficulty: 'learned',
-                        optional: { ...optional, guessedCount: `${guessedCount}` },
+    const createCorrectWord = useCallback(
+        async (wordId: string) => {
+            if (isAuth) {
+                const token = localStorage.getItem('token') as string;
+                const userId = localStorage.getItem('userId') as string;
+                const word = (await Service.aggregatedWordsById(
+                    { userId, wordId },
+                    token
+                )) as DataAggregatedWordsById[];
+                if (typeof word === 'number') {
+                    setIsAuth(false);
+                    localStorage.clear();
+                    navigator('/authorization');
+                }
+                if (!word[0]?.userWord) {
+                    await Service.createUserWord({ userId, wordId }, token, {
+                        difficulty: 'answered',
+                        optional: { guessedCount: '1', testFieldBoolean: true },
                     });
                 } else {
+                    let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
+                    const notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
+                    guessedCount += 1;
+                    if (word[0]?.userWord?.difficulty === 'hard' && guessedCount >= 5 && notGuessedCount <= 1) {
+                        const optional = word[0]?.userWord.optional;
+                        await Service.updateUserWord({ userId, wordId }, token, {
+                            difficulty: 'learned',
+                            optional: { ...optional, guessedCount: `${guessedCount}` },
+                        });
+                    } else if (
+                        word[0]?.userWord?.difficulty === 'answered' &&
+                        guessedCount >= 3 &&
+                        notGuessedCount <= 1
+                    ) {
+                        const optional = word[0]?.userWord.optional;
+                        await Service.updateUserWord({ userId, wordId }, token, {
+                            difficulty: 'learned',
+                            optional: { ...optional, guessedCount: `${guessedCount}` },
+                        });
+                    } else {
+                        const optional = word[0]?.userWord.optional;
+                        await Service.updateUserWord({ userId, wordId }, token, {
+                            difficulty: 'answered',
+                            optional: { ...optional, guessedCount: `${guessedCount}` },
+                        });
+                    }
+                }
+            }
+        },
+        [isAuth, navigator]
+    );
+
+    const createIncorrectWord = useCallback(
+        async (wordId: string) => {
+            if (isAuth) {
+                const token = localStorage.getItem('token') as string;
+                const userId = localStorage.getItem('userId') as string;
+                const word = (await Service.aggregatedWordsById(
+                    { userId, wordId },
+                    token
+                )) as DataAggregatedWordsById[];
+                if (typeof word === 'number') {
+                    setIsAuth(false);
+                    localStorage.clear();
+                    navigator('/authorization');
+                }
+
+                if (!word[0]?.userWord) {
+                    await Service.createUserWord({ userId, wordId }, token, {
+                        difficulty: 'answered',
+                        optional: { notGuessedCount: '1', testFieldBoolean: true },
+                    });
+                } else {
+                    let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
                     const optional = word[0]?.userWord.optional;
+                    notGuessedCount += 1;
                     await Service.updateUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
-                        optional: { ...optional, guessedCount: `${guessedCount}` },
+                        optional: { ...optional, notGuessedCount: `${notGuessedCount}` },
                     });
                 }
             }
-        }
-    };
+        },
+        [isAuth, navigator]
+    );
 
-    const createIncorrectWord = async (wordId: string) => {
-        if (isAuth) {
-            const token = localStorage.getItem('token') as string;
-            const userId = localStorage.getItem('userId') as string;
-            const word = (await Service.aggregatedWordsById({ userId, wordId }, token)) as DataAggregatedWordsById[];
-            if (typeof word === 'number') {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
+    const checkAnswer = useCallback(
+        (event?: React.MouseEvent, key?: string) => {
+            const target = event?.target as HTMLDivElement;
+            let variantWordId: string = '';
+            let variantAnswer: string = '';
+
+            if (target) {
+                const { dataset } = target;
+                if (!dataset.id) return;
+                variantWordId = dataset.id;
+                variantAnswer = dataset.answer as string;
+            } else if (key) {
+                variantWordId = wordsToGuess[+key].id;
+                variantAnswer = key;
             }
 
-            if (!word[0]?.userWord) {
-                await Service.createUserWord({ userId, wordId }, token, {
-                    difficulty: 'answered',
-                    optional: { notGuessedCount: '1', testFieldBoolean: true },
-                });
+            if (variantAnswer === answer) {
+                setScoreRight(scoreRight + 1);
+                setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
+                createCorrectWord(variantWordId as string);
             } else {
-                let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
-                const optional = word[0]?.userWord.optional;
-                notGuessedCount += 1;
-                await Service.updateUserWord({ userId, wordId }, token, {
-                    difficulty: 'answered',
-                    optional: { ...optional, notGuessedCount: `${notGuessedCount}` },
-                });
+                setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
+                createIncorrectWord(correctWordId);
             }
-        }
-    };
-
-    const viewRightAnswer = (event: React.MouseEvent) => {
-        const { dataset } = event.target as HTMLDivElement;
-        if (!dataset.id) return;
-        const variantWordId = dataset.id;
-
-        if (dataset.answer === answer) {
-            setScoreRight(scoreRight + 1);
-            setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
-            createCorrectWord(dataset.id as string);
-        } else {
-            setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
-            createIncorrectWord(correctWordId);
-        }
-        setWordIndex(wordIndex + 1);
-        generateWordsToGuess();
-    };
+            setIsAnswered(true);
+            setWordIndex(wordIndex + 1);
+            generateWordsToGuess();
+        },
+        [
+            answer,
+            correctWordId,
+            createCorrectWord,
+            createIncorrectWord,
+            generateWordsToGuess,
+            guessedWordsIDs,
+            notGuessedWordsIDs,
+            scoreRight,
+            wordIndex,
+            wordsToGuess,
+        ]
+    );
 
     useEffect(() => {
         if (wordIndex === wordLength - 1) {
@@ -245,6 +312,7 @@ const Sprint = () => {
             }
         }
     }, [currentPage, currentGroup]);
+
     useMemo(() => {
         switch (currentGroup) {
             case 1:
@@ -270,6 +338,7 @@ const Sprint = () => {
                 break;
         }
     }, [currentGroup]);
+
     useMemo(() => {
         switch (group) {
             case '1':
@@ -295,6 +364,32 @@ const Sprint = () => {
                 break;
         }
     }, [group]);
+
+    useEffect(() => {
+        const keyBoardHandler = (event: KeyboardEvent) => {
+            if ((event.code === 'Enter' || event.code === 'Space') && isAnswered) {
+                generateWordsToGuess();
+            } else if (showMain && event.code === 'Enter') {
+                generateWordsToGuess();
+            } else if (event.code === 'Escape' && showAnswer) {
+                setIsFinished(true);
+                setClassName('');
+            } else if ((showMain || showAnswer) && (+event.key === 1 || +event.key === 2) && !isAnswered) {
+                if (showMain) {
+                    setCurrentGroup(+event.key);
+                    setIsDisabledStart(false);
+                } else if (showAnswer) {
+                    const keyboardAnswer: string = event.key === '1' ? 'YES' : 'NO';
+                    checkAnswer(undefined, keyboardAnswer);
+                }
+            }
+        };
+        document.addEventListener('keydown', keyBoardHandler);
+
+        return () => {
+            document.removeEventListener('keydown', keyBoardHandler);
+        };
+    }, [showMain, showAnswer, isAnswered, checkAnswer, generateWordsToGuess]);
 
     return (
         <div className="games-page">
@@ -341,11 +436,11 @@ const Sprint = () => {
                             className="btn-start"
                             style={{ display: showMain ? 'block' : 'none' }}
                             aria-hidden
-                            disabled={group && page ? false : isDisabled}
+                            disabled={group && page ? false : isDisabledStart}
                             type="button"
                             onClick={generateWordsToGuess}
                         >
-                            Начать игру
+                            Начать игру (Enter)
                         </button>
 
                         {showAnswer && (
@@ -365,7 +460,8 @@ const Sprint = () => {
                                                 setCurrentGroup(0);
                                                 setGuessedWordsIDs([]);
                                                 setNotGuessedWordsIDs([]);
-                                                setCurrentPage(currentPage + 1);
+                                                setIsDisabledStart(true);
+                                                setGroupText('');
                                             }}
                                         >
                                             close
@@ -461,7 +557,7 @@ const Sprint = () => {
                                     </div>
                                 </div>
 
-                                <div className="btns" onClick={viewRightAnswer} aria-hidden>
+                                <div className="btns" onClick={checkAnswer} aria-hidden>
                                     {wordsToGuess.map((v, i) => (
                                         <div
                                             key={Math.random() * 1000}
@@ -470,21 +566,22 @@ const Sprint = () => {
                                             className={className}
                                             aria-hidden
                                         >
-                                            {i === 0 ? 'ДА' : 'НЕТ'}
+                                            {i === 0 ? `(${i + 1}). ДА` : `(${i + 1}).НЕТ`}
                                         </div>
                                     ))}
                                 </div>
 
-                                <div
+                                <button
                                     className="btn-exit"
                                     aria-hidden
                                     onClick={() => {
                                         setIsFinished(true);
                                         setScoreRight(0);
                                     }}
+                                    type="button"
                                 >
-                                    Закончить игру
-                                </div>
+                                    Закончить игру (Esc)
+                                </button>
                             </div>
                         )}
                     </div>
