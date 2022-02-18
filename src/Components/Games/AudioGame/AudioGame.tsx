@@ -107,8 +107,8 @@ const AudioGame = () => {
                     },
                     token
                 )) as DataWord[];
-                const prevPageLearned = allLearned.filter((v) => v.group === +group - 1 && v.page === +page - 2);
-                const isPrevPageLearned = prevPageLearned.length === 20;
+                const prevPageLearnedWords = allLearned.filter((v) => v.group === +group - 1 && v.page === +page - 2);
+                const isPrevPageLearned = prevPageLearnedWords.length === 20;
                 if (!isPrevPageLearned) {
                     const extraWords = (await Service.getWords(
                         +(group as string) - 1,
