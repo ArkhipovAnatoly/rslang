@@ -136,3 +136,11 @@
     transform: rotateX(90deg) translateY(-22px);
     background: #de2121;
 }
+
+.card-title {
+    font-family: 'Roboto', sans-serif;
+    color: #557c2b;
+    font-size: 24px;
+    margin: 0;
+    text-shadow: 4px 4px 3px rgb(34 149 0 / 37%);
+}
