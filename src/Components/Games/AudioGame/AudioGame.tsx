@@ -74,26 +74,54 @@ const AudioGame = () => {
                     userId,
                     group: '',
                     page: '',
-                    wordsPerPage: '20',
+                    wordsPerPage: '',
                     filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
                 },
                 token
             )) as DataWord[];
+
             if (typeof learnedWords === 'number') {
                 setIsAuth(false);
                 localStorage.clear();
                 navigator('/authorization');
                 return;
             }
+            const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
 
-            learnedWords.forEach((v) => {
+            learnedWordsFiltered.forEach((v) => {
                 wordsPartial.forEach((k, i) => {
                     if (k.id === v._id) {
                         wordsPartial.splice(i, 1);
                     }
                 });
             });
+
+            if (learnedWords.length < 20 && +page !== 1 && +page !== 30) {
+                const allLearned = (await Service.aggregatedWords(
+                    {
+                        userId,
+                        group: '',
+                        page: '',
+                        wordsPerPage: '',
+                        filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
+                    },
+                    token
+                )) as DataWord[];
+                const prevPageLearned = allLearned.filter((v) => v.group === +group - 1 && v.page === +page - 2);
+                const isPrevPageLearned = prevPageLearned.length === 20;
+                if (!isPrevPageLearned) {
+                    const extraWords = (await Service.getWords(
+                        +(group as string) - 1,
+                        +(page as string) - 2
+                    )) as DataWord[];
+                    const extraWordsShuffled = shuffle(extraWords);
+                    for (let index = 0; index < learnedWordsFiltered.length; index += 1) {
+                        wordsPartial.push(extraWordsShuffled[index]);
+                    }
+                }
+            }
         }
+
         const shuffledWords = shuffle(wordsPartial);
         setWords(shuffledWords);
         setWordLength(wordsPartial.length);
@@ -591,11 +619,7 @@ const AudioGame = () => {
                                         Следующее слово
                                     </button>
                                 )}
-                                <span>
-                                    {isAuth
-                                        ? `Количество слов,оствшихся для изучения на странице ${page}: ${words.length}`
-                                        : ''}{' '}
-                                </span>
+
                                 <div
                                     className="btn-end"
                                     aria-hidden
