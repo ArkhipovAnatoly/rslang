@@ -5,7 +5,7 @@ import Header from '../../Home/Header';
 import Footer from '../../Home/Footer';
 import Service, { DataAggregatedWordsById, DataWord } from '../../../Service';
 import Menu from '../../Menu/Menu';
-import shuffle from '../../../Utils/shaffleArray';
+import shuffle from '../../../Utils/shuffleArray';
 import getRandomNumber from '../../../Utils/random';
 
 const AudioGame = () => {
@@ -96,7 +96,7 @@ const AudioGame = () => {
                 });
             });
 
-            if (learnedWords.length < 20 && +page !== 1 && +page !== 30) {
+            if (learnedWords.length !== 0 && learnedWords.length < 20 && +page !== 1) {
                 const allLearned = (await Service.aggregatedWords(
                     {
                         userId,
