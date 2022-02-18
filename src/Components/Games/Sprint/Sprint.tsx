@@ -442,6 +442,7 @@ const Sprint = () => {
                                 {isFinished && (
                                     <div className="result">
                                         <i
+                                            title="Выход"
                                             style={{ cursor: 'pointer' }}
                                             aria-hidden
                                             className="material-icons align-left"
@@ -459,6 +460,17 @@ const Sprint = () => {
                                             }}
                                         >
                                             close
+                                        </i>
+                                        <i
+                                            title="Продолжить"
+                                            style={{ cursor: 'pointer' }}
+                                            aria-hidden
+                                            className="material-icons align-left"
+                                            onClick={() => {
+                                                setIsFinished(false);
+                                            }}
+                                        >
+                                            play_arrow
                                         </i>
 
                                         <h4 className="result-title">Результаты</h4>
