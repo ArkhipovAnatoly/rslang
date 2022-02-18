@@ -69,6 +69,8 @@
     border-radius: 20px;
     margin: 70px auto 30px;
     background-color: #ee6e73;
+    outline: none;
+    border: none;
 }
 .result {
     z-index: 1000;
