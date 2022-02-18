@@ -11,7 +11,7 @@ const Menu = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuActiv
         >
             <ul className="burger-menu_items">
                 <li className="active">
-                    <NavLink  to="/"  >Главная</NavLink>
+                    <NavLink to="/">Главная</NavLink>
                 </li>
                 <li>
                     <NavLink to="/book/1/1">Учебник</NavLink>
@@ -40,7 +40,9 @@ const Menu = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuActiv
                     <NavLink to={group && page ? `/games/${group}/${page}` : '/games'}>Игры</NavLink>
                     <ul>
                         <li>
-                            <NavLink to={group && page ? `/audioGame/${group}/${page}` : '/audioGame'}>Аудиовызов</NavLink>
+                            <NavLink to={group && page ? `/audioGame/${group}/${page}` : '/audioGame'}>
+                                Аудиовызов
+                            </NavLink>
                         </li>
                         <li>
                             <NavLink to={group && page ? `/sprint/${group}/${page}` : '/sprint'}>Спринт</NavLink>

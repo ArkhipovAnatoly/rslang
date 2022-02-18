@@ -215,7 +215,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                             audiotrack
                         </i>{' '}
                     </h2>
-            
+
                     <div className="card horizontal">
                         <div className="card-image">
                             <img src={imageUrl} alt="img" />
@@ -271,15 +271,12 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                                 <div className="card-action" />
                                 <p className="info" ref={pRefExample} />
                                 <p className="info">{props.textExampleTranslate}</p>
-
-                            
                             </div>
                         </div>
-                        
                     </div>
-                    <p className='card-rez'>Статистика слова:</p>
-                    <p className='card-rez'>Правильных ответов в играх: {totalCorrect}</p>
-                    <p className='card-rez'>Ошибочных ответов в играх: {totalInCorrect}</p>
+                    <p className="card-rez">Статистика слова:</p>
+                    <p className="card-rez">Правильных ответов в играх: {totalCorrect}</p>
+                    <p className="card-rez">Ошибочных ответов в играх: {totalInCorrect}</p>
                 </div>
                 <div className="border-bottom" />
             </div>

@@ -23,12 +23,8 @@ const Header = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuAct
                         <Link to="/">RSLang</Link>
                     </h1>
                 </div>
-                <div className='header_greeting'>
-                    {isAuth ? (
-                                <p>Приветствуем Вас,{localStorage.getItem('name')}!</p>
-                            ) : (
-                                <p>Приветствуем Вас!</p>
-                            )}
+                <div className="header_greeting">
+                    {isAuth ? <p>Приветствуем Вас,{localStorage.getItem('name')}!</p> : <p>Приветствуем Вас!</p>}
                 </div>
                 <nav id="mainav" className="fl_right">
                     <ul className="clear">
@@ -40,7 +36,7 @@ const Header = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuAct
                             <NavLink to="/book/1/1">Учебник</NavLink>
                             <ul>
                                 <li>
-                                    <NavLink  to="/book/1/1">Раздел1</NavLink>
+                                    <NavLink to="/book/1/1">Раздел1</NavLink>
                                 </li>
                                 <li>
                                     <NavLink to="/book/2/1">Раздел2</NavLink>
@@ -68,7 +64,9 @@ const Header = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuAct
                                     </NavLink>
                                 </li>
                                 <li>
-                                    <NavLink to={group && page ? `/sprint/${group}/${page}` : '/sprint'}>Спринт</NavLink>
+                                    <NavLink to={group && page ? `/sprint/${group}/${page}` : '/sprint'}>
+                                        Спринт
+                                    </NavLink>
                                 </li>
                             </ul>
                         </li>
