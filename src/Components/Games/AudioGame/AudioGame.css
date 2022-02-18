@@ -69,10 +69,10 @@
     background-color: palegreen;
     border-radius: 50%;
     padding: 15px 0;
-    width: 130px;
+    width: 150px;
     margin: 20px auto;
     cursor: pointer;
-    font: bold 20px 'Neucha', cursive;
+    font: bold 18px 'Neucha', cursive;
 }
 
 .game-container {
@@ -81,7 +81,9 @@
     display: flex;
     flex-direction: column;
 }
-
+.audio-game {
+    width: 800px;
+}
 .material-icon {
     font-family: 'Material Icons';
     font-weight: normal;
@@ -109,14 +111,14 @@
 .answer {
     outline: none;
     border: none;
-    width: 130px;
-    height: 35px;
+    width: 150px;
+    height: 60px;
     padding: 5px;
     background-color: rgb(7 3 94 / 60%);
     color: white;
     cursor: pointer;
-    opacity: 1;
-    border-radius: 20px;
+    border-radius: 40px;
+    text-transform: capitalize;
 }
 
 .answer.correct {
@@ -140,7 +142,7 @@
     background-color: powderblue;
     border-radius: 10%;
     padding: 7px 0;
-    width: 170px;
+    width: 220px;
     margin: 20px auto;
     cursor: pointer;
     font: bold 20px 'Neucha', cursive;
@@ -150,10 +152,10 @@
     background-color: lightpink;
     border-radius: 50%;
     padding: 15px 0;
-    width: 130px;
+    width: 160px;
     margin: 20px auto;
     cursor: pointer;
-    font: bold 20px 'Neucha', cursive;
+    font: bold 16px 'Neucha', cursive;
 }
 
 .audio-question {

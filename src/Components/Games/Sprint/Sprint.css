@@ -29,6 +29,14 @@
     justify-content: center;
     gap: 40px;
 }
+.btn-start {
+    border: none;
+    outline: none;
+}
+.btn-start:disabled {
+    background-color: #c4c4c4;
+    cursor: auto;
+}
 
 .score {
     color: rgb(248, 132, 0);
@@ -62,4 +70,9 @@
     border-radius: 20px;
     margin: 70px auto 30px;
     background-color: #ee6e73;
+    outline: none;
+    border: none;
+}
+.result {
+    z-index: 1000;
 }
