@@ -255,8 +255,6 @@ const Sprint = () => {
             } else if (key) {
                 variantWordId = wordsToGuess[+key - 1].id;
                 variantAnswer = key === '1' ? 'YES' : 'NO';
-                console.log(`answer=${answer}`);
-                console.log(`variantAnswer=${variantAnswer}`);
             }
 
             if (variantAnswer === answer) {
@@ -264,7 +262,7 @@ const Sprint = () => {
                 setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
                 createCorrectWord(variantWordId as string);
             } else {
-                setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
+                setNotGuessedWordsIDs([...notGuessedWordsIDs, correctWordId]);
                 createIncorrectWord(correctWordId);
             }
 
@@ -482,7 +480,8 @@ const Sprint = () => {
                                                                             key={words[index].id}
                                                                             className="collection-item"
                                                                         >
-                                                                            {words[index].word}
+                                                                            {words[index].word} -{' '}
+                                                                            {words[index].wordTranslate}
                                                                         </td>
                                                                     </tr>
                                                                 );
@@ -513,7 +512,8 @@ const Sprint = () => {
                                                                             key={words[index].id}
                                                                             className="collection-item"
                                                                         >
-                                                                            {words[index].word}
+                                                                            {words[index].word} -{' '}
+                                                                            {words[index].wordTranslate}
                                                                         </td>
                                                                     </tr>
                                                                 );

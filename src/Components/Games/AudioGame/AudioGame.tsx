@@ -257,6 +257,7 @@ const AudioGame = () => {
             const target = event?.target as HTMLDivElement;
 
             if (target) {
+                console.log(target);
                 const { dataset } = target;
                 if (!dataset.answer) return;
                 variantWordId = dataset.answer;
@@ -271,10 +272,10 @@ const AudioGame = () => {
                     disabledArr[i] = true;
                 }
             });
-            setIsDisabled(disabledArr);
 
-            const imgUrl = `https://learn-english-words-app.herokuapp.com/${correctWord?.image}`;
-            setImgSrc(imgUrl);
+            setIsDisabled(disabledArr);
+            setImgSrc(`https://learn-english-words-app.herokuapp.com/${correctWord?.image}`);
+
             if (variantWordId === correctWordId) {
                 if (guessedWordsIDs.includes(variantWordId)) {
                     return;
@@ -286,17 +287,16 @@ const AudioGame = () => {
                 createCorrectWord(variantWordId);
             } else {
                 setCorrectText(correctWord?.wordTranslate as string);
-                setNotGuessedWordsIDs([...notGuessedWordsIDs, variantWordId]);
+                setNotGuessedWordsIDs([...notGuessedWordsIDs, correctWordId]);
                 setMessage('Ошибка');
                 setClassName('incorrect');
-                createIncorrectWord(correctWord?.id as string);
+                createIncorrectWord(correctWordId);
             }
             setIsAnswered(true);
             setIsNextDisabled(false);
             setWordIndex(wordIndex + 1);
         },
         [
-            correctWord?.id,
             correctWord?.image,
             correctWord?.wordTranslate,
             correctWordId,
@@ -338,10 +338,9 @@ const AudioGame = () => {
 
     const audioHandler = (event: React.MouseEvent) => {
         const { audio } = (event.target as HTMLElement).dataset;
-        const player = new Audio(`https://learn-english-words-app.herokuapp.com/${audio}}`);
+        const player = new Audio(`https://learn-english-words-app.herokuapp.com/${audio}`);
 
         if (player.paused) {
-            player.src = audioUrl;
             player.play();
         } else {
             player.pause();
