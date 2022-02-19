@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './AudioGame.css';
 import Header from '../../Home/Header';
 import Footer from '../../Home/Footer';
-import Service, { DataAggregatedWordsById, DataWord } from '../../../Service';
+import Service, { DataAggregatedWordsById, DataStat, DataWord } from '../../../Service';
 import Menu from '../../Menu/Menu';
 import shuffle from '../../../Utils/shuffleArray';
 import getRandomNumber from '../../../Utils/random';
@@ -133,7 +133,7 @@ const AudioGame = () => {
         fetchPartialWords();
     }, [fetchPartialWords]);
 
-    const generateWordsToGuess = useCallback(() => {
+    const generateWordsToGuess = useCallback(async () => {
         let num: number = 0;
         const arr: DataWord[] = [];
         const generated: number[] = [];
@@ -163,7 +163,22 @@ const AudioGame = () => {
         }
         const shuffledWordsToGuess = shuffle(arr);
         setWordsToGuess(shuffledWordsToGuess);
-    }, [wordIndex, words]);
+        if (isAuth) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+            const { learnedWords, optional } = responseStat;
+            const totalQuestionsAudioGame = optional.totalQuestionsAudioGame + 1;
+            await Service.updateUserStat(
+                {
+                    learnedWords,
+                    optional: { ...optional, totalQuestionsAudioGame },
+                },
+                userId,
+                token
+            );
+        }
+    }, [wordIndex, words, isAuth]);
 
     const createCorrectWord = useCallback(
         async (wordId: string) => {
@@ -179,21 +194,54 @@ const AudioGame = () => {
                     localStorage.clear();
                     navigator('/authorization');
                 }
+                const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+                const { learnedWords, optional: optionalStat } = responseStat;
+                const totalCorrectAnswersAudioGame = optionalStat.totalCorrectAnswersAudioGame + 1;
+
+                await Service.updateUserStat(
+                    {
+                        learnedWords,
+                        optional: { ...optionalStat, totalCorrectAnswersAudioGame },
+                    },
+                    userId,
+                    token
+                );
+
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
                         optional: { guessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
+
+                    const newWordsAudioGame = optionalStat.newWordsAudioGame + 1;
+
+                    await Service.updateUserStat(
+                        {
+                            learnedWords,
+                            optional: { ...optionalStat, newWordsAudioGame },
+                        },
+                        userId,
+                        token
+                    );
                 } else {
                     let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
                     const notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
                     guessedCount += 1;
                     if (word[0]?.userWord?.difficulty === 'hard' && guessedCount >= 5 && notGuessedCount <= 1) {
-                        const optional = word[0]?.userWord.optional;
+                        const optionalUserWord = word[0]?.userWord.optional;
                         await Service.updateUserWord({ userId, wordId }, token, {
                             difficulty: 'learned',
-                            optional: { ...optional, guessedCount: `${guessedCount}` },
+                            optional: { ...optionalUserWord, guessedCount: `${guessedCount}` },
                         });
+                        const learnedWordsUpdate = learnedWords + 1;
+                        await Service.updateUserStat(
+                            {
+                                learnedWords: learnedWordsUpdate,
+                                optional: { ...optionalStat },
+                            },
+                            userId,
+                            token
+                        );
                     } else if (
                         word[0]?.userWord?.difficulty === 'answered' &&
                         guessedCount >= 3 &&
@@ -204,6 +252,15 @@ const AudioGame = () => {
                             difficulty: 'learned',
                             optional: { ...optional, guessedCount: `${guessedCount}` },
                         });
+                        const learnedWordsUpdate = learnedWords + 1;
+                        await Service.updateUserStat(
+                            {
+                                learnedWords: learnedWordsUpdate,
+                                optional: { ...optionalStat },
+                            },
+                            userId,
+                            token
+                        );
                     } else {
                         const optional = word[0]?.userWord.optional;
                         await Service.updateUserWord({ userId, wordId }, token, {
@@ -237,7 +294,36 @@ const AudioGame = () => {
                         difficulty: 'answered',
                         optional: { notGuessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
+                    const response = (await Service.getUserStat(userId, token)) as DataStat;
+                    const { learnedWords, optional } = response;
+                    const newWordsAudioGame = optional.newWordsAudioGame + 1;
+
+                    await Service.updateUserStat(
+                        {
+                            learnedWords,
+                            optional: { ...optional, newWordsAudioGame },
+                        },
+                        userId,
+                        token
+                    );
                 } else {
+                    if (word[0]?.userWord.difficulty === 'learned') {
+                        const response = (await Service.getUserStat(userId, token)) as DataStat;
+                        const { learnedWords, optional } = response;
+                        const learnedWordsUpdate = learnedWords - 1;
+                        if (learnedWordsUpdate >= 0) {
+                            await Service.updateUserStat(
+                                {
+                                    learnedWords: learnedWordsUpdate,
+                                    optional: {
+                                        ...optional,
+                                    },
+                                },
+                                userId,
+                                token
+                            );
+                        }
+                    }
                     let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
                     const optional = word[0]?.userWord.optional;
                     notGuessedCount += 1;
@@ -426,6 +512,70 @@ const AudioGame = () => {
         };
     }, [showMain, showAnswer, isAnswered, checkAnswer, generateWordsToGuess]);
 
+    const saveWordInRow = useCallback(async () => {
+        if (isAnswered && isAuth) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            const response = (await Service.getUserStat(userId, token)) as DataStat;
+
+            const { optional, learnedWords } = response;
+            const wordsInRow = optional.wordsInRowAudioGame;
+            if (answersInRow > wordsInRow) {
+                await Service.updateUserStat(
+                    {
+                        learnedWords,
+                        optional: {
+                            ...optional,
+                            wordsInRowAudioGame: answersInRow,
+                        },
+                    },
+
+                    userId,
+                    token
+                );
+            }
+        }
+    }, [isAnswered, isAuth, answersInRow]);
+
+    useEffect(() => {
+        saveWordInRow();
+    }, [saveWordInRow]);
+
+    const initStatistic = useCallback(async () => {
+        if (isAuth) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            const responseStat = await Service.getUserStat(userId, token);
+            if (typeof responseStat === 'number' && responseStat === 404) {
+                await Service.updateUserStat(
+                    {
+                        learnedWords: 0,
+                        optional: {
+                            newWordsAudioGame: 0,
+                            newWordsSprintGame: 0,
+                            wordsInRowAudioGame: 0,
+                            wordsInRowSprintGame: 0,
+                            totalQuestionsAudioGame: 0,
+                            totalQuestionSprintGame: 0,
+                            totalCorrectAnswersAudioGame: 0,
+                            totalCorrectAnswersSprintGame: 0,
+                        },
+                    },
+                    userId,
+                    token
+                );
+            } else if (typeof responseStat === 'number' && responseStat === 401) {
+                setIsAuth(false);
+                localStorage.clear();
+                navigator('/authorization');
+            }
+        }
+    }, [isAuth, navigator]);
+
+    useEffect(() => {
+        initStatistic();
+    }, [initStatistic]);
+
     return (
         <div className="game-page ">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
@@ -496,6 +646,7 @@ const AudioGame = () => {
                                                 setNotGuessedWordsIDs([]);
                                                 setIsDisabledStart(true);
                                                 setGroupText('');
+                                                setAnswersInRow(0);
                                             }}
                                         >
                                             close
