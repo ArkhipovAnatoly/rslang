@@ -172,7 +172,7 @@ const Sprint = () => {
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
-                        optional: { guessedCount: '1', testFieldBoolean: true },
+                        optional: { guessedCount: '1',inGame:true, testFieldBoolean: true },
                     });
                 } else {
                     let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
@@ -225,7 +225,7 @@ const Sprint = () => {
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
-                        optional: { notGuessedCount: '1', testFieldBoolean: true },
+                        optional: { notGuessedCount: '1', inGame:true, testFieldBoolean: true },
                     });
                 } else {
                     let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
