@@ -14,6 +14,7 @@ import Statistics from './Components/Statistics/Statistics';
 import BookInfo from './Components/Home/About/BookInfo';
 import StatInfo from './Components/Home/About/StatInfo';
 import GameInfo from './Components/Home/About/GameInfo';
+import Error from './Components/Errors/Error';
 
 function App() {
     return (
@@ -32,9 +33,11 @@ function App() {
                     <Route path="/sprint/:group/:page" element={<Sprint />} />
                     <Route path="/sprint" element={<Sprint />} />
                     <Route path="/statistics" element={<Statistics />} />
-                    <Route path="/bookInfo" element={<BookInfo />} />
-                    <Route path="/statInfo" element={<StatInfo />} />
-                    <Route path="/gameInfo" element={<GameInfo />} />
+                    <Route path="/bookInfo" element={<BookInfo/>} />
+                    <Route path="/statInfo" element={<StatInfo/>} />
+                    <Route path="/gameInfo" element={<GameInfo/>} />
+                    <Route path="/error/404" element={<Error/>} />
+
                 </Routes>
             </GlobalContextProvider>
         </Router>

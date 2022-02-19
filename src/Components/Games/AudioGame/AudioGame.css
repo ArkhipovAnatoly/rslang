@@ -1,3 +1,14 @@
+.game-page {
+    min-height: 450px;
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: linear-gradient(-45deg, #fdfb7d, #fd9999, #d5ff73, #e3a6ff, #96fff1, #7b9eff);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+}
 .game-content {
     width: 600px;
     margin: 0 auto;
@@ -10,6 +21,7 @@
     background-blend-mode: soft-light;
     background-position: center;
     animation: form-show 0.2s;
+    background: radial-gradient(circle, #0077ea, #1f4f96, #1b2949, #000);
 }
 
 .game-content h1 {
@@ -22,10 +34,10 @@
 
 .game-content h2 {
     position: relative;
-    color: #7e7e7e;
+    color: #58b2ff;
     font: bold 20px 'Neucha', cursive;
     line-height: 20px;
-    margin: 10px 0 30px;
+    margin: 30px 0;
 }
 
 .groups {
@@ -52,7 +64,7 @@
 }
 
 .level:nth-child(3) {
-    background-color: darkgrey;
+    background-color: yellowgreen;
 }
 
 .level:nth-child(4) {
@@ -67,12 +79,14 @@
 
 .btn-start {
     background-color: palegreen;
-    border-radius: 50%;
-    padding: 15px 0;
-    width: 150px;
-    margin: 20px auto;
-    cursor: pointer;
     font: bold 18px 'Neucha', cursive;
+    width: 200px;
+    height: 50px;
+    padding: 5px;
+    color: #5b1616;
+    cursor: pointer;
+    border-radius: 20px;
+    margin: 40px auto 30px;
 }
 
 .game-container {
@@ -114,21 +128,26 @@
     width: 150px;
     height: 60px;
     padding: 5px;
-    background-color: rgb(7 3 94 / 60%);
+    background-color: rgb(255 255 255 / 60%);
     color: white;
     cursor: pointer;
     border-radius: 40px;
     text-transform: capitalize;
+} 
+
+.answer:hover {
+    background-color: yellow;
+    color: #000;
 }
 
 .answer.correct {
-    background-color: green;
+    background-color: #13c113;
 }
 .answer.incorrect {
-    background-color: red;
+    background-color: #ff6767;
 }
 .answer:disabled {
-    background-color: #7e7e7e;
+    background-color: #7e7e7e29;
     cursor: auto;
 }
 .answer.show {
@@ -137,25 +156,30 @@
 }
 
 .btn-next {
+    background-color: #0087d0;
+    width: 260px;
+    font: bold 20px 'Neucha', cursive;
+    height: 60px;
+    padding: 5px;
+    color: white;
+    cursor: pointer;
+    border-radius: 20px;
+    margin: 0px auto 30px;
     outline: none;
     border: none;
-    background-color: powderblue;
-    border-radius: 10%;
-    padding: 7px 0;
-    width: 220px;
-    margin: 20px auto;
-    cursor: pointer;
-    font: bold 20px 'Neucha', cursive;
 }
 
 .btn-end {
-    background-color: lightpink;
-    border-radius: 50%;
-    padding: 15px 0;
-    width: 160px;
-    margin: 20px auto;
+    width: 200px;
+    height: 35px;
+    padding: 5px;
+    color: white;
     cursor: pointer;
-    font: bold 16px 'Neucha', cursive;
+    border-radius: 20px;
+    margin: 50px auto 30px;
+    background-color: #ee9b6e;
+    outline: none;
+    border: none;
 }
 
 .audio-question {
@@ -164,18 +188,22 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    margin: 20px auto;
 }
 
 .right-image {
     width: 270px;
     height: auto;
-    border-radius: 10%;
+    margin: 20px;
+    border-radius: 50%;
 }
+
 .right-answer {
     font-family: 'Roboto';
     font-size: 25px;
     letter-spacing: 2px;
     text-transform: capitalize;
+    color: #58b2ff;
 }
 .result {
     position: absolute;
@@ -188,7 +216,26 @@
     overflow-y: scroll;
     align-items: center;
     background-color: #fff;
-    padding: 10px;
+    padding: 10px; background: linear-gradient(-45deg, #fdfb7d, #228fd8,  #415fb1);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    border-radius: 1%;
+}
+
+.result-title {
+        color: wheat;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 .result-info {
     width: 100%;
@@ -206,4 +253,6 @@ td {
 .group-text,
 .words-count {
     font-size: 25px;
+    color: #58b2ff;
+    margin: 20px auto;
 }

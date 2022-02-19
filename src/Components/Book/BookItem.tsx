@@ -58,12 +58,12 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             if (word[0]?.userWord?.difficulty === 'hard' && checkBoxHard.current !== null) {
                 (checkBoxHard.current as HTMLInputElement).checked = true;
                 setTextHard('Убрать из сложных');
-                setColorText('blue');
+                setColorText('#EB4C42');
             }
             if (word[0]?.userWord?.difficulty === 'learned' && checkBoxLearned.current !== null) {
                 (checkBoxLearned.current as HTMLInputElement).checked = true;
                 setTextLearned('Изучено');
-                setColorText('green');
+                setColorText('#50C878');
                 setIsLearned(true);
                 if (totalLearnedWords === 20) {
                     totalLearnedWords = 0;
@@ -141,7 +141,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
         const { learnedWords, optional } = responseStat;
 
         if (checked) {
-            setColorText('green');
+            setColorText('#50C878');
             setTextLearned('Изучено');
             totalLearnedWords += 1;
             setIsLearned(true);
@@ -192,7 +192,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
         if (checked) {
-            setColorText('blue');
+            setColorText('#EB4C42');
             setTextHard('Убрать из сложных');
 
             const data = await Service.createUserWord({ userId, wordId }, token, {
@@ -229,7 +229,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             <div className="border">
                 <div className="border-top" />
                 <div className="center">
-                    <h2 style={{ color: colorText }} className="header header-card">
+                    <h2 style={{ backgroundColor: colorText }} className="header header-card">
                         {props.word} - {props.transcription} - {props.wordTranslate}{' '}
                         <i
                             aria-hidden

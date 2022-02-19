@@ -352,6 +352,21 @@ const Sprint = () => {
         ]
     );
 
+    const renderTime = ({ remainingTime }) => {
+        if (remainingTime === 0) {
+            setTimeout(() => {
+                setIsFinished(true);
+                setScoreRight(0);
+            }, 1000);
+        }
+      
+        return (
+          <div className="timer">
+            <div className="value">{remainingTime}</div>
+          </div>
+        );
+    };
+
     useEffect(() => {
         if (wordIndex === wordLength - 1) {
             setWordIndex(0);
@@ -454,6 +469,7 @@ const Sprint = () => {
         };
     }, [showMain, showAnswer, checkAnswer, generateWordsToGuess]);
 
+
     const saveWordInRow = useCallback(async () => {
         if (isAnswered && isAuth) {
             const token = localStorage.getItem('token') as string;
@@ -517,16 +533,17 @@ const Sprint = () => {
         initStatistic();
     }, [initStatistic]);
 
+
     return (
-        <div className="games-page">
+        <div className="game-page">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
             <Menu menuActive={menuActive} setMenuActive={setMenuActive} />
-            <div className="card">
-                <div className="card-content">
+            <div className="game">
+                <div className="game-sprint">
                     <div className="game-content">
                         {showMain && (
-                            <div>
-                                <h1>Игра Спринт</h1>
+                            <div className="sign">
+                                <span className="sign__word">Игра Спринт</span>
                                 <h2 style={{ display: group && page ? 'none' : 'block' }}>
                                     Выберите уровень сложности
                                 </h2>
@@ -606,12 +623,15 @@ const Sprint = () => {
                                             play_arrow
                                         </i>
 
-                                        <h4 className="result-title">Результаты</h4>
+                                        <h4 className="result-title">Результат</h4>
                                         <div className="result-info">
                                             <table className="highlight">
                                                 <thead>
                                                     <tr>
-                                                        <th style={{ color: 'green' }}>Знаю</th>
+                                                        <th style={{ 
+                                                            color: 'green',
+                                                            font: 'bold 20px Vibur, cursive',
+                                                            }}>Знаю</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -625,7 +645,20 @@ const Sprint = () => {
                                                                             key={words[index].id}
                                                                             className="collection-item"
                                                                         >
-                                                                            {words[index].word} -{' '}
+                                                                            {words[index].word}
+                                                                            <i
+                                                                                data-audio={words[index].audio}
+                                                                                aria-hidden
+                                                                                style={{
+                                                                                    cursor: 'pointer',
+                                                                                    color: 'green',
+                                                                                    zIndex: '2',
+                                                                                }}
+                                                                                className="material-icon"
+                                                                                onClick={audioHandler}
+                                                                            >
+                                                                                audiotrack
+                                                                            </i>
                                                                             {words[index].wordTranslate}
                                                                         </td>
                                                                     </tr>
@@ -643,7 +676,10 @@ const Sprint = () => {
                                             <table className="highlight">
                                                 <thead>
                                                     <tr>
-                                                        <th style={{ color: 'red' }}>Не Знаю</th>
+                                                        <th style={{ 
+                                                            color: 'red',
+                                                            font: 'bold 20px Vibur, cursive',
+                                                            }}>Не Знаю</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -657,7 +693,20 @@ const Sprint = () => {
                                                                             key={words[index].id}
                                                                             className="collection-item"
                                                                         >
-                                                                            {words[index].word} -{' '}
+                                                                            {words[index].word}
+                                                                            <i
+                                                                                data-audio={words[index].audio}
+                                                                                aria-hidden
+                                                                                style={{
+                                                                                    cursor: 'pointer',
+                                                                                    color: 'red',
+                                                                                    zIndex: '2',
+                                                                                }}
+                                                                                className="material-icon"
+                                                                                onClick={audioHandler}
+                                                                            >
+                                                                                audiotrack
+                                                                            </i>
                                                                             {words[index].wordTranslate}
                                                                         </td>
                                                                     </tr>
@@ -684,11 +733,12 @@ const Sprint = () => {
                                     <div className="timer">
                                         <CountdownCircleTimer
                                             isPlaying
+                                            size={100}
                                             duration={30}
-                                            colors={['#004777', '#F7B801', '#A30000', '#A30000']}
-                                            colorsTime={[20, 10, 5, 0]}
+                                            colors={['#50C878', '#F4F216', '#F08827', '#EB4C42']}
+                                            colorsTime={[25, 10, 5, 0]}
                                         >
-                                            {({ remainingTime }) => remainingTime}
+                                            {renderTime}
                                         </CountdownCircleTimer>
                                     </div>
                                     <div className="question-container">
@@ -707,7 +757,7 @@ const Sprint = () => {
                                             className={className}
                                             aria-hidden
                                         >
-                                            {i === 0 ? `(${i + 1}). ДА` : `(${i + 1}).НЕТ`}
+                                            {i === 0 ? `(${i + 1}). - ДА` : `(${i + 1}). - НЕТ`}
                                         </div>
                                     ))}
                                 </div>
