@@ -22,19 +22,20 @@ const Sprint = () => {
     const [questionWord, setQuestionWord] = useState<string>('');
     const [questionWordTranslate, setQuestionWordTranslate] = useState<string>('');
     const [wordIndex, setWordIndex] = useState<number>(0);
-    const [className, setClassName] = useState<string>('answer');
+
     const [scoreRight, setScoreRight] = useState<number>(0);
     const [menuActive, setMenuActive] = useState<boolean>(false);
     const [groupText, setGroupText] = useState<string>('');
     const [isAuth, setIsAuth] = useState<boolean>(false);
     const [wordLength, setWordLength] = useState<number>(-1);
-    const [isFinished, setIsFinished] = useState<boolean>(false);
     const [correctWordId, setCorrectWordId] = useState<string>('');
     const [guessedWordsIDs, setGuessedWordsIDs] = useState<string[]>([]);
     const [notGuessedWordsIDs, setNotGuessedWordsIDs] = useState<string[]>([]);
     const [isDisabledStart, setIsDisabledStart] = useState<boolean>(true);
     const [answersInRow, setAnswersInRow] = useState<number>(0);
     const [isAnswered, setIsAnswered] = useState<boolean>(false);
+    const [classResult, setClassResult] = useState<string>('');
+
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
@@ -130,7 +131,6 @@ const Sprint = () => {
         let num: number = 0;
         const arr: DataWord[] = [];
         const generated: number[] = [];
-        setClassName('answer');
         setShowAnswer(true);
         setShowMain(false);
         setQuestionWord(words[wordIndex].word);
@@ -153,7 +153,6 @@ const Sprint = () => {
         }
         setWordsToGuess(arr);
         setWordIndex(wordIndex + 1);
-        setClassName('answer show');
         setIsAnswered(false);
 
         if (isAuth) {
@@ -355,19 +354,17 @@ const Sprint = () => {
     useEffect(() => {
         if (wordIndex === wordLength - 1) {
             setWordIndex(0);
-            setIsFinished(true);
+            setClassResult('visible');
             setShowMain(false);
         }
     }, [wordIndex, wordLength]);
 
     useEffect(() => {
-        if (group && page && wordIndex === 20) {
-            setCurrentPage(currentPage + 1);
-        }
-        if (wordIndex === 20) {
+        if (wordIndex === wordLength - 1) {
             setWordIndex(0);
+            setClassResult('visible');
         }
-    }, [wordIndex, currentPage, group, page]);
+    }, [wordIndex, wordLength]);
 
     useEffect(() => {
         if (currentPage === 30) {
@@ -438,8 +435,7 @@ const Sprint = () => {
                 generateWordsToGuess();
             }
             if (event.code === 'Escape' && showAnswer) {
-                setIsFinished(true);
-                setClassName('');
+                setClassResult('visible');
             } else if (showMain && +event.key >= 1 && +event.key <= 6) {
                 setCurrentGroup(+event.key);
                 setIsDisabledStart(false);
@@ -571,124 +567,126 @@ const Sprint = () => {
 
                         {showAnswer && (
                             <div className="game-container">
-                                {isFinished && (
-                                    <div className="result">
-                                        <i
-                                            title="Выход"
-                                            style={{ cursor: 'pointer' }}
-                                            aria-hidden
-                                            className="material-icons align-left"
-                                            onClick={() => {
-                                                setIsFinished(false);
-                                                setShowAnswer(false);
-                                                setShowMain(true);
-                                                setWordIndex(0);
-                                                setCurrentPage(0);
-                                                setCurrentGroup(0);
-                                                setGuessedWordsIDs([]);
-                                                setNotGuessedWordsIDs([]);
-                                                setIsDisabledStart(true);
-                                                setGroupText('');
-                                                setAnswersInRow(0);
-                                            }}
-                                        >
-                                            close
-                                        </i>
-                                        <i
-                                            title="Продолжить"
-                                            style={{ cursor: 'pointer' }}
-                                            aria-hidden
-                                            className="material-icons align-left"
-                                            onClick={() => {
-                                                setIsFinished(false);
-                                            }}
-                                        >
-                                            play_arrow
-                                        </i>
+                                <div className={`result ${classResult}`}>
+                                    <i
+                                        title="Выход"
+                                        style={{ cursor: 'pointer' }}
+                                        aria-hidden
+                                        className="material-icons medium"
+                                        onClick={() => {
+                                            setClassResult('');
+                                            setShowAnswer(false);
+                                            setShowMain(true);
+                                            setWordIndex(0);
+                                            setCurrentPage(0);
+                                            setCurrentGroup(0);
+                                            setGuessedWordsIDs([]);
+                                            setNotGuessedWordsIDs([]);
+                                            setIsDisabledStart(true);
+                                            setGroupText('');
+                                            setAnswersInRow(0);
+                                        }}
+                                    >
+                                        close
+                                    </i>
+                                    <i
+                                        title="Продолжить"
+                                        style={{ cursor: 'pointer' }}
+                                        aria-hidden
+                                        className="material-icons medium"
+                                        onClick={() => {
+                                            setClassResult('');
+                                            if (!group && !page) {
+                                                setCurrentPage(currentPage + 1);
+                                            }
+                                        }}
+                                    >
+                                        play_arrow
+                                    </i>
 
-                                        <h4 className="result-title">Результат</h4>
-                                        <div className="result-info">
-                                            <table className="highlight">
-                                                <thead>
+                                    <h4 className="result-title">Результат</h4>
+                                    <div className="result-info">
+                                        <table className="highlight">
+                                            <thead>
+                                                <tr>
+                                                    <th
+                                                        style={{
+                                                            color: 'green',
+                                                            font: 'bold 20px Vibur, cursive',
+                                                        }}
+                                                    >
+                                                        Знаю
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {guessedWordsIDs.length ? (
+                                                    guessedWordsIDs.map((wordID) => {
+                                                        const index = words.findIndex((word) => word.id === wordID);
+                                                        if (index !== -1) {
+                                                            return (
+                                                                <tr key={Math.random() * 1000}>
+                                                                    <td
+                                                                        key={words[index].id}
+                                                                        className="collection-item"
+                                                                    >
+                                                                        {words[index].word} -{' '}
+                                                                        {words[index].wordTranslate}
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })
+                                                ) : (
                                                     <tr>
-                                                        <th
-                                                            style={{
-                                                                color: 'green',
-                                                                font: 'bold 20px Vibur, cursive',
-                                                            }}
-                                                        >
-                                                            Знаю
-                                                        </th>
+                                                        <td>Тут пусто</td>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {guessedWordsIDs.length ? (
-                                                        guessedWordsIDs.map((wordID) => {
-                                                            const index = words.findIndex((word) => word.id === wordID);
-                                                            if (index !== -1) {
-                                                                return (
-                                                                    <tr key={Math.random() * 1000}>
-                                                                        <td
-                                                                            key={words[index].id}
-                                                                            className="collection-item"
-                                                                        >
-                                                                            {words[index].word} -{' '}
-                                                                            {words[index].wordTranslate}
-                                                                        </td>
-                                                                    </tr>
-                                                                );
-                                                            }
-                                                            return null;
-                                                        })
-                                                    ) : (
-                                                        <tr>
-                                                            <td>Тут пусто</td>
-                                                        </tr>
-                                                    )}
-                                                </tbody>
-                                            </table>
-                                            <table className="highlight">
-                                                <thead>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                        <table className="highlight">
+                                            <thead>
+                                                <tr>
+                                                    <th
+                                                        style={{
+                                                            color: 'red',
+                                                            font: 'bold 20px Vibur, cursive',
+                                                        }}
+                                                    >
+                                                        Не Знаю
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {notGuessedWordsIDs.length ? (
+                                                    notGuessedWordsIDs.map((wordID) => {
+                                                        const index = words.findIndex((word) => word.id === wordID);
+                                                        if (index !== -1) {
+                                                            return (
+                                                                <tr key={Math.random() * 1000}>
+                                                                    <td
+                                                                        key={words[index].id}
+                                                                        className="collection-item"
+                                                                    >
+                                                                        {words[index].word} -{' '}
+                                                                        {words[index].wordTranslate}
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })
+                                                ) : (
                                                     <tr>
-                                                        <th
-                                                            style={{
-                                                                color: 'red',
-                                                                font: 'bold 20px Vibur, cursive',
-                                                            }}
-                                                        >
-                                                            Не Знаю
-                                                        </th>
+                                                        <td>Тут пусто</td>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {notGuessedWordsIDs.length ? (
-                                                        notGuessedWordsIDs.map((wordID) => {
-                                                            const index = words.findIndex((word) => word.id === wordID);
-                                                            if (index !== -1) {
-                                                                return (
-                                                                    <tr key={Math.random() * 1000}>
-                                                                        <td
-                                                                            key={words[index].id}
-                                                                            className="collection-item"
-                                                                        >
-                                                                            {words[index].word} -{' '}
-                                                                            {words[index].wordTranslate}
-                                                                        </td>
-                                                                    </tr>
-                                                                );
-                                                            }
-                                                            return null;
-                                                        })
-                                                    ) : (
-                                                        <tr>
-                                                            <td>Тут пусто</td>
-                                                        </tr>
-                                                    )}
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                )}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                )}
+                                </div>
+
                                 <div className="game-question">
                                     <div className="score">
                                         Количество правильных ответов
@@ -703,7 +701,7 @@ const Sprint = () => {
                                             colors={['#50C878', '#F4F216', '#F08827', '#EB4C42']}
                                             colorsTime={[25, 10, 5, 0]}
                                             onComplete={() => {
-                                                setIsFinished(true);
+                                                setClassResult('visible');
                                             }}
                                         >
                                             {({ remainingTime }) => remainingTime}
@@ -722,7 +720,7 @@ const Sprint = () => {
                                             key={Math.random() * 1000}
                                             data-id={v.id}
                                             data-answer={i === 0 ? 'YES' : 'NO'}
-                                            className={className}
+                                            className="answer-sprint"
                                             aria-hidden
                                         >
                                             {i === 0 ? `(${i + 1}) - ДА` : `(${i + 1}) - НЕТ`}
@@ -734,7 +732,7 @@ const Sprint = () => {
                                     className="btn-exit"
                                     aria-hidden
                                     onClick={() => {
-                                        setIsFinished(true);
+                                        setClassResult('visible');
                                         setScoreRight(0);
                                     }}
                                     type="button"

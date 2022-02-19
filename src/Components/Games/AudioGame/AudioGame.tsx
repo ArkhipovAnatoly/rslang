@@ -31,13 +31,13 @@ const AudioGame = () => {
     const [isDisabled, setIsDisabled] = useState<boolean[]>(Array.from({ length: 5 }, () => false));
     const [isDisabledStart, setIsDisabledStart] = useState<boolean>(true);
     const [isAuth, setIsAuth] = useState<boolean>(false);
-    const [isFinished, setIsFinished] = useState<boolean>(false);
     const [isNextDisabled, setIsNextDisabled] = useState<boolean>(true);
     const [groupText, setGroupText] = useState<string>('');
     const [className, setClassName] = useState<string>('answer');
     const [menuActive, setMenuActive] = useState<boolean>(false);
     const [audioUrl, setAudioUrl] = useState<string>('');
     const [answersInRow, setAnswersInRow] = useState<number>(0);
+    const [classResult, setClassResult] = useState<string>('');
 
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
@@ -402,19 +402,9 @@ const AudioGame = () => {
     useEffect(() => {
         if (wordIndex === wordLength - 1) {
             setWordIndex(0);
-            setIsFinished(true);
-            setShowMain(false);
+            setClassResult('visible');
         }
     }, [wordIndex, wordLength]);
-
-    useEffect(() => {
-        if (group && page && wordIndex === 20) {
-            setCurrentPage(currentPage + 1);
-        }
-        if (wordIndex === 20) {
-            setWordIndex(0);
-        }
-    }, [wordIndex, currentPage, group, page]);
 
     useEffect(() => {
         if (currentPage === 30) {
@@ -496,7 +486,7 @@ const AudioGame = () => {
             } else if (showMain && event.code === 'Enter') {
                 generateWordsToGuess();
             } else if (event.code === 'Escape' && showAnswer) {
-                setIsFinished(true);
+                setClassResult('visible');
                 setClassName('');
             } else if (showMain && +event.key >= 1 && +event.key <= 6) {
                 setCurrentGroup(+event.key);
@@ -625,145 +615,150 @@ const AudioGame = () => {
                         >
                             Начать игру (Enter)
                         </button>
-                        
+
                         {showAnswer && (
                             <div className="game-container">
-                                {isFinished && (
-                                    <div className="result">
-                                        <i
-                                            title="Выход"
-                                            style={{ cursor: 'pointer' }}
-                                            aria-hidden
-                                            className="material-icons align-left"
-                                            onClick={() => {
-                                                setIsFinished(false);
-                                                setShowAnswer(false);
-                                                setShowMain(true);
-                                                setWordIndex(0);
-                                                setCurrentPage(0);
-                                                setCurrentGroup(0);
-                                                setGuessedWordsIDs([]);
-                                                setNotGuessedWordsIDs([]);
-                                                setIsDisabledStart(true);
-                                                setGroupText('');
-                                                setAnswersInRow(0);
-                                            }}
-                                        >
-                                            close
-                                        </i>
-                                        <i
-                                            title="Продолжить"
-                                            style={{ cursor: 'pointer' }}
-                                            aria-hidden
-                                            className="material-icons align-left"
-                                            onClick={() => {
-                                                setIsFinished(false);
-                                                if (isAnswered) {
-                                                    generateWordsToGuess();
-                                                }
-                                            }}
-                                        >
-                                            play_arrow
-                                        </i>
+                                <div className={`result ${classResult}`}>
+                                    <i
+                                        title="Выход"
+                                        style={{ cursor: 'pointer' }}
+                                        aria-hidden
+                                        className="material-icons medium"
+                                        onClick={() => {
+                                            setClassResult('');
+                                            setShowAnswer(false);
+                                            setShowMain(true);
+                                            setWordIndex(0);
+                                            setCurrentPage(0);
+                                            setCurrentGroup(0);
+                                            setGuessedWordsIDs([]);
+                                            setNotGuessedWordsIDs([]);
+                                            setIsDisabledStart(true);
+                                            setGroupText('');
+                                            setAnswersInRow(0);
+                                        }}
+                                    >
+                                        close
+                                    </i>
+                                    <i
+                                        title="Продолжить"
+                                        style={{ cursor: 'pointer' }}
+                                        aria-hidden
+                                        className="material-icons  medium"
+                                        onClick={() => {
+                                            setClassResult('');
+                                            if (!group && !page) {
+                                                setCurrentPage(currentPage + 1);
+                                            }
+                                        }}
+                                    >
+                                        play_arrow
+                                    </i>
 
-                                        <h4 className="result-title">Результат</h4>
-                                        <div className="result-info">
-                                            <table className="highlight">
-                                                <thead>
-                                                    <tr>
-                                                        <th style={{ 
+                                    <h4 className="result-title">Результат</h4>
+                                    <div className="result-info">
+                                        <table className="highlight">
+                                            <thead>
+                                                <tr>
+                                                    <th
+                                                        style={{
                                                             color: 'green',
                                                             font: 'bold 20px Vibur, cursive',
-                                                             }}>Знаю</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {guessedWordsIDs.length ? (
-                                                        guessedWordsIDs.map((wordID) => {
-                                                            const index = words.findIndex((word) => word.id === wordID);
-                                                            if (index !== -1) {
-                                                                return (
-                                                                    <tr key={Math.random() * 1000}>
-                                                                        <td
-                                                                            key={words[index].id}
-                                                                            className="collection-item"
+                                                        }}
+                                                    >
+                                                        Знаю
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {guessedWordsIDs.length ? (
+                                                    guessedWordsIDs.map((wordID) => {
+                                                        const index = words.findIndex((word) => word.id === wordID);
+                                                        if (index !== -1) {
+                                                            return (
+                                                                <tr key={Math.random() * 1000}>
+                                                                    <td
+                                                                        key={words[index].id}
+                                                                        className="collection-item"
+                                                                    >
+                                                                        {words[index].word}
+                                                                        <i
+                                                                            data-audio={words[index].audio}
+                                                                            aria-hidden
+                                                                            style={{
+                                                                                cursor: 'pointer',
+                                                                                color: 'green',
+                                                                            }}
+                                                                            className="material-icon"
+                                                                            onClick={audioHandler}
                                                                         >
-                                                                            {words[index].word}
-                                                                            <i
-                                                                                data-audio={words[index].audio}
-                                                                                aria-hidden
-                                                                                style={{
-                                                                                    cursor: 'pointer',
-                                                                                    color: 'green',
-                                                                                    zIndex: '2',
-                                                                                }}
-                                                                                className="material-icon"
-                                                                                onClick={audioHandler}
-                                                                            >
-                                                                                audiotrack
-                                                                            </i>
-                                                                        </td>
-                                                                    </tr>
-                                                                );
-                                                            }
-                                                            return null;
-                                                        })
-                                                    ) : (
-                                                        <tr>
-                                                            <td>Тут пусто</td>
-                                                        </tr>
-                                                    )}
-                                                </tbody>
-                                            </table>
-                                            <table className="highlight">
-                                                <thead>
+                                                                            audiotrack
+                                                                        </i>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })
+                                                ) : (
                                                     <tr>
-                                                        <th style={{ 
+                                                        <td>Тут пусто</td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                        <table className="highlight">
+                                            <thead>
+                                                <tr>
+                                                    <th
+                                                        style={{
                                                             color: 'red',
                                                             font: 'bold 20px Vibur, cursive',
-                                                             }}>Не Знаю</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {notGuessedWordsIDs.length ? (
-                                                        notGuessedWordsIDs.map((wordID) => {
-                                                            const index = words.findIndex((word) => word.id === wordID);
-                                                            if (index !== -1) {
-                                                                return (
-                                                                    <tr key={Math.random() * 1000}>
-                                                                        <td
-                                                                            key={words[index].id}
-                                                                            className="collection-item"
+                                                        }}
+                                                    >
+                                                        Не Знаю
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {notGuessedWordsIDs.length ? (
+                                                    notGuessedWordsIDs.map((wordID) => {
+                                                        const index = words.findIndex((word) => word.id === wordID);
+                                                        if (index !== -1) {
+                                                            return (
+                                                                <tr key={Math.random() * 1000}>
+                                                                    <td
+                                                                        key={words[index].id}
+                                                                        className="collection-item"
+                                                                    >
+                                                                        {words[index].word}
+                                                                        <i
+                                                                            data-audio={words[index].audio}
+                                                                            aria-hidden
+                                                                            style={{
+                                                                                cursor: 'pointer',
+                                                                                color: 'red',
+                                                                            }}
+                                                                            className="material-icon"
+                                                                            onClick={audioHandler}
                                                                         >
-                                                                            {words[index].word}
-                                                                            <i
-                                                                                data-audio={words[index].audio}
-                                                                                aria-hidden
-                                                                                style={{
-                                                                                    cursor: 'pointer',
-                                                                                    color: 'red',
-                                                                                }}
-                                                                                className="material-icon"
-                                                                                onClick={audioHandler}
-                                                                            >
-                                                                                audiotrack
-                                                                            </i>
-                                                                        </td>
-                                                                    </tr>
-                                                                );
-                                                            }
-                                                            return null;
-                                                        })
-                                                    ) : (
-                                                        <tr>
-                                                            <td>Тут пусто</td>
-                                                        </tr>
-                                                    )}
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                                            audiotrack
+                                                                        </i>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        }
+                                                        return null;
+                                                    })
+                                                ) : (
+                                                    <tr>
+                                                        <td>Тут пусто</td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                )}
+                                </div>
 
                                 <div className="audio-question">
                                     {showAnswer && <img src={imgSrc} className="right-image" alt="" />}
@@ -813,7 +808,7 @@ const AudioGame = () => {
                                     className="btn-end"
                                     aria-hidden
                                     onClick={() => {
-                                        setIsFinished(true);
+                                        setClassResult('visible');
                                         setClassName('');
                                     }}
                                 >
