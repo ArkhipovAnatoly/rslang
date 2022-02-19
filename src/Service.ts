@@ -70,6 +70,7 @@ export type DataAggregatedWordsById = {
         optional: {
             guessedCount: string;
             notGuessedCount: string;
+            inGame: boolean;
         };
     };
 };
