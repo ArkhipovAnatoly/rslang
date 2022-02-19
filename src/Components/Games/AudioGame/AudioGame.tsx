@@ -37,6 +37,8 @@ const AudioGame = () => {
     const [className, setClassName] = useState<string>('answer');
     const [menuActive, setMenuActive] = useState<boolean>(false);
     const [audioUrl, setAudioUrl] = useState<string>('');
+    const [answersInRow, setAnswersInRow] = useState<number>(0);
+
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
@@ -283,12 +285,14 @@ const AudioGame = () => {
                 setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
                 setMessage('Верно!');
                 setClassName('correct');
+                setAnswersInRow(answersInRow + 1);
                 createCorrectWord(variantWordId);
             } else {
                 setCorrectText(correctWord?.wordTranslate as string);
                 setNotGuessedWordsIDs([...notGuessedWordsIDs, correctWordId]);
                 setMessage('Ошибка');
                 setClassName('incorrect');
+                setAnswersInRow(0);
                 createIncorrectWord(correctWordId);
             }
             setIsAnswered(true);
@@ -305,6 +309,7 @@ const AudioGame = () => {
             notGuessedWordsIDs,
             wordIndex,
             wordsToGuess,
+            answersInRow,
         ]
     );
 
