@@ -77,9 +77,14 @@ export type DataAggregatedWordsById = {
 export type DataStat = {
     learnedWords: number;
     optional: {
-        newWords?: number;
-        wordsInRow?: number;
-        correctAnswersPercent?: number;
+        newWordsAudioGame: number;
+        newWordsSprintGame: number;
+        wordsInRowAudioGame: number;
+        wordsInRowSprintGame: number;
+        totalQuestionsAudioGame: number;
+        totalQuestionSprintGame: number;
+        totalCorrectAnswersAudioGame: number;
+        totalCorrectAnswersSprintGame: number;
     };
 };
 
@@ -297,7 +302,7 @@ class Service {
                     Accept: 'application/json',
                 },
             });
-            if (rawResponse.status === 401) {
+            if (rawResponse.status === 401 || rawResponse.status === 404) {
                 return rawResponse.status;
             }
             const content = await rawResponse.json();
@@ -319,6 +324,7 @@ class Service {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(statData),
             });
