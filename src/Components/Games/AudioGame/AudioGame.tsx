@@ -427,15 +427,15 @@ const AudioGame = () => {
     }, [showMain, showAnswer, isAnswered, checkAnswer, generateWordsToGuess]);
 
     return (
-        <div className="games-page ">
+        <div className="game-page ">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
             <Menu menuActive={menuActive} setMenuActive={setMenuActive} />
-            <div className="card">
-                <div className="card-content">
+            <div className="game">
+                <div className="game-audio">
                     <div className="game-content audio-game">
                         {showMain && (
-                            <div>
-                                <h1>Игра Аудиовызов</h1>
+                            <div className="sign">
+                                <span className="sign__word">Игра Аудиовызов</span>
                                 <h2 style={{ display: group ? 'none' : 'block' }}>Выберите уровень сложности</h2>
                                 <div
                                     style={{ display: group && page ? 'none' : 'flex' }}
@@ -475,7 +475,7 @@ const AudioGame = () => {
                         >
                             Начать игру (Enter)
                         </button>
-
+                        
                         {showAnswer && (
                             <div className="game-container">
                                 {isFinished && (
@@ -515,12 +515,15 @@ const AudioGame = () => {
                                             play_arrow
                                         </i>
 
-                                        <h4 className="result-title">Результаты</h4>
+                                        <h4 className="result-title">Результат</h4>
                                         <div className="result-info">
                                             <table className="highlight">
                                                 <thead>
                                                     <tr>
-                                                        <th style={{ color: 'green' }}>Знаю</th>
+                                                        <th style={{ 
+                                                            color: 'green',
+                                                            font: 'bold 20px Vibur, cursive',
+                                                             }}>Знаю</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -541,6 +544,7 @@ const AudioGame = () => {
                                                                                 style={{
                                                                                     cursor: 'pointer',
                                                                                     color: 'green',
+                                                                                    zIndex: '2',
                                                                                 }}
                                                                                 className="material-icon"
                                                                                 onClick={audioHandler}
@@ -563,7 +567,10 @@ const AudioGame = () => {
                                             <table className="highlight">
                                                 <thead>
                                                     <tr>
-                                                        <th style={{ color: 'red' }}>Не Знаю</th>
+                                                        <th style={{ 
+                                                            color: 'red',
+                                                            font: 'bold 20px Vibur, cursive',
+                                                             }}>Не Знаю</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -609,9 +616,10 @@ const AudioGame = () => {
 
                                 <div className="audio-question">
                                     {showAnswer && <img src={imgSrc} className="right-image" alt="" />}
+                                    {showAnswer && <div className="right-answer">{correctText}</div>}
                                     <i
                                         aria-hidden
-                                        style={{ cursor: 'pointer', color: 'red' }}
+                                        style={{ cursor: 'pointer', color: '#00ffc4' }}
                                         className={`material-icon medium `}
                                         onClick={() => {
                                             const player = new Audio(audioUrl);
@@ -620,7 +628,6 @@ const AudioGame = () => {
                                     >
                                         audiotrack
                                     </i>{' '}
-                                    {showAnswer && <div className="right-answer">{correctText}</div>}
                                 </div>
 
                                 <div className="answers" aria-hidden onClick={checkAnswer}>
