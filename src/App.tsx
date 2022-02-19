@@ -16,7 +16,6 @@ import StatInfo from './Components/Home/About/StatInfo';
 import GameInfo from './Components/Home/About/GameInfo';
 import Error from './Components/Errors/Error';
 
-
 function App() {
     return (
         <Router>
@@ -38,6 +37,7 @@ function App() {
                     <Route path="/statInfo" element={<StatInfo/>} />
                     <Route path="/gameInfo" element={<GameInfo/>} />
                     <Route path="/error/404" element={<Error/>} />
+
                 </Routes>
             </GlobalContextProvider>
         </Router>

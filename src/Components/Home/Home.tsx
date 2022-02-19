@@ -89,7 +89,10 @@ const Home = () => {
                                     <figure className="one_quarter first row3_3" />
                                     <article className="three_quarter">
                                         <h2 className="heading">Дария</h2>
-                                        <p className="shortintro">Разработка дизайна, навигации по приложению, воссоедиение всех кусочков проекта в одно целое.</p>
+                                        <p className="shortintro">
+                                            Разработка дизайна, навигации по приложению, воссоедиение всех кусочков
+                                            проекта в одно целое.
+                                        </p>
                                     </article>
                                 </li>
                                 <li className="clear">

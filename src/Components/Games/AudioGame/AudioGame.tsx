@@ -37,6 +37,8 @@ const AudioGame = () => {
     const [className, setClassName] = useState<string>('answer');
     const [menuActive, setMenuActive] = useState<boolean>(false);
     const [audioUrl, setAudioUrl] = useState<string>('');
+    const [answersInRow, setAnswersInRow] = useState<number>(0);
+
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
@@ -180,7 +182,7 @@ const AudioGame = () => {
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
-                        optional: { guessedCount: '1', testFieldBoolean: true },
+                        optional: { guessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
                 } else {
                     let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
@@ -233,7 +235,7 @@ const AudioGame = () => {
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
-                        optional: { notGuessedCount: '1', testFieldBoolean: true },
+                        optional: { notGuessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
                 } else {
                     let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
@@ -257,7 +259,6 @@ const AudioGame = () => {
             const target = event?.target as HTMLDivElement;
 
             if (target) {
-                console.log(target);
                 const { dataset } = target;
                 if (!dataset.answer) return;
                 variantWordId = dataset.answer;
@@ -284,12 +285,14 @@ const AudioGame = () => {
                 setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
                 setMessage('Верно!');
                 setClassName('correct');
+                setAnswersInRow(answersInRow + 1);
                 createCorrectWord(variantWordId);
             } else {
                 setCorrectText(correctWord?.wordTranslate as string);
                 setNotGuessedWordsIDs([...notGuessedWordsIDs, correctWordId]);
                 setMessage('Ошибка');
                 setClassName('incorrect');
+                setAnswersInRow(0);
                 createIncorrectWord(correctWordId);
             }
             setIsAnswered(true);
@@ -306,6 +309,7 @@ const AudioGame = () => {
             notGuessedWordsIDs,
             wordIndex,
             wordsToGuess,
+            answersInRow,
         ]
     );
 

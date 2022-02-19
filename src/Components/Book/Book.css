@@ -641,19 +641,19 @@ nav .nav-wrapper {
 .border {
     margin: 10px auto;
 }
-.border-top, 
+.border-top,
 .border-bottom {
-    border: 3px solid #AF8B52;
+    border: 3px solid #af8b52;
     height: 12px;
     position: relative;
 }
-.border-top:before, 
-.border-top:after, 
-.border-bottom:before, 
+.border-top:before,
+.border-top:after,
+.border-bottom:before,
 .border-bottom:after {
-    content: "";
+    content: '';
     position: absolute;
-    border: 3px solid #AF8B52;
+    border: 3px solid #af8b52;
     width: 20px;
     height: 20px;
 }
@@ -678,12 +678,12 @@ nav .nav-wrapper {
     bottom: -26px;
 }
 .center {
-    border-left: 3px solid #AF8B52;
-    border-right: 3px solid #AF8B52;
+    border-left: 3px solid #af8b52;
+    border-right: 3px solid #af8b52;
 }
-.card-rez{
+.card-rez {
     margin: 0;
-    color: #AF8B52;
+    color: #af8b52;
     font-family: 'Open Sans', sans-serif;
     font-style: italic;
     font-weight: 300;

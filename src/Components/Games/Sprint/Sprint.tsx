@@ -33,7 +33,7 @@ const Sprint = () => {
     const [guessedWordsIDs, setGuessedWordsIDs] = useState<string[]>([]);
     const [notGuessedWordsIDs, setNotGuessedWordsIDs] = useState<string[]>([]);
     const [isDisabledStart, setIsDisabledStart] = useState<boolean>(true);
-
+    const [answersInRow, setAnswersInRow] = useState<number>(0);
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
@@ -172,7 +172,7 @@ const Sprint = () => {
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
-                        optional: { guessedCount: '1', testFieldBoolean: true },
+                        optional: { guessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
                 } else {
                     let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
@@ -225,7 +225,7 @@ const Sprint = () => {
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
-                        optional: { notGuessedCount: '1', testFieldBoolean: true },
+                        optional: { notGuessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
                 } else {
                     let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
@@ -261,9 +261,11 @@ const Sprint = () => {
                 setScoreRight(scoreRight + 1);
                 setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
                 createCorrectWord(variantWordId as string);
+                setAnswersInRow(answersInRow + 1);
             } else {
                 setNotGuessedWordsIDs([...notGuessedWordsIDs, correctWordId]);
                 createIncorrectWord(correctWordId);
+                setAnswersInRow(0);
             }
 
             setWordIndex(wordIndex + 1);
@@ -280,6 +282,7 @@ const Sprint = () => {
             scoreRight,
             wordIndex,
             wordsToGuess,
+            answersInRow,
         ]
     );
 

@@ -70,7 +70,16 @@ export type DataAggregatedWordsById = {
         optional: {
             guessedCount: string;
             notGuessedCount: string;
+            inGame: boolean;
         };
+    };
+};
+export type DataStat = {
+    learnedWords: number;
+    optional: {
+        newWords?: number;
+        wordsInRow?: number;
+        correctAnswersPercent?: number;
     };
 };
 
@@ -267,6 +276,51 @@ class Service {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',
                 },
+            });
+            if (rawResponse.status === 401) {
+                return rawResponse.status;
+            }
+            const content = await rawResponse.json();
+            return content;
+        } catch (error) {
+            console.log(error);
+        }
+        return undefined;
+    }
+
+    public static async getUserStat(userId: string, token: string): Promise<DataStat | number | undefined> {
+        try {
+            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/statistics`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            });
+            if (rawResponse.status === 401) {
+                return rawResponse.status;
+            }
+            const content = await rawResponse.json();
+            return content;
+        } catch (error) {
+            console.log(error);
+        }
+        return undefined;
+    }
+
+    public static async updateUserStat(
+        statData: DataStat,
+        userId: string,
+        token: string
+    ): Promise<DataStat | number | undefined> {
+        try {
+            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/statistics`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify(statData),
             });
             if (rawResponse.status === 401) {
                 return rawResponse.status;

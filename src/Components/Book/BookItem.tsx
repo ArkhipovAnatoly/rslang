@@ -37,6 +37,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
     const [isLearned, setIsLearned] = useState<boolean>(false);
     const [totalCorrect, setTotalCorrect] = useState<number>(0);
     const [totalInCorrect, setTotalInCorrect] = useState<number>(0);
+    const [isShowStat, setIsShowStat] = useState<boolean>(false);
 
     const imageUrl = `https://learn-english-words-app.herokuapp.com/${props.image}`;
     const audioMeaningUrl = `https://learn-english-words-app.herokuapp.com/${props.audioMeaning}`;
@@ -69,11 +70,15 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                 }
                 totalLearnedWords += 1;
             }
-            if (word[0]?.userWord?.optional?.guessedCount) {
-                setTotalCorrect(+word[0].userWord.optional.guessedCount);
-            }
-            if (word[0]?.userWord?.optional?.notGuessedCount) {
-                setTotalInCorrect(+word[0].userWord.optional.notGuessedCount);
+
+            if (word[0]?.userWord?.optional.inGame) {
+                setIsShowStat(true);
+                if (word[0]?.userWord?.optional?.guessedCount) {
+                    setTotalCorrect(+word[0].userWord.optional.guessedCount);
+                }
+                if (word[0]?.userWord?.optional?.notGuessedCount) {
+                    setTotalInCorrect(+word[0].userWord.optional.notGuessedCount);
+                }
             }
         }
     }, [wordId, isAuth, navigator]);
@@ -215,7 +220,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                             audiotrack
                         </i>{' '}
                     </h2>
-            
+
                     <div className="card horizontal">
                         <div className="card-image">
                             <img src={imageUrl} alt="img" />
@@ -271,15 +276,14 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                                 <div className="card-action" />
                                 <p className="info" ref={pRefExample} />
                                 <p className="info">{props.textExampleTranslate}</p>
-
-                            
                             </div>
                         </div>
-                        
                     </div>
-                    <p className='card-rez'>Статистика слова:</p>
-                    <p className='card-rez'>Правильных ответов в играх: {totalCorrect}</p>
-                    <p className='card-rez'>Ошибочных ответов в играх: {totalInCorrect}</p>
+                    <div style={{ display: isAuth && isShowStat ? 'block' : 'none' }} className="stat-info">
+                        <p className="card-rez">Статистика слова:</p>
+                        <p className="card-rez">Правильных ответов в играх: {totalCorrect}</p>
+                        <p className="card-rez">Ошибочных ответов в играх: {totalInCorrect}</p>
+                    </div>
                 </div>
                 <div className="border-bottom" />
             </div>
