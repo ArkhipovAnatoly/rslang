@@ -33,11 +33,10 @@ function App() {
                     <Route path="/sprint/:group/:page" element={<Sprint />} />
                     <Route path="/sprint" element={<Sprint />} />
                     <Route path="/statistics" element={<Statistics />} />
-                    <Route path="/bookInfo" element={<BookInfo/>} />
-                    <Route path="/statInfo" element={<StatInfo/>} />
-                    <Route path="/gameInfo" element={<GameInfo/>} />
-                    <Route path="/error/404" element={<Error/>} />
-
+                    <Route path="/bookInfo" element={<BookInfo />} />
+                    <Route path="/statInfo" element={<StatInfo />} />
+                    <Route path="/gameInfo" element={<GameInfo />} />
+                    <Route path="/error/404" element={<Error />} />
                 </Routes>
             </GlobalContextProvider>
         </Router>
