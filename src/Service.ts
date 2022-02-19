@@ -74,8 +74,8 @@ export type DataAggregatedWordsById = {
         };
     };
 };
-type DataStat = {
-    learnedWords: 0;
+export type DataStat = {
+    learnedWords: number;
     optional: {
         newWords?: number;
         wordsInRow?: number;
