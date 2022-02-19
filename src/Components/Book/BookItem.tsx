@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Service, { DataAggregatedWordsById } from '../../Service';
+import Service, { DataAggregatedWordsById, DataStat } from '../../Service';
 import './Book.css';
 
 type DictionaryItemProps = {
@@ -137,6 +137,9 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
         const { checked } = event.target as HTMLInputElement;
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
+        const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+        const { learnedWords, optional } = responseStat;
+
         if (checked) {
             setColorText('green');
             setTextLearned('Изучено');
@@ -152,18 +155,35 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                 localStorage.clear();
                 navigator('/authorization');
             }
+            const learnedWordsUpdate = (learnedWords as number) + 1;
+            await Service.updateUserStat(
+                {
+                    learnedWords: learnedWordsUpdate,
+                    optional: { ...optional },
+                },
+                userId,
+                token
+            );
         } else {
             setColorText('');
             setTextLearned('Добавить в изученные');
             totalLearnedWords -= 1;
             setIsLearned(false);
-
             const data = await Service.deleteUserWord({ userId, wordId }, token);
             if (data === 401) {
                 setIsAuth(false);
                 localStorage.clear();
                 navigator('/authorization');
             }
+            const learnedWordsUpdate = (learnedWords as number) - 1;
+            await Service.updateUserStat(
+                {
+                    learnedWords: learnedWordsUpdate,
+                    optional: { ...optional },
+                },
+                userId,
+                token
+            );
         }
     };
 
