@@ -24,7 +24,7 @@ const Header = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuAct
                     </h1>
                 </div>
                 <div className="header_greeting">
-                    {isAuth ? <p>Приветствуем Вас,{localStorage.getItem('name')}!</p> : <p>Приветствуем Вас!</p>}
+                    {isAuth ? <p>Приветствуем Вас, {localStorage.getItem('name')}!</p> : <p>Приветствуем Вас!</p>}
                 </div>
                 <nav id="mainav" className="fl_right">
                     <ul className="clear">

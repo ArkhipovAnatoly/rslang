@@ -36,7 +36,7 @@ function App() {
                     <Route path="/bookInfo" element={<BookInfo/>} />
                     <Route path="/statInfo" element={<StatInfo/>} />
                     <Route path="/gameInfo" element={<GameInfo/>} />
-                    <Route path="/error/404" element={<Error/>} />
+                    <Route path="*" element={<Error/>} />
 
                 </Routes>
             </GlobalContextProvider>

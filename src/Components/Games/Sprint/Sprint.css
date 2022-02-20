@@ -5,12 +5,14 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: linear-gradient(-45deg, #fdfb7d, #fd9999, #d5ff73, #e3a6ff, #96fff1, #7b9eff);
+    background: linear-gradient(-45deg, #fdfb7d, #fd9999, #e3a6ff, #96fff1, #7b9eff);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
 }
 .question-container {
     padding: 10px 0 30px;
+    display: flex;
+    justify-content: center;
 }
 
 .timer {
@@ -33,33 +35,33 @@
     color: #58b2ff;
     position: relative;
     font: bold 20px 'Neucha', cursive;
-    margin: 10px 0 30px;
+    margin: 30px 40px;
 }
 
 .btns {
     display: flex;
     justify-content: center;
-    gap: 40px;
+    gap: 10px;
 }
 .btn-start {
     border: none;
     outline: none;
 }
 .btn-start:disabled {
-    background-color: #c4c4c4;
+    background-color: rgb(0 0 0 / 14%);
     cursor: auto;
 }
 
 .score {
-    color: rgb(248, 132, 0);
+    color: #6c65d7;
     position: relative;
-    font: bold 20px 'Neucha', cursive;
+    font: bold 30px 'Neucha', cursive;
     margin: 10px 0 30px;
 }
 
 .score-right {
     padding-left: 5px;
-    color: tomato;
+    color: #fa117d;
 }
 
 .show {
@@ -91,7 +93,7 @@
 }
 
 .result-title {
-    color: wheat;
+    color: #645fad;
 }
 
 .sign {
@@ -114,8 +116,9 @@
     outline: none;
     border: none;
     width: 150px;
-    padding: 5px;
-    background-color: rgb(255 255 255 / 60%);
+    height: 40px;
+    padding: 10px;
+    background-color: #752b974f;
     color: white;
     cursor: pointer;
     border-radius: 40px;
@@ -148,18 +151,4 @@
             0 0 12px rgba(30, 132, 242, 0.58), 0 0 22px rgba(30, 132, 242, 0.84), 0 0 38px rgba(30, 132, 242, 0.88),
             0 0 60px rgba(30, 132, 242, 1);
     }
-}
-
-.link {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    color: #828282;
-    text-decoration: none;
-}
-.link:focus,
-.link:hover {
-    color: #c6e2ff;
-    text-shadow: 0 0 2px rgba(202, 228, 225, 0.92), 0 0 10px rgba(202, 228, 225, 0.34), 0 0 4px rgba(30, 132, 242, 0.52),
-        0 0 7px rgba(30, 132, 242, 0.92), 0 0 11px rgba(30, 132, 242, 0.78), 0 0 16px rgba(30, 132, 242, 0.92);
 }

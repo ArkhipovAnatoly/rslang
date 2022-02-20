@@ -98,8 +98,10 @@ const Home = () => {
                                 <li className="clear">
                                     <figure className="one_quarter first row3_2" />
                                     <article className="three_quarter">
-                                        <h2 className="heading">Разработчик 3</h2>
-                                        <p className="shortintro">Разработчик высший класс!</p>
+                                       <h2 className="heading">Марина</h2>
+                                        <p className="shortintro">  
+                                            Разработка дизайна, подбор стилей и добавление анимации.
+                                        </p>
                                     </article>
                                 </li>
                             </ul>
