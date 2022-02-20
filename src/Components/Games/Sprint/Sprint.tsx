@@ -615,7 +615,7 @@ const Sprint = () => {
                                     <div className="btn-main">
                                         <i
                                             title="Выход"
-                                            style={{ cursor: 'pointer' }}
+                                            style={{ cursor: 'pointer', color: '#ddd' }}
                                             aria-hidden
                                             className="material-icons medium"
                                             onClick={() => {
@@ -639,7 +639,7 @@ const Sprint = () => {
                                         </i>
                                         <i
                                             title="Продолжить"
-                                            style={{ cursor: 'pointer' }}
+                                            style={{ cursor: 'pointer', color: '#ddd' }}
                                             aria-hidden
                                             className="material-icons medium"
                                             onClick={() => {

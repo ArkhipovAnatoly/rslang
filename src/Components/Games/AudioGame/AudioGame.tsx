@@ -634,7 +634,7 @@ const AudioGame = () => {
                                     <div className="btn-main">
                                         <i
                                             title="Выход"
-                                            style={{ cursor: 'pointer', color: '#beaf73' }}
+                                            style={{ cursor: 'pointer', color: '#ddd' }}
                                             aria-hidden
                                             className="material-icons medium"
                                             onClick={() => {
@@ -657,7 +657,7 @@ const AudioGame = () => {
                                         </i>
                                         <i
                                             title="Продолжить"
-                                            style={{ cursor: 'pointer', color: '#beaf73' }}
+                                            style={{ cursor: 'pointer', color: '#ddd' }}
                                             aria-hidden
                                             className="material-icons  medium"
                                             onClick={() => {
