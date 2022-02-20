@@ -668,7 +668,3 @@
   transform: rotateX(90deg) translateY(-22px);
   background: #21d5de;
 }
-    .composition {
-        transform: scale(0.3);
-    }
-}
