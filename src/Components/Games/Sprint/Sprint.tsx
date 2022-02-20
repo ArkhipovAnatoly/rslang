@@ -727,9 +727,7 @@ const Sprint = () => {
                                             data-answer={i === 0 ? 'YES' : 'NO'}
                                             className="answer-sprint"
                                             aria-hidden
-                                            style={
-                                                {font: 'bold 14px Verdana, cursive',}
-                                            }
+                                            style={{ font: 'bold 14px Verdana, cursive' }}
                                         >
                                             {i === 0 ? `(${i + 1}) - ДА` : `(${i + 1}) - НЕТ`}
                                         </div>

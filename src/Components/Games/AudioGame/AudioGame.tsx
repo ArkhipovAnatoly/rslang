@@ -789,9 +789,7 @@ const AudioGame = () => {
                                             disabled={isDisabled[i]}
                                             aria-hidden
                                             type="button"
-                                            style={
-                                                {font: 'bold 14px Verdana, cursive',}
-                                            }
+                                            style={{ font: 'bold 14px Verdana, cursive' }}
                                         >
                                             {btnNum && i === +btnNum ? message : `(${i + 1})  ${word.wordTranslate}`}
                                         </button>
