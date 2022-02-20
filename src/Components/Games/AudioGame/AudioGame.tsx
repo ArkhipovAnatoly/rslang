@@ -19,6 +19,8 @@ const AudioGame = () => {
     const [wordsToGuess, setWordsToGuess] = useState<DataWord[]>([]);
     const [guessedWordsIDs, setGuessedWordsIDs] = useState<string[]>([]);
     const [notGuessedWordsIDs, setNotGuessedWordsIDs] = useState<string[]>([]);
+    const [guessedWords, setGuessedWords] = useState<DataWord[]>([]);
+    const [notGuessedWords, setNotGuessedWords] = useState<DataWord[]>([]);
     const [correctWord, setCorrectWord] = useState<DataWord>();
     const [correctWordId, setCorrectWordId] = useState<string>('');
     const [correctText, setCorrectText] = useState<string>('');
@@ -369,6 +371,8 @@ const AudioGame = () => {
                 }
 
                 setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
+                const word = words.find((w) => w.id === variantWordId) as DataWord;
+                setGuessedWords([...guessedWords, word]);
                 setMessage('Верно!');
                 setClassName('correct');
                 setAnswersInRow(answersInRow + 1);
@@ -376,6 +380,8 @@ const AudioGame = () => {
             } else {
                 setCorrectText(correctWord?.wordTranslate as string);
                 setNotGuessedWordsIDs([...notGuessedWordsIDs, correctWordId]);
+                const word = words.find((w) => w.id === correctWordId) as DataWord;
+                setNotGuessedWords([...notGuessedWords, word]);
                 setMessage('Ошибка');
                 setClassName('incorrect');
                 setAnswersInRow(0);
@@ -396,15 +402,21 @@ const AudioGame = () => {
             wordIndex,
             wordsToGuess,
             answersInRow,
+            guessedWords,
+            notGuessedWords,
+            words,
         ]
     );
 
     useEffect(() => {
         if (wordIndex === wordLength - 1) {
             setWordIndex(0);
+            if (!group && !page) {
+                setCurrentPage(currentPage + 1);
+            }
             setClassResult('visible');
         }
-    }, [wordIndex, wordLength]);
+    }, [wordIndex, wordLength, group, page, currentPage]);
 
     useEffect(() => {
         if (currentPage === 30) {
@@ -632,8 +644,10 @@ const AudioGame = () => {
                                                 setWordIndex(0);
                                                 setCurrentPage(0);
                                                 setCurrentGroup(0);
-                                                setGuessedWordsIDs([]);
+                                                setGuessedWords([]);
+                                                setNotGuessedWords([]);
                                                 setNotGuessedWordsIDs([]);
+                                                setGuessedWordsIDs([]);
                                                 setIsDisabledStart(true);
                                                 setGroupText('');
                                                 setAnswersInRow(0);
@@ -648,9 +662,6 @@ const AudioGame = () => {
                                             className="material-icons  medium"
                                             onClick={() => {
                                                 setClassResult('');
-                                                if (!group && !page) {
-                                                    setCurrentPage(currentPage + 1);
-                                                }
                                             }}
                                         >
                                             play_arrow
@@ -673,35 +684,26 @@ const AudioGame = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {guessedWordsIDs.length ? (
-                                                    guessedWordsIDs.map((wordID) => {
-                                                        const index = words.findIndex((word) => word.id === wordID);
-                                                        if (index !== -1) {
-                                                            return (
-                                                                <tr key={Math.random() * 1000}>
-                                                                    <td
-                                                                        key={words[index].id}
-                                                                        className="collection-item"
-                                                                    >
-                                                                        {words[index].word}
-                                                                        <i
-                                                                            data-audio={words[index].audio}
-                                                                            aria-hidden
-                                                                            style={{
-                                                                                cursor: 'pointer',
-                                                                                color: 'green',
-                                                                            }}
-                                                                            className="material-icon"
-                                                                            onClick={audioHandler}
-                                                                        >
-                                                                            audiotrack
-                                                                        </i>
-                                                                    </td>
-                                                                </tr>
-                                                            );
-                                                        }
-                                                        return null;
-                                                    })
+                                                {guessedWords.length ? (
+                                                    guessedWords.map((word) => (
+                                                        <tr key={Math.random() * 1000}>
+                                                            <td key={word.id} className="collection-item">
+                                                                {word.word}
+                                                                <i
+                                                                    data-audio={word.audio}
+                                                                    aria-hidden
+                                                                    style={{
+                                                                        cursor: 'pointer',
+                                                                        color: 'green',
+                                                                    }}
+                                                                    className="material-icon"
+                                                                    onClick={audioHandler}
+                                                                >
+                                                                    audiotrack
+                                                                </i>
+                                                            </td>
+                                                        </tr>
+                                                    ))
                                                 ) : (
                                                     <tr>
                                                         <td>Тут пусто</td>
@@ -724,35 +726,26 @@ const AudioGame = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {notGuessedWordsIDs.length ? (
-                                                    notGuessedWordsIDs.map((wordID) => {
-                                                        const index = words.findIndex((word) => word.id === wordID);
-                                                        if (index !== -1) {
-                                                            return (
-                                                                <tr key={Math.random() * 1000}>
-                                                                    <td
-                                                                        key={words[index].id}
-                                                                        className="collection-item"
-                                                                    >
-                                                                        {words[index].word}
-                                                                        <i
-                                                                            data-audio={words[index].audio}
-                                                                            aria-hidden
-                                                                            style={{
-                                                                                cursor: 'pointer',
-                                                                                color: 'red',
-                                                                            }}
-                                                                            className="material-icon"
-                                                                            onClick={audioHandler}
-                                                                        >
-                                                                            audiotrack
-                                                                        </i>
-                                                                    </td>
-                                                                </tr>
-                                                            );
-                                                        }
-                                                        return null;
-                                                    })
+                                                {notGuessedWords.length ? (
+                                                    notGuessedWords.map((word) => (
+                                                        <tr key={Math.random() * 1000}>
+                                                            <td key={word.id} className="collection-item">
+                                                                {word.word}
+                                                                <i
+                                                                    data-audio={word.audio}
+                                                                    aria-hidden
+                                                                    style={{
+                                                                        cursor: 'pointer',
+                                                                        color: 'red',
+                                                                    }}
+                                                                    className="material-icon"
+                                                                    onClick={audioHandler}
+                                                                >
+                                                                    audiotrack
+                                                                </i>
+                                                            </td>
+                                                        </tr>
+                                                    ))
                                                 ) : (
                                                     <tr>
                                                         <td>Тут пусто</td>
@@ -789,9 +782,7 @@ const AudioGame = () => {
                                             disabled={isDisabled[i]}
                                             aria-hidden
                                             type="button"
-                                            style={
-                                                {font: 'bold 14px Verdana, cursive',}
-                                            }
+                                            style={{ font: 'bold 14px Verdana, cursive' }}
                                         >
                                             {btnNum && i === +btnNum ? message : `(${i + 1})  ${word.wordTranslate}`}
                                         </button>

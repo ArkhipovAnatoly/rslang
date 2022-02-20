@@ -162,15 +162,17 @@ h2 {
 .row3_1 {
     max-width: 107px;
     width: 100%;
-    background-image: url('../../../public/assets/img/row3-1.png');
+    background-image: url('../../../public/assets/img/avatars/Tolik.jpg');
     background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
+    background-position: center top 27%;
+    background-size: cover;
+    height: 107px;
+    margin: 0 30px;
 }
 .row3_2 {
     max-width: 107px;
     width: 100%;
-    background-image: url('../../../public/assets/img/marina.jpg');
+    background-image: url('../../../public/assets/img/avatars/marina.jpg');
     background-repeat: no-repeat;
     background-position: center top 27%;
     background-size: cover;
@@ -180,14 +182,13 @@ h2 {
 .row3_3 {
     max-width: 107px;
     width: 100%;
-    background-image: url('../../../public/assets/img/IMG_20200409_121420.jpg');
+    background-image: url('../../../public/assets/img/avatars/IMG_20200409_121420.jpg');
     background-repeat: no-repeat;
     background-position: center top 27%;
     background-size: cover;
     height: 107px;
     margin: 0 30px;
 }
-/* Latest Posts */
 
 #latestposts li {
     margin: 0 0 25px 0;
@@ -381,6 +382,9 @@ h2 {
     background-image: url('../../../public/assets/img/git.png');
     background-size: contain;
     background-repeat: no-repeat;
+}
+.githab a:hover {
+    color: gold;
 }
 /* Copyright
 --------------------------------------------------------------------------------------------------------------- */
@@ -977,7 +981,6 @@ table a,
     }
     .one_quarter {
         width: 100%;
-        
     }
     .githab {
         display: flex;
