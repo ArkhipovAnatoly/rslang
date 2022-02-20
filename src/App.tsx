@@ -15,6 +15,7 @@ import BookInfo from './Components/Home/About/BookInfo';
 import StatInfo from './Components/Home/About/StatInfo';
 import GameInfo from './Components/Home/About/GameInfo';
 import Error from './Components/Errors/Error';
+import PageExplored from './Components/Games/PageExplored';
 
 function App() {
     return (
@@ -37,6 +38,7 @@ function App() {
                     <Route path="/statInfo" element={<StatInfo />} />
                     <Route path="/gameInfo" element={<GameInfo />} />
                     <Route path="*" element={<Error />} />
+                    <Route path="/pageExplored" element={<PageExplored />} />
                 </Routes>
             </GlobalContextProvider>
         </Router>
