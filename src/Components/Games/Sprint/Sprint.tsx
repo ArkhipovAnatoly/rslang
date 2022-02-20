@@ -22,7 +22,6 @@ const Sprint = () => {
     const [questionWord, setQuestionWord] = useState<string>('');
     const [questionWordTranslate, setQuestionWordTranslate] = useState<string>('');
     const [wordIndex, setWordIndex] = useState<number>(0);
-
     const [scoreRight, setScoreRight] = useState<number>(0);
     const [menuActive, setMenuActive] = useState<boolean>(false);
     const [groupText, setGroupText] = useState<string>('');
