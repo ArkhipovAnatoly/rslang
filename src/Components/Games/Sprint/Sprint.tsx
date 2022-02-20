@@ -26,14 +26,15 @@ const Sprint = () => {
     const [menuActive, setMenuActive] = useState<boolean>(false);
     const [groupText, setGroupText] = useState<string>('');
     const [isAuth, setIsAuth] = useState<boolean>(false);
-    const [wordLength, setWordLength] = useState<number>(-1);
     const [correctWordId, setCorrectWordId] = useState<string>('');
     const [guessedWordsIDs, setGuessedWordsIDs] = useState<string[]>([]);
     const [notGuessedWordsIDs, setNotGuessedWordsIDs] = useState<string[]>([]);
     const [isDisabledStart, setIsDisabledStart] = useState<boolean>(true);
     const [answersInRow, setAnswersInRow] = useState<number>(0);
     const [isAnswered, setIsAnswered] = useState<boolean>(false);
+    const [timerStart, setTimerStart] = useState<boolean>(true);
     const [classResult, setClassResult] = useState<string>('');
+    const [key, setKey] = useState(0);
 
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
@@ -119,7 +120,6 @@ const Sprint = () => {
         }
         const shuffledWords = shuffle(wordsPartial);
         setWords(shuffledWords);
-        setWordLength(wordsPartial.length);
     }, [currentPage, group, page, currentGroup, isAuth, navigator]);
 
     useEffect(() => {
@@ -127,6 +127,7 @@ const Sprint = () => {
     }, [fetchPartialWords]);
 
     const generateWordsToGuess = useCallback(async () => {
+        setTimerStart(true);
         let num: number = 0;
         const arr: DataWord[] = [];
         const generated: number[] = [];
@@ -306,7 +307,7 @@ const Sprint = () => {
     );
 
     const checkAnswer = useCallback(
-        (event?: React.MouseEvent, key?: string) => {
+        (event?: React.MouseEvent, k?: string) => {
             const target = event?.target as HTMLDivElement;
             let variantWordId: string = '';
             let variantAnswer: string = '';
@@ -316,9 +317,9 @@ const Sprint = () => {
                 if (!dataset.id) return;
                 variantWordId = dataset.id;
                 variantAnswer = dataset.answer as string;
-            } else if (key) {
-                variantWordId = wordsToGuess[+key - 1].id;
-                variantAnswer = key === '1' ? 'YES' : 'NO';
+            } else if (k) {
+                variantWordId = wordsToGuess[+k - 1].id;
+                variantAnswer = k === '1' ? 'YES' : 'NO';
             }
 
             if (variantAnswer === answer) {
@@ -349,21 +350,6 @@ const Sprint = () => {
             answersInRow,
         ]
     );
-
-    useEffect(() => {
-        if (wordIndex === wordLength - 1) {
-            setWordIndex(0);
-            setClassResult('visible');
-            setShowMain(false);
-        }
-    }, [wordIndex, wordLength]);
-
-    useEffect(() => {
-        if (wordIndex === wordLength - 1) {
-            setWordIndex(0);
-            setClassResult('visible');
-        }
-    }, [wordIndex, wordLength]);
 
     useEffect(() => {
         if (currentPage === 30) {
@@ -567,45 +553,44 @@ const Sprint = () => {
                         {showAnswer && (
                             <div className="game-container">
                                 <div className={`result ${classResult}`}>
-                                    <div className="btn-main">
-                                        <i
-                                            title="Выход"
-                                            style={{ cursor: 'pointer', color: '#beaf73' }}
-                                            aria-hidden
-                                            className="material-icons medium"
-                                            onClick={() => {
-                                                setClassResult('');
-                                                setShowAnswer(false);
-                                                setShowMain(true);
-                                                setWordIndex(0);
-                                                setCurrentPage(0);
-                                                setCurrentGroup(0);
-                                                setGuessedWordsIDs([]);
-                                                setNotGuessedWordsIDs([]);
-                                                setIsDisabledStart(true);
-                                                setGroupText('');
-                                                setAnswersInRow(0);
-                                                setScoreRight(0);
-                                            }}
-                                        >
-                                            close
-                                        </i>
-                                        <i
-                                            title="Продолжить"
-                                            style={{ cursor: 'pointer', color: '#beaf73' }}
-                                            aria-hidden
-                                            className="material-icons medium"
-                                            onClick={() => {
-                                                setClassResult('');
-                                                setScoreRight(0);
-                                                if (!group && !page) {
-                                                    setCurrentPage(currentPage + 1);
-                                                }
-                                            }}
-                                        >
-                                            play_arrow
-                                        </i>
-                                    </div>
+                                    <i
+                                        title="Выход"
+                                        style={{ cursor: 'pointer' }}
+                                        aria-hidden
+                                        className="material-icons medium"
+                                        onClick={() => {
+                                            setClassResult('');
+                                            setShowAnswer(false);
+                                            setShowMain(true);
+                                            setWordIndex(0);
+                                            setCurrentPage(0);
+                                            setCurrentGroup(0);
+                                            setGuessedWordsIDs([]);
+                                            setNotGuessedWordsIDs([]);
+                                            setIsDisabledStart(true);
+                                            setGroupText('');
+                                            setAnswersInRow(0);
+                                        }}
+                                    >
+                                        close
+                                    </i>
+                                    <i
+                                        title="Продолжить"
+                                        style={{ cursor: 'pointer' }}
+                                        aria-hidden
+                                        className="material-icons medium"
+                                        onClick={() => {
+                                            setClassResult('');
+                                            if (!group && !page) {
+                                                setCurrentPage(currentPage + 1);
+                                            }
+                                            setTimerStart(true);
+                                            setKey((prevKey) => prevKey + 1);
+                                        }}
+                                    >
+                                        play_arrow
+                                    </i>
+
                                     <h4 className="result-title">Результат</h4>
                                     <div className="result-info">
                                         <table className="highlight">
@@ -615,7 +600,6 @@ const Sprint = () => {
                                                         style={{
                                                             color: 'green',
                                                             font: 'bold 20px Vibur, cursive',
-                                                            textAlign: 'center',
                                                         }}
                                                     >
                                                         Знаю
@@ -655,7 +639,6 @@ const Sprint = () => {
                                                         style={{
                                                             color: 'red',
                                                             font: 'bold 20px Vibur, cursive',
-                                                            textAlign: 'center',
                                                         }}
                                                     >
                                                         Не Знаю
@@ -699,14 +682,17 @@ const Sprint = () => {
 
                                     <div className="timer">
                                         <CountdownCircleTimer
-                                            isPlaying
-                                            size={150}
+                                            key={key}
+                                            isPlaying={timerStart}
+                                            size={100}
                                             duration={30}
                                             colors={['#50C878', '#F4F216', '#F08827', '#EB4C42']}
                                             colorsTime={[25, 10, 5, 0]}
                                             onComplete={() => {
+                                                setTimerStart(false);
                                                 setClassResult('visible');
-                                                setScoreRight(0);
+                                                setWordIndex(0);
+                                                return { shouldRepeat: true };
                                             }}
                                         >
                                             {({ remainingTime }) => remainingTime}
@@ -727,7 +713,6 @@ const Sprint = () => {
                                             data-answer={i === 0 ? 'YES' : 'NO'}
                                             className="answer-sprint"
                                             aria-hidden
-                                            style={{ font: 'bold 14px Verdana, cursive' }}
                                         >
                                             {i === 0 ? `(${i + 1}) - ДА` : `(${i + 1}) - НЕТ`}
                                         </div>
