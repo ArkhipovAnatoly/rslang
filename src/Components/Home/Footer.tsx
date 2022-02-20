@@ -8,7 +8,7 @@ const Footer = () => (
                 <span className="rss-year">`22</span>{' '}
             </a>
             <div className="githab">
-                <a href="/" target="_blank" rel="noopener noreferrer">
+                <a href="https://github.com/ArkhipovAnatoly" target="_blank" rel="noopener noreferrer">
                     Анатолий
                 </a>
                 <a href="https://github.com/DaryaEnina" target="_blank" rel="noopener noreferrer">
