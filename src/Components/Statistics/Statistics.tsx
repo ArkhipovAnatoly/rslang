@@ -4,7 +4,7 @@ import Header from '../Home/Header';
 import Footer from '../Home/Footer';
 import './Statistics.css';
 import Menu from '../Menu/Menu';
-import Service from '../../Service';
+import Service, { DataStat } from '../../Service';
 
 const data = [
     {
@@ -61,26 +61,58 @@ type DataStat = {
 
 const Statistics = () => {
     const [menuActive, setMenuActive] = useState<boolean>(false);
-    
+    const [stateData, setStateData] = useState<DataStat>({
+        learnedWords: 0,
+        optional: {
+            newWordsAudioGame: 0,
+            newWordsSprintGame: 0,
+            wordsInRowAudioGame: 0,
+            wordsInRowSprintGame: 0,
+            totalQuestionsAudioGame: 0,
+            totalQuestionSprintGame: 0,
+            totalCorrectAnswersAudioGame: 0,
+            totalCorrectAnswersSprintGame: 0,
+        },
+    });
+    const [audioGamePercent, setAudioGamePercent] = useState<number>(0);
+    const [sprintGamePercent, setSprintGamePercent] = useState<number>(0);
 
-    const [stateData,setStateData] = useState<DataStat>()
-    
     const dayResults = useCallback(async () => {
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
-        const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
-        console.log(responseStat)
-        setStateData(responseStat)
-        
-        
-    },[]);
-    
+        const responseStat = await Service.getUserStat(userId, token);
+        console.log(responseStat);
+        if (responseStat !== 404) {
+            setStateData(responseStat as DataStat);
+        }
+    }, []);
+
     useEffect(() => {
         dayResults();
     }, [dayResults]);
-    const newWordsCount = stateData!.optional.newWordsAudioGame + stateData!.optional.newWordsSprintGame;
-    const audioAnswers = ((stateData!.optional.totalCorrectAnswersAudioGame/stateData!.optional.totalQuestionsAudioGame)*100).toFixed(2);
-    const sprintAnswers = ((stateData!.optional.totalCorrectAnswersSprintGame/stateData!.optional.totalQuestionSprintGame)*100).toFixed(2)
+
+    useEffect(() => {
+        if (stateData!.optional.totalQuestionsAudioGame !== 0) {
+            const audioAnswers = (
+                (stateData!.optional.totalCorrectAnswersAudioGame / stateData!.optional.totalQuestionsAudioGame) *
+                100
+            ).toFixed(2);
+            setAudioGamePercent(+audioAnswers);
+        } else {
+            setAudioGamePercent(0);
+        }
+        if (stateData!.optional.totalQuestionSprintGame !== 0) {
+            const sprintAnswers = (
+                (stateData!.optional.totalCorrectAnswersSprintGame / stateData!.optional.totalQuestionSprintGame) *
+                100
+            ).toFixed(2);
+            setAudioGamePercent(+sprintAnswers);
+        } else {
+            setSprintGamePercent(0);
+        }
+    }, [stateData]);
+
+
     return (
         <div className="statistics_wrapper">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
@@ -93,8 +125,10 @@ const Statistics = () => {
                     <div className="stat-words_result">
                         <div className="stat-words_count">
                             <p>Новых слов</p>
-                            <p>{newWordsCount} 
-                             шт</p>
+                            <p>
+                                {stateData!.optional.newWordsAudioGame + stateData!.optional.newWordsSprintGame}
+                                шт
+                            </p>
                         </div>
                         <div className="stat-words_count">
                             <p>Изученных слов</p>
@@ -115,7 +149,7 @@ const Statistics = () => {
                         </div>
                         <div className="stat-games_count">
                             <p>Правильных ответов</p>
-                            <p>{audioAnswers}%</p>
+                           <p>{audioGamePercent}%</p>
                         </div>
                         <div className="stat-games_count">
                             <p>Самая длинная серия правильных ответов</p>
@@ -132,7 +166,7 @@ const Statistics = () => {
                         </div>
                         <div className="stat-games_count">
                             <p>Правильных ответов</p>
-                            <p> {sprintAnswers}%</p>
+                            <p> {sprintGamePercent}%</p>
                         </div>
                         <div className="stat-games_count">
                             <p>Самая длинная серия правильных ответов</p>
