@@ -44,21 +44,6 @@ const data = [
     },
 ];
 
-type DataStat = {
-    learnedWords: number;
-    optional: {
-        newWordsAudioGame: number;
-        newWordsSprintGame: number;
-        wordsInRowAudioGame: number;
-        wordsInRowSprintGame: number;
-        totalQuestionsAudioGame: number;
-        totalQuestionSprintGame: number;
-        totalCorrectAnswersAudioGame: number;
-        totalCorrectAnswersSprintGame: number;
-    };
-};
-
-
 const Statistics = () => {
     const [menuActive, setMenuActive] = useState<boolean>(false);
     const [stateData, setStateData] = useState<DataStat>({
@@ -112,7 +97,6 @@ const Statistics = () => {
         }
     }, [stateData]);
 
-
     return (
         <div className="statistics_wrapper">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
@@ -149,7 +133,7 @@ const Statistics = () => {
                         </div>
                         <div className="stat-games_count">
                             <p>Правильных ответов</p>
-                           <p>{audioGamePercent}%</p>
+                            <p>{audioGamePercent}%</p>
                         </div>
                         <div className="stat-games_count">
                             <p>Самая длинная серия правильных ответов</p>
@@ -200,5 +184,3 @@ const Statistics = () => {
     );
 };
 export default Statistics;
-
-
