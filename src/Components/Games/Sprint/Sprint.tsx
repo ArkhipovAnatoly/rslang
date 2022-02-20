@@ -35,6 +35,8 @@ const Sprint = () => {
     const [timerStart, setTimerStart] = useState<boolean>(true);
     const [classResult, setClassResult] = useState<string>('');
     const [key, setKey] = useState(0);
+    const [guessedWords, setGuessedWords] = useState<DataWord[]>([]);
+    const [notGuessedWords, setNotGuessedWords] = useState<DataWord[]>([]);
 
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
@@ -325,10 +327,14 @@ const Sprint = () => {
             if (variantAnswer === answer) {
                 setScoreRight(scoreRight + 1);
                 setGuessedWordsIDs([...guessedWordsIDs, variantWordId]);
-                createCorrectWord(variantWordId as string);
+                const word = words.find((w) => w.id === variantWordId) as DataWord;
+                setGuessedWords([...guessedWords, word]);
+                createCorrectWord(variantWordId);
                 setAnswersInRow(answersInRow + 1);
             } else {
                 setNotGuessedWordsIDs([...notGuessedWordsIDs, correctWordId]);
+                const word = words.find((w) => w.id === correctWordId) as DataWord;
+                setNotGuessedWords([...notGuessedWords, word]);
                 createIncorrectWord(correctWordId);
                 setAnswersInRow(0);
             }
@@ -348,6 +354,9 @@ const Sprint = () => {
             wordIndex,
             wordsToGuess,
             answersInRow,
+            guessedWords,
+            notGuessedWords,
+            words,
         ]
     );
 
@@ -553,43 +562,47 @@ const Sprint = () => {
                         {showAnswer && (
                             <div className="game-container">
                                 <div className={`result ${classResult}`}>
-                                    <i
-                                        title="Выход"
-                                        style={{ cursor: 'pointer' }}
-                                        aria-hidden
-                                        className="material-icons medium"
-                                        onClick={() => {
-                                            setClassResult('');
-                                            setShowAnswer(false);
-                                            setShowMain(true);
-                                            setWordIndex(0);
-                                            setCurrentPage(0);
-                                            setCurrentGroup(0);
-                                            setGuessedWordsIDs([]);
-                                            setNotGuessedWordsIDs([]);
-                                            setIsDisabledStart(true);
-                                            setGroupText('');
-                                            setAnswersInRow(0);
-                                        }}
-                                    >
-                                        close
-                                    </i>
-                                    <i
-                                        title="Продолжить"
-                                        style={{ cursor: 'pointer' }}
-                                        aria-hidden
-                                        className="material-icons medium"
-                                        onClick={() => {
-                                            setClassResult('');
-                                            if (!group && !page) {
-                                                setCurrentPage(currentPage + 1);
-                                            }
-                                            setTimerStart(true);
-                                            setKey((prevKey) => prevKey + 1);
-                                        }}
-                                    >
-                                        play_arrow
-                                    </i>
+                                    <div className="btn-main">
+                                        <i
+                                            title="Выход"
+                                            style={{ cursor: 'pointer' }}
+                                            aria-hidden
+                                            className="material-icons medium"
+                                            onClick={() => {
+                                                setClassResult('');
+                                                setShowAnswer(false);
+                                                setShowMain(true);
+                                                setWordIndex(0);
+                                                setCurrentPage(0);
+                                                setCurrentGroup(0);
+                                                setGuessedWords([]);
+                                                setNotGuessedWords([]);
+                                                setGuessedWordsIDs([]);
+                                                setNotGuessedWordsIDs([]);
+                                                setIsDisabledStart(true);
+                                                setGroupText('');
+                                                setAnswersInRow(0);
+                                            }}
+                                        >
+                                            close
+                                        </i>
+                                        <i
+                                            title="Продолжить"
+                                            style={{ cursor: 'pointer' }}
+                                            aria-hidden
+                                            className="material-icons medium"
+                                            onClick={() => {
+                                                setClassResult('');
+                                                if (!group && !page) {
+                                                    setCurrentPage(currentPage + 1);
+                                                }
+                                                setTimerStart(true);
+                                                setKey((prevKey) => prevKey + 1);
+                                            }}
+                                        >
+                                            play_arrow
+                                        </i>
+                                    </div>
 
                                     <h4 className="result-title">Результат</h4>
                                     <div className="result-info">
@@ -607,24 +620,15 @@ const Sprint = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {guessedWordsIDs.length ? (
-                                                    guessedWordsIDs.map((wordID) => {
-                                                        const index = words.findIndex((word) => word.id === wordID);
-                                                        if (index !== -1) {
-                                                            return (
-                                                                <tr key={Math.random() * 1000}>
-                                                                    <td
-                                                                        key={words[index].id}
-                                                                        className="collection-item"
-                                                                    >
-                                                                        {words[index].word} -{' '}
-                                                                        {words[index].wordTranslate}
-                                                                    </td>
-                                                                </tr>
-                                                            );
-                                                        }
-                                                        return null;
-                                                    })
+                                                {guessedWords.length ? (
+                                                    guessedWords.map((word) => (
+                                                        <tr key={Math.random() * 1000}>
+                                                            <td key={word.id} className="collection-item">
+                                                                {word.word} - {word.transcription} -{' '}
+                                                                {word.wordTranslate}
+                                                            </td>
+                                                        </tr>
+                                                    ))
                                                 ) : (
                                                     <tr>
                                                         <td>Тут пусто</td>
@@ -646,24 +650,15 @@ const Sprint = () => {
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {notGuessedWordsIDs.length ? (
-                                                    notGuessedWordsIDs.map((wordID) => {
-                                                        const index = words.findIndex((word) => word.id === wordID);
-                                                        if (index !== -1) {
-                                                            return (
-                                                                <tr key={Math.random() * 1000}>
-                                                                    <td
-                                                                        key={words[index].id}
-                                                                        className="collection-item"
-                                                                    >
-                                                                        {words[index].word} -{' '}
-                                                                        {words[index].wordTranslate}
-                                                                    </td>
-                                                                </tr>
-                                                            );
-                                                        }
-                                                        return null;
-                                                    })
+                                                {notGuessedWords.length ? (
+                                                    notGuessedWords.map((word) => (
+                                                        <tr key={Math.random() * 1000}>
+                                                            <td key={word.id} className="collection-item">
+                                                                {word.word} - {word.transcription} -{' '}
+                                                                {word.wordTranslate}
+                                                            </td>
+                                                        </tr>
+                                                    ))
                                                 ) : (
                                                     <tr>
                                                         <td>Тут пусто</td>
