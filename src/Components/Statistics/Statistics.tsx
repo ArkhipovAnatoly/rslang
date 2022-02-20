@@ -61,6 +61,7 @@ const Statistics = () => {
     });
     const [audioGamePercent, setAudioGamePercent] = useState<number>(0);
     const [sprintGamePercent, setSprintGamePercent] = useState<number>(0);
+    const [totalPercent, setTotalPercent] = useState<number>(0);
 
     const dayResults = useCallback(async () => {
         const token = localStorage.getItem('token') as string;
@@ -91,12 +92,20 @@ const Statistics = () => {
                 (stateData!.optional.totalCorrectAnswersSprintGame / stateData!.optional.totalQuestionSprintGame) *
                 100
             ).toFixed(2);
-            setAudioGamePercent(+sprintAnswers);
+            setSprintGamePercent(+sprintAnswers);
         } else {
             setSprintGamePercent(0);
         }
+        if (stateData!.optional.totalQuestionSprintGame !== 0 && stateData!.optional.totalQuestionsAudioGame !== 0) {
+            const totalAnswers = (
+                ((stateData!.optional.totalCorrectAnswersSprintGame + stateData!.optional.totalCorrectAnswersAudioGame) / (stateData!.optional.totalQuestionSprintGame + stateData!.optional.totalQuestionsAudioGame)) *
+                100
+            ).toFixed(2);
+            setTotalPercent(+totalAnswers );
+        } else {
+            setTotalPercent(0);
+        }
     }, [stateData]);
-
     return (
         <div className="statistics_wrapper">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
@@ -120,7 +129,7 @@ const Statistics = () => {
                         </div>
                         <div className="stat-words_count">
                             <p>Правильных ответов</p>
-                            <p>0 %</p>
+                            <p>{totalPercent } %</p>
                         </div>
                     </div>
                 </div>
