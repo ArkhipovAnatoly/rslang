@@ -1,4 +1,5 @@
 import './Error.css';
+import { Link } from 'react-router-dom';
 
 const Error = () => (
     <div className="wrapper">
@@ -366,6 +367,27 @@ const Error = () => (
                 <div className="numbers__item numbers__item_3">4</div>
             </div>
         </div>
+        <div className="shelf__side_front" />
+        <div className="shelf__side_right" />
+        
+        <div className="shelf__handle_top" />
+        <div className="shelf__handle_front" />
+        <div className="shelf__handle_right" />
+      </div>
+      <div className="layer-1 shadow" />
+      <div className="layer-2 numbers">
+        <div className="numbers__item numbers__item_1">4</div>
+        <div className="numbers__item numbers__item_2">0</div>
+        <div className="numbers__item numbers__item_3">4</div>
+      </div>
+      <p>
+        <Link
+            to='/'
+            className="open-main"
+        >
+          <span data-hover="Вернуться на главную страницу">Вернуться на главную страницу</span>
+        </Link>
+      </p>
     </div>
 );
 

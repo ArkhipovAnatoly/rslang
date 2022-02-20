@@ -619,42 +619,43 @@ const AudioGame = () => {
                         {showAnswer && (
                             <div className="game-container">
                                 <div className={`result ${classResult}`}>
-                                    <i
-                                        title="Выход"
-                                        style={{ cursor: 'pointer' }}
-                                        aria-hidden
-                                        className="material-icons medium"
-                                        onClick={() => {
-                                            setClassResult('');
-                                            setShowAnswer(false);
-                                            setShowMain(true);
-                                            setWordIndex(0);
-                                            setCurrentPage(0);
-                                            setCurrentGroup(0);
-                                            setGuessedWordsIDs([]);
-                                            setNotGuessedWordsIDs([]);
-                                            setIsDisabledStart(true);
-                                            setGroupText('');
-                                            setAnswersInRow(0);
-                                        }}
-                                    >
-                                        close
-                                    </i>
-                                    <i
-                                        title="Продолжить"
-                                        style={{ cursor: 'pointer' }}
-                                        aria-hidden
-                                        className="material-icons  medium"
-                                        onClick={() => {
-                                            setClassResult('');
-                                            if (!group && !page) {
-                                                setCurrentPage(currentPage + 1);
-                                            }
-                                        }}
-                                    >
-                                        play_arrow
-                                    </i>
-
+                                    <div className="btn-main">
+                                        <i
+                                            title="Выход"
+                                            style={{ cursor: 'pointer', color: '#beaf73' }}
+                                            aria-hidden
+                                            className="material-icons medium"
+                                            onClick={() => {
+                                                setClassResult('');
+                                                setShowAnswer(false);
+                                                setShowMain(true);
+                                                setWordIndex(0);
+                                                setCurrentPage(0);
+                                                setCurrentGroup(0);
+                                                setGuessedWordsIDs([]);
+                                                setNotGuessedWordsIDs([]);
+                                                setIsDisabledStart(true);
+                                                setGroupText('');
+                                                setAnswersInRow(0);
+                                            }}
+                                        >
+                                            close
+                                        </i>
+                                        <i
+                                            title="Продолжить"
+                                            style={{ cursor: 'pointer', color: '#beaf73' }}
+                                            aria-hidden
+                                            className="material-icons  medium"
+                                            onClick={() => {
+                                                setClassResult('');
+                                                if (!group && !page) {
+                                                    setCurrentPage(currentPage + 1);
+                                                }
+                                            }}
+                                        >
+                                            play_arrow
+                                        </i>
+                                    </div>
                                     <h4 className="result-title">Результат</h4>
                                     <div className="result-info">
                                         <table className="highlight">
@@ -664,6 +665,7 @@ const AudioGame = () => {
                                                         style={{
                                                             color: 'green',
                                                             font: 'bold 20px Vibur, cursive',
+                                                            textAlign: 'center',
                                                         }}
                                                     >
                                                         Знаю
@@ -714,6 +716,7 @@ const AudioGame = () => {
                                                         style={{
                                                             color: 'red',
                                                             font: 'bold 20px Vibur, cursive',
+                                                            textAlign: 'center',
                                                         }}
                                                     >
                                                         Не Знаю
@@ -765,7 +768,7 @@ const AudioGame = () => {
                                     {showAnswer && <div className="right-answer">{correctText}</div>}
                                     <i
                                         aria-hidden
-                                        style={{ cursor: 'pointer', color: '#00ffc4' }}
+                                        style={{ cursor: 'pointer', color: '#485784' }}
                                         className={`material-icon medium `}
                                         onClick={() => {
                                             const player = new Audio(audioUrl);
@@ -786,6 +789,9 @@ const AudioGame = () => {
                                             disabled={isDisabled[i]}
                                             aria-hidden
                                             type="button"
+                                            style={
+                                                {font: 'bold 14px Verdana, cursive',}
+                                            }
                                         >
                                             {btnNum && i === +btnNum ? message : `(${i + 1})  ${word.wordTranslate}`}
                                         </button>

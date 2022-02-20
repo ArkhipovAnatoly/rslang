@@ -170,10 +170,12 @@ h2 {
 .row3_2 {
     max-width: 107px;
     width: 100%;
-    background-image: url('../../../public/assets/img/row3-2.png');
+    background-image: url('../../../public/assets/img/marina.jpg');
     background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
+    background-position: center top 27%;
+    background-size: cover;
+    height: 107px;
+    margin: 0 30px;
 }
 .row3_3 {
     max-width: 107px;
@@ -975,6 +977,7 @@ table a,
     }
     .one_quarter {
         width: 100%;
+        
     }
     .githab {
         display: flex;
