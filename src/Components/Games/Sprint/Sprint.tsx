@@ -131,7 +131,8 @@ const Sprint = () => {
     const generateWordsToGuess = useCallback(async () => {
         setTimerStart(true);
         let num: number = 0;
-        const arr: DataWord[] = [];
+        let helper: number = 0;
+        let arr: DataWord[] = [];
         const generated: number[] = [];
         setShowAnswer(true);
         setShowMain(false);
@@ -142,36 +143,46 @@ const Sprint = () => {
 
         do {
             num = getRandomNumber(20);
+            helper = getRandomNumber(20);
         } while (generated.includes(num));
-
-        generated.push(num);
         arr.push(words[num]);
+        generated.push(num);
         setQuestionWordTranslate(words[num].wordTranslate);
+
+        if (helper % 2 === 0) {
+            arr = [];
+            arr.push(words[wordIndex]);
+            do {
+                num = getRandomNumber(20);
+                arr[1] = words[num];
+                setQuestionWordTranslate(words[num].wordTranslate);
+            } while (arr[0].id !== arr[1].id);
+        }
 
         if (arr[0].id === arr[1].id) {
             setAnswer('YES');
         } else {
             setAnswer('NO');
         }
-        setWordsToGuess(arr);
-        setWordIndex(wordIndex + 1);
-        setIsAnswered(false);
 
         if (isAuth) {
             const token = localStorage.getItem('token') as string;
             const userId = localStorage.getItem('userId') as string;
             const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
             const { learnedWords, optional } = responseStat;
-            const totalQuestionSprintGame = optional.totalQuestionSprintGame + 1;
+            const totalQuestion = optional.totalQuestionSprintGame + 1;
             await Service.updateUserStat(
                 {
                     learnedWords,
-                    optional: { ...optional, totalQuestionSprintGame },
+                    optional: { ...optional, totalQuestionSprintGame: totalQuestion },
                 },
                 userId,
                 token
             );
         }
+        setWordsToGuess(arr);
+        setWordIndex(wordIndex + 1);
+        setIsAnswered(false);
     }, [wordIndex, words, isAuth]);
 
     const createCorrectWord = useCallback(
@@ -205,6 +216,17 @@ const Sprint = () => {
                         difficulty: 'answered',
                         optional: { guessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
+
+                    const newWordsSprintGame = optionalStat.newWordsSprintGame + 1;
+
+                    await Service.updateUserStat(
+                        {
+                            learnedWords,
+                            optional: { ...optionalStat, newWordsSprintGame },
+                        },
+                        userId,
+                        token
+                    );
                 } else {
                     let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
                     const notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
@@ -272,22 +294,44 @@ const Sprint = () => {
                     navigator('/authorization');
                 }
 
+                const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+                const { learnedWords, optional: optionalStat } = responseStat;
+                const totalCorrectAnswersSprintGame = optionalStat.totalCorrectAnswersSprintGame + 1;
+
+                await Service.updateUserStat(
+                    {
+                        learnedWords,
+                        optional: { ...optionalStat, totalCorrectAnswersSprintGame },
+                    },
+                    userId,
+                    token
+                );
+
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
                         optional: { notGuessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
+
+                    const newWordsSprintGame = optionalStat.newWordsSprintGame + 1;
+
+                    await Service.updateUserStat(
+                        {
+                            learnedWords,
+                            optional: { ...optionalStat, newWordsSprintGame },
+                        },
+                        userId,
+                        token
+                    );
                 } else {
                     if (word[0]?.userWord.difficulty === 'learned') {
-                        const response = (await Service.getUserStat(userId, token)) as DataStat;
-                        const { learnedWords, optional } = response;
                         const learnedWordsUpdate = learnedWords - 1;
                         if (learnedWordsUpdate >= 0) {
                             await Service.updateUserStat(
                                 {
                                     learnedWords: learnedWordsUpdate,
                                     optional: {
-                                        ...optional,
+                                        ...optionalStat,
                                     },
                                 },
                                 userId,
@@ -359,6 +403,12 @@ const Sprint = () => {
             words,
         ]
     );
+
+    useEffect(() => {
+        if (wordIndex === 20) {
+            setWordIndex(0);
+        }
+    }, [wordIndex]);
 
     useEffect(() => {
         if (currentPage === 30) {
@@ -582,6 +632,7 @@ const Sprint = () => {
                                                 setIsDisabledStart(true);
                                                 setGroupText('');
                                                 setAnswersInRow(0);
+                                                setScoreRight(0);
                                             }}
                                         >
                                             close
@@ -593,11 +644,9 @@ const Sprint = () => {
                                             className="material-icons medium"
                                             onClick={() => {
                                                 setClassResult('');
-                                                if (!group && !page) {
-                                                    setCurrentPage(currentPage + 1);
-                                                }
                                                 setTimerStart(true);
                                                 setKey((prevKey) => prevKey + 1);
+                                                generateWordsToGuess();
                                             }}
                                         >
                                             play_arrow
@@ -687,6 +736,10 @@ const Sprint = () => {
                                                 setTimerStart(false);
                                                 setClassResult('visible');
                                                 setWordIndex(0);
+                                                if (!group && !page) {
+                                                    setCurrentPage(currentPage + 1);
+                                                }
+
                                                 return { shouldRepeat: true };
                                             }}
                                         >
