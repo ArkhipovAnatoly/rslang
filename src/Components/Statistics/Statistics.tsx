@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import Header from '../Home/Header';
 import Footer from '../Home/Footer';
 import './Statistics.css';
 import Menu from '../Menu/Menu';
+import Service from '../../Service';
 
 const data = [
     {
@@ -43,8 +44,43 @@ const data = [
     },
 ];
 
+type DataStat = {
+    learnedWords: number;
+    optional: {
+        newWordsAudioGame: number;
+        newWordsSprintGame: number;
+        wordsInRowAudioGame: number;
+        wordsInRowSprintGame: number;
+        totalQuestionsAudioGame: number;
+        totalQuestionSprintGame: number;
+        totalCorrectAnswersAudioGame: number;
+        totalCorrectAnswersSprintGame: number;
+    };
+};
+
+
 const Statistics = () => {
     const [menuActive, setMenuActive] = useState<boolean>(false);
+    
+
+    const [stateData,setStateData] = useState<DataStat>()
+    
+    const dayResults = useCallback(async () => {
+        const token = localStorage.getItem('token') as string;
+        const userId = localStorage.getItem('userId') as string;
+        const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+        console.log(responseStat)
+        setStateData(responseStat)
+        
+        
+    },[]);
+    
+    useEffect(() => {
+        dayResults();
+    }, [dayResults]);
+    const newWordsCount = stateData!.optional.newWordsAudioGame + stateData!.optional.newWordsSprintGame;
+    const audioAnswers = ((stateData!.optional.totalCorrectAnswersAudioGame/stateData!.optional.totalQuestionsAudioGame)*100).toFixed(2);
+    const sprintAnswers = ((stateData!.optional.totalCorrectAnswersSprintGame/stateData!.optional.totalQuestionSprintGame)*100).toFixed(2)
     return (
         <div className="statistics_wrapper">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
@@ -57,11 +93,12 @@ const Statistics = () => {
                     <div className="stat-words_result">
                         <div className="stat-words_count">
                             <p>Новых слов</p>
-                            <p>0 шт</p>
+                            <p>{newWordsCount} 
+                             шт</p>
                         </div>
                         <div className="stat-words_count">
                             <p>Изученных слов</p>
-                            <p>0 шт</p>
+                            <p>{stateData?.learnedWords} шт</p>
                         </div>
                         <div className="stat-words_count">
                             <p>Правильных ответов</p>
@@ -70,19 +107,36 @@ const Statistics = () => {
                     </div>
                 </div>
                 <div className="stat-games">
-                    <h5>По играм</h5>
+                    <h5>Аудиовызов</h5>
                     <div className="stat-games_result">
                         <div className="stat-games_count">
                             <p>Новых слов</p>
-                            <p>0 шт</p>
+                            <p>{stateData?.optional.newWordsAudioGame} шт</p>
                         </div>
                         <div className="stat-games_count">
                             <p>Правильных ответов</p>
-                            <p>0 %</p>
+                            <p>{audioAnswers}%</p>
                         </div>
                         <div className="stat-games_count">
                             <p>Самая длинная серия правильных ответов</p>
-                            <p>0 шт</p>
+                            <p>{stateData?.optional.wordsInRowAudioGame} шт</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="stat-games">
+                    <h5>Спринт</h5>
+                    <div className="stat-games_result">
+                        <div className="stat-games_count">
+                            <p>Новых слов</p>
+                            <p>{stateData?.optional.newWordsSprintGame} шт</p>
+                        </div>
+                        <div className="stat-games_count">
+                            <p>Правильных ответов</p>
+                            <p> {sprintAnswers}%</p>
+                        </div>
+                        <div className="stat-games_count">
+                            <p>Самая длинная серия правильных ответов</p>
+                            <p>{stateData?.optional.wordsInRowSprintGame} шт</p>
                         </div>
                     </div>
                 </div>
@@ -112,3 +166,5 @@ const Statistics = () => {
     );
 };
 export default Statistics;
+
+
