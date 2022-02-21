@@ -18,10 +18,6 @@ import Error from './Components/Errors/Error';
 import PageExplored from './Components/Games/PageExplored';
 
 function App() {
-    window.addEventListener('beforeunload', () => {
-        localStorage.clear();
-    });
-
     return (
         <Router>
             <GlobalContextProvider>
