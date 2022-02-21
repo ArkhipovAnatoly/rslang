@@ -3,13 +3,14 @@
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
     text-align: center;
+    height: 1080px;
 }
 
 .text-explored {
     font-family: 'Paytone One';
     color: #202020;
     text-transform: uppercase;
-    padding: 150px 0;
+    padding: 200px 0;
 }
 
 .text-explored .letter {

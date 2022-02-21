@@ -26,6 +26,12 @@
     background-position: center;
 }
 .info-image3 {
+    width: 100%;
+    height: 350px;
+    background-image: url('../../../../public/assets/img/stats.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 .arrow-back {
     width: 100%;
