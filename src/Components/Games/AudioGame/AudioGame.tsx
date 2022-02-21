@@ -40,6 +40,11 @@ const AudioGame = () => {
     const [audioUrl, setAudioUrl] = useState<string>('');
     const [answersInRow, setAnswersInRow] = useState<number>(0);
     const [classResult, setClassResult] = useState<string>('');
+    let [learns] = useState<string| null>('');
+
+    const getLocalStorage = () => {
+        learns = localStorage.getItem('pageLearn');
+    }
 
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
@@ -53,6 +58,7 @@ const AudioGame = () => {
 
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
+        
         if (!dataset.group) {
             return;
         }
@@ -63,6 +69,11 @@ const AudioGame = () => {
 
     const fetchPartialWords = useCallback(async () => {
         let wordsPartial: DataWord[] = [];
+
+        getLocalStorage();
+        if(learns === 'true') {
+            navigator(`/book/${group}/${page}/pageExplored`);
+        }
 
         if (group && page) {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
