@@ -156,14 +156,17 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                 navigator('/authorization');
             }
             const learnedWordsUpdate = (learnedWords as number) + 1;
-            await Service.updateUserStat(
-                {
-                    learnedWords: learnedWordsUpdate,
-                    optional: { ...optional },
-                },
-                userId,
-                token
-            );
+
+            setTimeout(async () => {
+                await Service.updateUserStat(
+                    {
+                        learnedWords: learnedWordsUpdate,
+                        optional: { ...optional },
+                    },
+                    userId,
+                    token
+                );
+            }, 100);
         } else {
             setColorText('');
             setTextLearned('Добавить в изученные');
@@ -176,14 +179,16 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                 navigator('/authorization');
             }
             const learnedWordsUpdate = (learnedWords as number) - 1;
-            await Service.updateUserStat(
-                {
-                    learnedWords: learnedWordsUpdate,
-                    optional: { ...optional },
-                },
-                userId,
-                token
-            );
+            setTimeout(async () => {
+                await Service.updateUserStat(
+                    {
+                        learnedWords: learnedWordsUpdate,
+                        optional: { ...optional },
+                    },
+                    userId,
+                    token
+                );
+            }, 100);
         }
     };
 
@@ -224,6 +229,42 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             setIsAuth(false);
         }
     }, []);
+
+    const initStatistic = useCallback(async () => {
+        if (isAuth) {
+            const token = localStorage.getItem('token') as string;
+            const userId = localStorage.getItem('userId') as string;
+            const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+            if (typeof responseStat === 'number' && responseStat === 404) {
+                await Service.updateUserStat(
+                    {
+                        learnedWords: 0,
+                        optional: {
+                            newWordsAudioGame: 0,
+                            newWordsSprintGame: 0,
+                            wordsInRowAudioGame: 0,
+                            wordsInRowSprintGame: 0,
+                            totalQuestionsAudioGame: 0,
+                            totalQuestionsSprintGame: 0,
+                            totalCorrectAnswersAudioGame: 0,
+                            totalCorrectAnswersSprintGame: 0,
+                        },
+                    },
+                    userId,
+                    token
+                );
+            } else if (typeof responseStat === 'number' && responseStat === 401) {
+                setIsAuth(false);
+                localStorage.clear();
+                navigator('/authorization');
+            }
+        }
+    }, [isAuth, navigator]);
+
+    useEffect(() => {
+        initStatistic();
+    }, [initStatistic]);
+
     return (
         <div className="col s12">
             <div className="border">
