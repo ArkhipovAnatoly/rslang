@@ -75,6 +75,7 @@ export type DataAggregatedWordsById = {
     };
 };
 export type DataStat = {
+    id?: string;
     learnedWords: number;
     optional: {
         newWordsAudioGame: number;
