@@ -31,6 +31,7 @@ const Book = () => {
     const [colorLearnedPage, setColorLearnedPage] = useState<string>('');
     const [activePaginationClass, setActivePaginationClass] = useState<string>('');
     const [menuActive, setMenuActive] = useState<boolean>(false);
+    let [learn] = useState<string>('');
 
     useMemo(() => {
         switch (group) {
@@ -59,6 +60,10 @@ const Book = () => {
                 break;
         }
     }, [group]);
+
+    const setLocalStorage = () => {
+        localStorage.setItem('pageLearn', learn);
+    }
 
     const fetchHardWords = useCallback(
         async (userId: string, token: string) => {
@@ -163,6 +168,10 @@ const Book = () => {
         showUpButton();
     }, [showUpButton]);
 
+    // const pageLerned = () => {
+    //     navigator(`/book/${group}/${page}/pageExplored`);
+    // }
+
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
         if (!dataset.group) return;
@@ -216,9 +225,13 @@ const Book = () => {
             if (color !== '') {
                 setColorLearnedPage(color);
                 setActivePaginationClass('active learned');
+                learn = "true";
+                setLocalStorage();
             } else {
                 setColorLearnedPage('');
                 setActivePaginationClass('active');
+                learn = "false";
+                setLocalStorage();
             }
         },
         [setColorLearnedPage]

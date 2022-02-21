@@ -38,7 +38,7 @@ function App() {
                     <Route path="/statInfo" element={<StatInfo />} />
                     <Route path="/gameInfo" element={<GameInfo />} />
                     <Route path="*" element={<Error />} />
-                    <Route path="/pageExplored" element={<PageExplored />} />
+                    <Route path="/book/:group/:page/pageExplored" element={<PageExplored />} />
                 </Routes>
             </GlobalContextProvider>
         </Router>

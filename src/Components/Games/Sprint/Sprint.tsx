@@ -37,6 +37,11 @@ const Sprint = () => {
     const [key, setKey] = useState(0);
     const [guessedWords, setGuessedWords] = useState<DataWord[]>([]);
     const [notGuessedWords, setNotGuessedWords] = useState<DataWord[]>([]);
+    let [learns] = useState<string| null>('');
+
+    const getLocalStorage = () => {
+        learns = localStorage.getItem('pageLearn');
+    }
 
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
@@ -61,6 +66,12 @@ const Sprint = () => {
 
     const fetchPartialWords = useCallback(async () => {
         let wordsPartial: DataWord[] = [];
+
+        getLocalStorage();
+        if(learns === 'true') {
+            navigator(`/book/${group}/${page}/pageExplored`);
+        }
+
         if (group && page) {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
         } else {
