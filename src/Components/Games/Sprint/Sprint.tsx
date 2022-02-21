@@ -94,7 +94,8 @@ const Sprint = () => {
                         wordsPartial.splice(i, 1);
                     }
                 });
-            });
+            }); 
+                      
             if (learnedWords.length !== 0 && learnedWords.length < 20 && +page !== 1) {
                 const allLearned = (await Service.aggregatedWords(
                     {

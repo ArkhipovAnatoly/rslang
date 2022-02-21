@@ -83,7 +83,7 @@ const AudioGame = () => {
                 },
                 token
             )) as DataWord[];
-
+            
             if (typeof learnedWords === 'number') {
                 setIsAuth(false);
                 localStorage.clear();
@@ -91,7 +91,11 @@ const AudioGame = () => {
                 return;
             }
             const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
-
+            console.log(learnedWordsFiltered)
+            // if (learnedWordsFiltered.length === 20) {
+            //     navigator('/pageExplored');
+            // }
+           
             learnedWordsFiltered.forEach((v) => {
                 wordsPartial.forEach((k, i) => {
                     if (k.id === v._id) {
@@ -127,6 +131,7 @@ const AudioGame = () => {
         }
 
         const shuffledWords = shuffle(wordsPartial);
+        
         setWords(shuffledWords);
         setWordLength(wordsPartial.length);
     }, [currentPage, group, page, currentGroup, isAuth, navigator]);
@@ -409,8 +414,9 @@ const AudioGame = () => {
     );
 
     useEffect(() => {
-        if (wordIndex === wordLength - 1) {
+        if (wordIndex === 20) {
             setWordIndex(0);
+            
             if (!group && !page) {
                 setCurrentPage(currentPage + 1);
             }
