@@ -25,7 +25,7 @@ const Home = () => {
                                 <li>Аудиосопровождение</li>
                             </ul>
                             <p className="link">
-                                <Link to="/bookInfo">Read More &raquo;</Link>
+                                <Link to="/bookInfo">Подробнее &raquo;</Link>
                             </p>
                         </article>
                         <article className="one_third">
@@ -37,7 +37,7 @@ const Home = () => {
                                 <li>-процент правильных ответов за день</li>
                             </ul>
                             <p className="link">
-                                <Link to="/statInfo">Read More &raquo;</Link>
+                                <Link to="/statInfo">Подробнее &raquo;</Link>
                             </p>
                         </article>
                         <article className="one_third">
@@ -49,7 +49,7 @@ const Home = () => {
                                 <li>- восприятие на слух и навыки перевода</li>
                             </ul>
                             <p className="link">
-                                <Link to="/gameInfo">Read More &raquo;</Link>
+                                <Link to="/gameInfo">Подробнее &raquo;</Link>
                             </p>
                         </article>
                     </div>
@@ -62,14 +62,13 @@ const Home = () => {
                             <h2 className="heading btmspace-50">Презентация</h2>
                             <figure id="featuredpost">
                                 <figcaption>
-                                    <h2 className="heading">Urna sit amet pulvinar</h2>
+                                    <h2 className="heading">Видео-презентация</h2>
                                     <p className="shortintro">
-                                        Aenean semper elementum tellus, ut placerat leo. Quisque vehicula, urna sit
-                                        amet.&hellip;
+                                       Как мы создавали красоту &hellip;
                                     </p>
                                     <p className="link">
                                         <Link className="btn" to="/">
-                                            Read More &raquo;
+                                        Смотреть &raquo;
                                         </Link>
                                     </p>
                                 </figcaption>
@@ -93,8 +92,8 @@ const Home = () => {
                                     <article className="three_quarter">
                                         <h2 className="heading">Дария</h2>
                                         <p className="shortintro">
-                                            Разработка дизайна, навигации по приложению, воссоедиение всех кусочков
-                                            проекта в одно целое.
+                                            Главная страница, навигации по приложению, воссоедиение всех кусочков
+                                            проекта в одно целое, страница статистики.
                                         </p>
                                     </article>
                                 </li>
