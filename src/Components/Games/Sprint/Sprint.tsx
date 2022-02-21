@@ -4,7 +4,6 @@ import './Sprint.css';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import Header from '../../Home/Header';
 import Menu from '../../Menu/Menu';
-import Footer from '../../Home/Footer';
 import Service, { DataAggregatedWordsById, DataStat, DataWord } from '../../../Service';
 import shuffle from '../../../Utils/shuffleArray';
 import getRandomNumber from '../../../Utils/random';
@@ -795,7 +794,6 @@ const Sprint = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 };

@@ -2,7 +2,6 @@ import { useNavigate, useParams } from 'react-router-dom';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './AudioGame.css';
 import Header from '../../Home/Header';
-import Footer from '../../Home/Footer';
 import Service, { DataAggregatedWordsById, DataStat, DataWord } from '../../../Service';
 import Menu from '../../Menu/Menu';
 import shuffle from '../../../Utils/shuffleArray';
@@ -833,7 +832,6 @@ const AudioGame = () => {
                     </div>
                 </div>
             </div>
-            <Footer />
         </div>
     );
 };
