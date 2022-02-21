@@ -1,8 +1,20 @@
+import { useEffect, useState } from 'react';
 import './Menu.css';
-import { NavLink, useParams } from 'react-router-dom';
+import { NavLink, Link, useParams } from 'react-router-dom';
 
 const Menu = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuActive: (value: boolean) => void }) => {
     const { group, page } = useParams();
+    const [isAuth, setIsAuth] = useState<Boolean>(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem('token') as string;
+        const userId = localStorage.getItem('userId') as string;
+        if (token !== null && userId !== null) {
+            setIsAuth(true);
+        } else {
+            setIsAuth(false);
+        }
+    }, []);
     return (
         <div
             className={menuActive ? 'burger-menu_menu active' : 'burger-menu_menu'}
@@ -50,11 +62,25 @@ const Menu = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuActiv
                     </ul>
                 </li>
                 <li>
-                    <NavLink to="/statistics">Статистика</NavLink>
-                </li>
-                <li>
-                    <NavLink to="/authorization">Войти</NavLink>
-                </li>
+                            {isAuth ? (
+                                <NavLink to="/statistics">{localStorage.getItem('name')}</NavLink>
+                            ) : (
+                                <NavLink to="/authorization">Войти</NavLink>
+                            )}
+                        </li>
+                        <li>
+                            {isAuth && (
+                                <Link
+                                    to="/"
+                                    onClick={() => {
+                                        localStorage.clear();
+                                        setIsAuth(false);
+                                    }}
+                                >
+                                    Выйти
+                                </Link>
+                            )}
+                        </li>
             </ul>
         </div>
     );
