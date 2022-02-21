@@ -83,7 +83,7 @@ export type DataStat = {
         wordsInRowAudioGame: number;
         wordsInRowSprintGame: number;
         totalQuestionsAudioGame: number;
-        totalQuestionSprintGame: number;
+        totalQuestionsSprintGame: number;
         totalCorrectAnswersAudioGame: number;
         totalCorrectAnswersSprintGame: number;
     };
