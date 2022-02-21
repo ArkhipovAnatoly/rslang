@@ -83,7 +83,7 @@ const Home = () => {
                                         <h2 className="heading">Анатолий - Team Lead</h2>
                                         <p className="shortintro">
                                             Разработка и реализация логики игр &quot;Аудиовызов&quot; и
-                                            &quot;Спринт&quot;, словарь, статистика.
+                                            &quot;Спринт&quot;, регистрация, авторизация, словарь, статистика.
                                         </p>
                                     </article>
                                 </li>

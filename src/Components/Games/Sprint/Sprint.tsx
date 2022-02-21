@@ -8,6 +8,21 @@ import Service, { DataAggregatedWordsById, DataStat, DataWord } from '../../../S
 import shuffle from '../../../Utils/shuffleArray';
 import getRandomNumber from '../../../Utils/random';
 
+/* let dataStat: DataStat = {
+    learnedWords: 0,
+    optional: {
+        newWordsAudioGame: 0,
+        newWordsSprintGame: 0,
+        wordsInRowAudioGame: 0,
+        wordsInRowSprintGame: 0,
+        totalQuestionsAudioGame: 0,
+        totalQuestionSprintGame: 0,
+        totalCorrectAnswersAudioGame: 0,
+        totalCorrectAnswersSprintGame: 0,
+    },
+}; */
+
+let answersInRow = 0;
 const Sprint = () => {
     const navigator = useNavigate();
     const { group, page } = useParams();
@@ -29,8 +44,6 @@ const Sprint = () => {
     const [guessedWordsIDs, setGuessedWordsIDs] = useState<string[]>([]);
     const [notGuessedWordsIDs, setNotGuessedWordsIDs] = useState<string[]>([]);
     const [isDisabledStart, setIsDisabledStart] = useState<boolean>(true);
-    const [answersInRow, setAnswersInRow] = useState<number>(0);
-    const [isAnswered, setIsAnswered] = useState<boolean>(false);
     const [timerStart, setTimerStart] = useState<boolean>(true);
     const [classResult, setClassResult] = useState<string>('');
     const [key, setKey] = useState(0);
@@ -50,6 +63,7 @@ const Sprint = () => {
         } else {
             setIsAuth(false);
         }
+        answersInRow = 0;
     }, []);
 
     const handlerGroup = (event: React.MouseEvent) => {
@@ -104,8 +118,8 @@ const Sprint = () => {
                         wordsPartial.splice(i, 1);
                     }
                 });
-            }); 
-                      
+            });
+
             if (learnedWords.length !== 0 && learnedWords.length < 20 && +page !== 1) {
                 const allLearned = (await Service.aggregatedWords(
                     {
@@ -153,8 +167,8 @@ const Sprint = () => {
         arr.push(words[wordIndex]);
 
         do {
-            num = getRandomNumber(20);
-            helper = getRandomNumber(20);
+            num = getRandomNumber(18);
+            helper = getRandomNumber(18);
         } while (generated.includes(num));
         arr.push(words[num]);
         generated.push(num);
@@ -164,7 +178,7 @@ const Sprint = () => {
             arr = [];
             arr.push(words[wordIndex]);
             do {
-                num = getRandomNumber(20);
+                num = getRandomNumber(18);
                 arr[1] = words[num];
                 setQuestionWordTranslate(words[num].wordTranslate);
             } while (arr[0].id !== arr[1].id);
@@ -176,25 +190,9 @@ const Sprint = () => {
             setAnswer('NO');
         }
 
-        if (isAuth) {
-            const token = localStorage.getItem('token') as string;
-            const userId = localStorage.getItem('userId') as string;
-            const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
-            const { learnedWords, optional } = responseStat;
-            const totalQuestion = optional.totalQuestionSprintGame + 1;
-            await Service.updateUserStat(
-                {
-                    learnedWords,
-                    optional: { ...optional, totalQuestionSprintGame: totalQuestion },
-                },
-                userId,
-                token
-            );
-        }
         setWordsToGuess(arr);
         setWordIndex(wordIndex + 1);
-        setIsAnswered(false);
-    }, [wordIndex, words, isAuth]);
+    }, [wordIndex, words]);
 
     const createCorrectWord = useCallback(
         async (wordId: string) => {
@@ -210,78 +208,82 @@ const Sprint = () => {
                     localStorage.clear();
                     navigator('/authorization');
                 }
-                const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
-                const { learnedWords, optional: optionalStat } = responseStat;
-                const totalCorrectAnswersSprintGame = optionalStat.totalCorrectAnswersSprintGame + 1;
 
-                await Service.updateUserStat(
-                    {
-                        learnedWords,
-                        optional: { ...optionalStat, totalCorrectAnswersSprintGame },
-                    },
-                    userId,
-                    token
-                );
+                let responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+                delete responseStat.id;
+                let { optional } = responseStat;
+                const { learnedWords } = responseStat;
+                let { wordsInRowSprintGame } = optional;
+
+                if (answersInRow > wordsInRowSprintGame) {
+                    wordsInRowSprintGame = answersInRow;
+                }
+
+                const totalCorrectAnswersSprintGame = optional.totalCorrectAnswersSprintGame + 1;
+                const totalQuestionsSprintGame = optional.totalQuestionsSprintGame + 1;
+
+                optional = {
+                    ...optional,
+                    wordsInRowSprintGame,
+                    totalCorrectAnswersSprintGame,
+                    totalQuestionsSprintGame,
+                };
+                let dataStatUpdate = { ...responseStat, optional };
+                setTimeout(async () => {
+                    await Service.updateUserStat(dataStatUpdate, userId, token);
+                }, 100);
+
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
                         optional: { guessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
-
-                    const newWordsSprintGame = optionalStat.newWordsSprintGame + 1;
-
-                    await Service.updateUserStat(
-                        {
-                            learnedWords,
-                            optional: { ...optionalStat, newWordsSprintGame },
-                        },
-                        userId,
-                        token
-                    );
+                    const newWordsSprintGame = optional.newWordsSprintGame + 1;
+                    optional = { ...optional, newWordsSprintGame };
+                    dataStatUpdate = { ...responseStat, optional };
+                    setTimeout(async () => {
+                        await Service.updateUserStat(dataStatUpdate, userId, token);
+                    }, 100);
                 } else {
                     let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
                     const notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
                     guessedCount += 1;
-                    if (word[0]?.userWord?.difficulty === 'hard' && guessedCount >= 5 && notGuessedCount <= 1) {
-                        const optional = word[0]?.userWord.optional;
+                    if (word[0].userWord.difficulty === 'hard' && guessedCount >= 5 && notGuessedCount <= 1) {
+                        const optionalUserWord = word[0].userWord.optional;
                         await Service.updateUserWord({ userId, wordId }, token, {
                             difficulty: 'learned',
-                            optional: { ...optional, guessedCount: `${guessedCount}` },
+                            optional: { ...optionalUserWord, guessedCount: `${guessedCount}` },
                         });
 
                         const learnedWordsUpdate = learnedWords + 1;
-                        await Service.updateUserStat(
-                            {
-                                learnedWords: learnedWordsUpdate,
-                                optional: { ...optionalStat },
-                            },
-                            userId,
-                            token
-                        );
+                        responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+                        delete responseStat.id;
+                        dataStatUpdate = { ...responseStat, learnedWords: learnedWordsUpdate };
+                        setTimeout(async () => {
+                            await Service.updateUserStat(dataStatUpdate, userId, token);
+                        }, 100);
                     } else if (
-                        word[0]?.userWord?.difficulty === 'answered' &&
+                        word[0].userWord.difficulty === 'answered' &&
                         guessedCount >= 3 &&
                         notGuessedCount <= 1
                     ) {
-                        const optional = word[0]?.userWord.optional;
+                        const { optional: optionalUserWord } = word[0].userWord;
                         await Service.updateUserWord({ userId, wordId }, token, {
                             difficulty: 'learned',
-                            optional: { ...optional, guessedCount: `${guessedCount}` },
+                            optional: { ...optionalUserWord, guessedCount: `${guessedCount}` },
                         });
-                        const learnedWordsUpdate = learnedWords;
-                        await Service.updateUserStat(
-                            {
-                                learnedWords: learnedWordsUpdate,
-                                optional: { ...optionalStat },
-                            },
-                            userId,
-                            token
-                        );
+                        const learnedWordsUpdate = learnedWords + 1;
+                        responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+                        delete responseStat.id;
+                        dataStatUpdate = { ...responseStat, learnedWords: learnedWordsUpdate };
+                        setTimeout(async () => {
+                            await Service.updateUserStat(dataStatUpdate, userId, token);
+                        }, 100);
                     } else {
-                        const optional = word[0]?.userWord.optional;
+                        const { optional: optionalUserWord } = word[0].userWord;
                         await Service.updateUserWord({ userId, wordId }, token, {
                             difficulty: 'answered',
-                            optional: { ...optional, guessedCount: `${guessedCount}` },
+                            optional: { ...optionalUserWord, guessedCount: `${guessedCount}` },
                         });
                     }
                 }
@@ -304,19 +306,22 @@ const Sprint = () => {
                     localStorage.clear();
                     navigator('/authorization');
                 }
+                let responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+                delete responseStat.id;
+                let { optional } = responseStat;
+                const { learnedWords } = responseStat;
+                const wordsInRowSprintGame = 0;
+                const totalQuestionsSprintGame = optional.totalQuestionsSprintGame + 1;
 
-                const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
-                const { learnedWords, optional: optionalStat } = responseStat;
-                const totalCorrectAnswersSprintGame = optionalStat.totalCorrectAnswersSprintGame + 1;
-
-                await Service.updateUserStat(
-                    {
-                        learnedWords,
-                        optional: { ...optionalStat, totalCorrectAnswersSprintGame },
-                    },
-                    userId,
-                    token
-                );
+                optional = {
+                    ...optional,
+                    wordsInRowSprintGame,
+                    totalQuestionsSprintGame,
+                };
+                let dataStatUpdate = { ...responseStat, optional };
+                setTimeout(async () => {
+                    await Service.updateUserStat(dataStatUpdate, userId, token);
+                }, 100);
 
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
@@ -324,38 +329,28 @@ const Sprint = () => {
                         optional: { notGuessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
 
-                    const newWordsSprintGame = optionalStat.newWordsSprintGame + 1;
-
-                    await Service.updateUserStat(
-                        {
-                            learnedWords,
-                            optional: { ...optionalStat, newWordsSprintGame },
-                        },
-                        userId,
-                        token
-                    );
+                    const newWordsSprintGame = optional.newWordsSprintGame + 1;
+                    optional = { ...optional, newWordsSprintGame };
+                    dataStatUpdate = { ...responseStat, optional };
+                    setTimeout(async () => {
+                        await Service.updateUserStat(dataStatUpdate, userId, token);
+                    }, 100);
                 } else {
-                    if (word[0]?.userWord.difficulty === 'learned') {
+                    if (word[0].userWord.difficulty === 'learned') {
                         const learnedWordsUpdate = learnedWords - 1;
-                        if (learnedWordsUpdate >= 0) {
-                            await Service.updateUserStat(
-                                {
-                                    learnedWords: learnedWordsUpdate,
-                                    optional: {
-                                        ...optionalStat,
-                                    },
-                                },
-                                userId,
-                                token
-                            );
-                        }
+                        responseStat = (await Service.getUserStat(userId, token)) as DataStat;
+                        delete responseStat.id;
+                        dataStatUpdate = { ...responseStat, learnedWords: learnedWordsUpdate };
+                        setTimeout(async () => {
+                            await Service.updateUserStat(dataStatUpdate, userId, token);
+                        }, 100);
                     }
                     let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
-                    const optional = word[0]?.userWord.optional;
+                    const { optional: optionalUserWord } = word[0].userWord;
                     notGuessedCount += 1;
                     await Service.updateUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
-                        optional: { ...optional, notGuessedCount: `${notGuessedCount}` },
+                        optional: { ...optionalUserWord, notGuessedCount: `${notGuessedCount}` },
                     });
                 }
             }
@@ -385,15 +380,16 @@ const Sprint = () => {
                 const word = words.find((w) => w.id === variantWordId) as DataWord;
                 setGuessedWords([...guessedWords, word]);
                 createCorrectWord(variantWordId);
-                setAnswersInRow(answersInRow + 1);
+                if (isAuth) {
+                    answersInRow += 1;
+                }
             } else {
                 setNotGuessedWordsIDs([...notGuessedWordsIDs, correctWordId]);
                 const word = words.find((w) => w.id === correctWordId) as DataWord;
                 setNotGuessedWords([...notGuessedWords, word]);
                 createIncorrectWord(correctWordId);
-                setAnswersInRow(0);
+                answersInRow = 0;
             }
-            setIsAnswered(true);
             setWordIndex(wordIndex + 1);
             generateWordsToGuess();
         },
@@ -408,10 +404,10 @@ const Sprint = () => {
             scoreRight,
             wordIndex,
             wordsToGuess,
-            answersInRow,
             guessedWords,
             notGuessedWords,
             words,
+            isAuth,
         ]
     );
 
@@ -505,34 +501,6 @@ const Sprint = () => {
         };
     }, [showMain, showAnswer, checkAnswer, generateWordsToGuess]);
 
-    const saveWordInRow = useCallback(async () => {
-        if (isAnswered && isAuth) {
-            const token = localStorage.getItem('token') as string;
-            const userId = localStorage.getItem('userId') as string;
-            const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
-            const { learnedWords, optional } = responseStat;
-            const wordsInRow = optional.wordsInRowSprintGame;
-            if (answersInRow > wordsInRow) {
-                await Service.updateUserStat(
-                    {
-                        learnedWords,
-                        optional: {
-                            ...optional,
-                            wordsInRowSprintGame: answersInRow,
-                        },
-                    },
-
-                    userId,
-                    token
-                );
-            }
-        }
-    }, [isAnswered, isAuth, answersInRow]);
-
-    useEffect(() => {
-        saveWordInRow();
-    }, [saveWordInRow]);
-
     const initStatistic = useCallback(async () => {
         if (isAuth) {
             const token = localStorage.getItem('token') as string;
@@ -548,7 +516,7 @@ const Sprint = () => {
                             wordsInRowAudioGame: 0,
                             wordsInRowSprintGame: 0,
                             totalQuestionsAudioGame: 0,
-                            totalQuestionSprintGame: 0,
+                            totalQuestionsSprintGame: 0,
                             totalCorrectAnswersAudioGame: 0,
                             totalCorrectAnswersSprintGame: 0,
                         },
@@ -567,7 +535,6 @@ const Sprint = () => {
     useEffect(() => {
         initStatistic();
     }, [initStatistic]);
-
     return (
         <div className="game-page">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
@@ -642,7 +609,7 @@ const Sprint = () => {
                                                 setNotGuessedWordsIDs([]);
                                                 setIsDisabledStart(true);
                                                 setGroupText('');
-                                                setAnswersInRow(0);
+                                                answersInRow = 0;
                                                 setScoreRight(0);
                                             }}
                                         >
@@ -733,6 +700,7 @@ const Sprint = () => {
                                     <div className="score">
                                         Количество правильных ответов
                                         <span className="score-right">{scoreRight}</span>
+                                        {timerStart}
                                     </div>
 
                                     <div className="timer">

@@ -54,7 +54,7 @@ const Statistics = () => {
             wordsInRowAudioGame: 0,
             wordsInRowSprintGame: 0,
             totalQuestionsAudioGame: 0,
-            totalQuestionSprintGame: 0,
+            totalQuestionsSprintGame: 0,
             totalCorrectAnswersAudioGame: 0,
             totalCorrectAnswersSprintGame: 0,
         },
@@ -67,7 +67,6 @@ const Statistics = () => {
         const token = localStorage.getItem('token') as string;
         const userId = localStorage.getItem('userId') as string;
         const responseStat = await Service.getUserStat(userId, token);
-        console.log(responseStat);
         if (responseStat !== 404) {
             setStateData(responseStat as DataStat);
         }
@@ -82,26 +81,28 @@ const Statistics = () => {
             const audioAnswers = (
                 (stateData!.optional.totalCorrectAnswersAudioGame / stateData!.optional.totalQuestionsAudioGame) *
                 100
-            ).toFixed(2);
+            ).toFixed(1);
             setAudioGamePercent(+audioAnswers);
         } else {
             setAudioGamePercent(0);
         }
-        if (stateData!.optional.totalQuestionSprintGame !== 0) {
+        if (stateData!.optional.totalQuestionsSprintGame !== 0) {
             const sprintAnswers = (
-                (stateData!.optional.totalCorrectAnswersSprintGame / stateData!.optional.totalQuestionSprintGame) *
+                (stateData!.optional.totalCorrectAnswersSprintGame / stateData!.optional.totalQuestionsSprintGame) *
                 100
-            ).toFixed(2);
+            ).toFixed(1);
             setSprintGamePercent(+sprintAnswers);
         } else {
             setSprintGamePercent(0);
         }
-        if (stateData!.optional.totalQuestionSprintGame !== 0 && stateData!.optional.totalQuestionsAudioGame !== 0) {
+        if (stateData!.optional.totalQuestionsSprintGame !== 0 && stateData!.optional.totalQuestionsAudioGame !== 0) {
             const totalAnswers = (
-                ((stateData!.optional.totalCorrectAnswersSprintGame + stateData!.optional.totalCorrectAnswersAudioGame) / (stateData!.optional.totalQuestionSprintGame + stateData!.optional.totalQuestionsAudioGame)) *
+                ((stateData!.optional.totalCorrectAnswersSprintGame +
+                    stateData!.optional.totalCorrectAnswersAudioGame) /
+                    (stateData!.optional.totalQuestionsSprintGame + stateData!.optional.totalQuestionsAudioGame)) *
                 100
-            ).toFixed(2);
-            setTotalPercent(+totalAnswers );
+            ).toFixed(1);
+            setTotalPercent(+totalAnswers);
         } else {
             setTotalPercent(0);
         }
@@ -129,7 +130,7 @@ const Statistics = () => {
                         </div>
                         <div className="stat-words_count">
                             <p>Правильных ответов</p>
-                            <p>{totalPercent } %</p>
+                            <p>{totalPercent} %</p>
                         </div>
                     </div>
                 </div>
@@ -146,7 +147,10 @@ const Statistics = () => {
                         </div>
                         <div className="stat-games_count">
                             <p>Самая длинная серия правильных ответов</p>
-                            <p>{stateData?.optional.wordsInRowAudioGame} шт</p>
+                            <p>
+                                {stateData.optional.wordsInRowAudioGame}
+                                шт
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -155,7 +159,10 @@ const Statistics = () => {
                     <div className="stat-games_result">
                         <div className="stat-games_count">
                             <p>Новых слов</p>
-                            <p>{stateData?.optional.newWordsSprintGame} шт</p>
+                            <p>
+                                {stateData.optional.newWordsSprintGame}
+                                шт
+                            </p>
                         </div>
                         <div className="stat-games_count">
                             <p>Правильных ответов</p>
