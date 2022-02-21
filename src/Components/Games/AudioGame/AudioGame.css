@@ -1,5 +1,5 @@
 .game-page {
-    min-height: 450px;
+    min-height: 1080px;
     height: 100vh;
     margin: 0;
     display: flex;
@@ -262,4 +262,13 @@ td {
     font-size: 25px;
     color: #7b9eff;
     margin: 20px auto;
+}
+
+@media screen and (min-width: 180px) and (max-width: 900px) {
+    .game-content {
+         width: 500px;
+    }
+    .groups {
+        width: 40%;
+    }
 }
