@@ -67,7 +67,7 @@ const Home = () => {
                                        Как мы создавали красоту &hellip;
                                     </p>
                                     <p className="link">
-                                        <a className="btn" href="https://youtu.be/Vu7K78JLfg8">
+                                        <a className="btn" href="https://youtu.be/Vu7K78JLfg8" target="_blank" rel="noopener noreferrer">
                                         Смотреть &raquo;
                                         </a>
                                     </p>
