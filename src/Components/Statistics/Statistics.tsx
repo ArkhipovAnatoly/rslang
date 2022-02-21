@@ -1,48 +1,48 @@
 import { useState, useCallback, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+// import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import Header from '../Home/Header';
 import Footer from '../Home/Footer';
 import './Statistics.css';
 import Menu from '../Menu/Menu';
 import Service, { DataStat } from '../../Service';
 
-const data = [
-    {
-        name: 'День 1',
-        new: 20,
-        learned: 20,
-    },
-    {
-        name: 'День 2',
-        new: 21,
-        learned: 15,
-    },
-    {
-        name: 'День 3',
-        new: 25,
-        learned: 25,
-    },
-    {
-        name: 'День 4',
-        new: 32,
-        learned: 25,
-    },
-    {
-        name: 'День 5',
-        new: 18,
-        learned: 13,
-    },
-    {
-        name: 'День 6',
-        new: 19,
-        learned: 14,
-    },
-    {
-        name: 'День 7',
-        new: 20,
-        learned: 15,
-    },
-];
+// const data = [
+//     {
+//         name: 'День 1',
+//         new: 20,
+//         learned: 20,
+//     },
+//     {
+//         name: 'День 2',
+//         new: 21,
+//         learned: 15,
+//     },
+//     {
+//         name: 'День 3',
+//         new: 25,
+//         learned: 25,
+//     },
+//     {
+//         name: 'День 4',
+//         new: 32,
+//         learned: 25,
+//     },
+//     {
+//         name: 'День 5',
+//         new: 18,
+//         learned: 13,
+//     },
+//     {
+//         name: 'День 6',
+//         new: 19,
+//         learned: 14,
+//     },
+//     {
+//         name: 'День 7',
+//         new: 20,
+//         learned: 15,
+//     },
+// ];
 
 const Statistics = () => {
     const [menuActive, setMenuActive] = useState<boolean>(false);
@@ -175,7 +175,7 @@ const Statistics = () => {
                     </div>
                 </div>
             </div>
-            <h4>Долгосрочная статистика</h4>
+            {/* <h4>Долгосрочная статистика</h4>
             <LineChart
                 width={500}
                 height={300}
@@ -194,7 +194,7 @@ const Statistics = () => {
                 <Legend />
                 <Line type="monotone" dataKey="new" stroke="#8884d8" activeDot={{ r: 8 }} />
                 <Line type="monotone" dataKey="learned" stroke="#82ca9d" />
-            </LineChart>
+            </LineChart> */}
             <Footer />
         </div>
     );
