@@ -55,6 +55,7 @@ const Book = () => {
                 break;
             case '7':
                 setTextColor('violet');
+
                 break;
             default:
                 break;
@@ -63,11 +64,12 @@ const Book = () => {
 
     const setLocalStorage = () => {
         localStorage.setItem('pageLearn', learn);
-    }
+    };
 
     const fetchHardWords = useCallback(
         async (userId: string, token: string) => {
             if (group === '7') {
+                setGroupInfo('');
                 setLoader(true);
                 const hardWords = (await Service.aggregatedWords(
                     {
@@ -79,6 +81,11 @@ const Book = () => {
                     },
                     token
                 )) as DataWord[];
+                if (hardWords.length === 0) {
+                    setGroupInfo('Эдесь пока ничего нет...');
+                } else {
+                    setGroupInfo('Сложные слова');
+                }
                 if (typeof hardWords === 'number') {
                     setIsAuth(false);
                     localStorage.clear();
@@ -111,11 +118,14 @@ const Book = () => {
     }, [page]);
 
     const fetchPartialWords = useCallback(async () => {
-        setLoader(true);
-
-        const wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
-        setWords(wordsPartial);
-        setLoader(false);
+        if (group !== '7') {
+            setLoader(true);
+            const wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
+            setWords(wordsPartial);
+            setLoader(false);
+        } else {
+            setWords([]);
+        }
     }, [group, page]);
 
     useEffect(() => {
@@ -149,8 +159,8 @@ const Book = () => {
                 setLevelInfo('Proficiency');
                 break;
             case '7':
-                setGroupInfo('Сложные слова');
                 setLevelInfo('');
+                setGroupInfo('');
                 break;
             default:
                 break;
@@ -225,12 +235,12 @@ const Book = () => {
             if (color !== '') {
                 setColorLearnedPage(color);
                 setActivePaginationClass('active learned');
-                learn = "true";
+                learn = 'true';
                 setLocalStorage();
             } else {
                 setColorLearnedPage('');
                 setActivePaginationClass('active');
-                learn = "false";
+                learn = 'false';
                 setLocalStorage();
             }
         },
@@ -326,7 +336,7 @@ const Book = () => {
                 </div>
                 <section className="open-book">
                     <h2 style={{ color: textColor }} className="chapter-title">
-                        {words.length ? groupInfo : 'Здесь пока ничего нет...'}
+                        {groupInfo}
                     </h2>
                     <MediaQuery minWidth={800}>
                         <h2
