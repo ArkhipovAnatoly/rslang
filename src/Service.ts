@@ -131,6 +131,16 @@ class Service {
         return undefined;
     }
 
+    private static async getNewUserToken(userId: string) {
+        try {
+            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/tokens`);
+            const response = (await rawResponse.json()) as DataUserLoginResponse;
+            localStorage.setItem('token', response.token);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     public static async getWords(group: number, page: number): Promise<DataWord[] | undefined> {
         try {
             const rawResponse = await fetch(`${this.baseUrl}/words?group=${group}&page=${page}`);
@@ -149,7 +159,7 @@ class Service {
     ): Promise<DataCreateUserWordResponse | number | undefined> {
         const { userId, wordId } = wordData;
         try {
-            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
+            let rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -158,8 +168,19 @@ class Service {
                 },
                 body: JSON.stringify(word),
             });
+
             if (rawResponse.status === 401) {
-                return rawResponse.status;
+                this.getNewUserToken(userId);
+                const newToken = localStorage.getItem('token') as string;
+                rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${newToken}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(word),
+                });
             }
 
             const content = await rawResponse.json();
@@ -177,7 +198,7 @@ class Service {
     ): Promise<DataCreateUserWordResponse | number | undefined> {
         const { userId, wordId } = wordData;
         try {
-            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
+            let rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
                 method: 'PUT',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -187,7 +208,17 @@ class Service {
                 body: JSON.stringify(word),
             });
             if (rawResponse.status === 401) {
-                return rawResponse.status;
+                this.getNewUserToken(userId);
+                const newToken = localStorage.getItem('token') as string;
+                rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `Bearer ${newToken}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(word),
+                });
             }
 
             const content = await rawResponse.json();
@@ -204,7 +235,7 @@ class Service {
     ): Promise<DataCreateUserWordResponse[] | number | undefined> {
         const { userId } = word;
         try {
-            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words`, {
+            let rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -212,7 +243,15 @@ class Service {
                 },
             });
             if (rawResponse.status === 401) {
-                return rawResponse.status;
+                this.getNewUserToken(userId);
+                const newToken = localStorage.getItem('token') as string;
+                rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words`, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${newToken}`,
+                        Accept: 'application/json',
+                    },
+                });
             }
             const content = await rawResponse.json();
             return content;
@@ -222,21 +261,27 @@ class Service {
         return undefined;
     }
 
-    public static async deleteUserWord(word: DataUserWord, token: string): Promise<number | undefined> {
+    public static async deleteUserWord(word: DataUserWord, token: string) {
         const { userId, wordId } = word;
         try {
-            const rawResponse = await fetch(
-                `${this.baseUrl}/users/${userId}/words/${wordId}`,
-
-                {
+            let rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            });
+            if (rawResponse.status === 401) {
+                this.getNewUserToken(userId);
+                const newToken = localStorage.getItem('token') as string;
+                rawResponse = await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
                     method: 'DELETE',
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization: `Bearer ${newToken}`,
                         Accept: 'application/json',
                     },
-                }
-            );
-            return rawResponse.status;
+                });
+            }
         } catch (error) {
             console.log(error);
         }
@@ -249,7 +294,7 @@ class Service {
     ): Promise<DataWord[] | number | undefined> {
         const { userId, group, page, wordsPerPage, filter } = word;
         try {
-            const rawResponse = await fetch(
+            let rawResponse = await fetch(
                 `${this.baseUrl}/users/${userId}/aggregatedWords?group=${group}&page=${page}&wordsPerPage=${wordsPerPage}&filter=${filter}`,
                 {
                     method: 'GET',
@@ -260,7 +305,18 @@ class Service {
                 }
             );
             if (rawResponse.status === 401) {
-                return rawResponse.status;
+                this.getNewUserToken(userId);
+                const newToken = localStorage.getItem('token') as string;
+                rawResponse = await fetch(
+                    `${this.baseUrl}/users/${userId}/aggregatedWords?group=${group}&page=${page}&wordsPerPage=${wordsPerPage}&filter=${filter}`,
+                    {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Bearer ${newToken}`,
+                            Accept: 'application/json',
+                        },
+                    }
+                );
             }
             const content: DataAggregatedWordsResponse[] = await rawResponse.json();
             return content[0].paginatedResults;
@@ -276,7 +332,7 @@ class Service {
     ): Promise<DataAggregatedWordsById[] | number | undefined> {
         const { userId, wordId } = word;
         try {
-            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/aggregatedWords/${wordId}`, {
+            let rawResponse = await fetch(`${this.baseUrl}/users/${userId}/aggregatedWords/${wordId}`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -284,7 +340,15 @@ class Service {
                 },
             });
             if (rawResponse.status === 401) {
-                return rawResponse.status;
+                this.getNewUserToken(userId);
+                const newToken = localStorage.getItem('token') as string;
+                rawResponse = await fetch(`${this.baseUrl}/users/${userId}/aggregatedWords/${wordId}`, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${newToken}`,
+                        Accept: 'application/json',
+                    },
+                });
             }
             const content = await rawResponse.json();
             return content;
@@ -296,14 +360,26 @@ class Service {
 
     public static async getUserStat(userId: string, token: string): Promise<DataStat | number | undefined> {
         try {
-            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/statistics`, {
+            let rawResponse = await fetch(`${this.baseUrl}/users/${userId}/statistics`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: 'application/json',
                 },
             });
-            if (rawResponse.status === 401 || rawResponse.status === 404) {
+            if (rawResponse.status === 401) {
+                this.getNewUserToken(userId);
+                const newToken = localStorage.getItem('token') as string;
+                rawResponse = await fetch(`${this.baseUrl}/users/${userId}/statistics`, {
+                    method: 'GET',
+                    headers: {
+                        Authorization: `Bearer ${newToken}`,
+                        Accept: 'application/json',
+                    },
+                });
+            }
+
+            if (rawResponse.status === 404) {
                 return rawResponse.status;
             }
             const content = await rawResponse.json();
@@ -320,7 +396,7 @@ class Service {
         token: string
     ): Promise<DataStat | number | undefined> {
         try {
-            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/statistics`, {
+            let rawResponse = await fetch(`${this.baseUrl}/users/${userId}/statistics`, {
                 method: 'PUT',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -330,7 +406,17 @@ class Service {
                 body: JSON.stringify(statData),
             });
             if (rawResponse.status === 401) {
-                return rawResponse.status;
+                this.getNewUserToken(userId);
+                const newToken = localStorage.getItem('token') as string;
+                rawResponse = await fetch(`${this.baseUrl}/users/${userId}/statistics`, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `Bearer ${newToken}`,
+                        Accept: 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(statData),
+                });
             }
             const content = await rawResponse.json();
             return content;
