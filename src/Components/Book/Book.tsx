@@ -31,6 +31,7 @@ const Book = () => {
     const [colorLearnedPage, setColorLearnedPage] = useState<string>('');
     const [activePaginationClass, setActivePaginationClass] = useState<string>('');
     const [menuActive, setMenuActive] = useState<boolean>(false);
+
     let [learn] = useState<string>('');
 
     useMemo(() => {
@@ -70,6 +71,7 @@ const Book = () => {
         async (userId: string, token: string) => {
             if (group === '7') {
                 setGroupInfo('');
+
                 setLoader(true);
                 const hardWords = (await Service.aggregatedWords(
                     {
@@ -82,7 +84,7 @@ const Book = () => {
                     token
                 )) as DataWord[];
                 if (hardWords.length === 0) {
-                    setGroupInfo('Эдесь пока ничего нет...');
+                    setGroupInfo('Здесь пока ничего нет...');
                 } else {
                     setGroupInfo('Сложные слова');
                 }
@@ -247,6 +249,22 @@ const Book = () => {
         [setColorLearnedPage]
     );
 
+    const deleteHard = async (wordId: string) => {
+        const token = localStorage.getItem('token') as string;
+        const userId = localStorage.getItem('userId') as string;
+        const wordsFiltered = words.filter((w) => w._id !== wordId);
+        if (wordsFiltered.length === 0) {
+            setGroupInfo('Здесь пока ничего нет...');
+        }
+        const data = await Service.deleteUserWord({ userId, wordId }, token);
+        if (data === 401) {
+            setIsAuth(false);
+            localStorage.clear();
+            navigator('/authorization');
+        }
+        setWords(wordsFiltered);
+    };
+
     return (
         <div id="wrapper">
             <Header menuActive={menuActive} setMenuActive={setMenuActive} />
@@ -365,6 +383,7 @@ const Book = () => {
                                 group={group as string}
                                 page={page as string}
                                 callback={setColorPage}
+                                callbackDeleteHard={deleteHard}
                             />
                         ))}
                     </article>

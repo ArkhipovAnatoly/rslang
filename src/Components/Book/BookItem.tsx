@@ -20,11 +20,12 @@ type DictionaryItemProps = {
     group: string;
     page: string;
     callback: (color: string) => void;
+    callbackDeleteHard: (wordId: string) => void;
 };
 let totalLearnedWords = 0;
 const player = new Audio('');
 const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
-    const { id: wordId, group, callback } = props;
+    const { id: wordId, group, callback, callbackDeleteHard } = props;
     const navigator = useNavigate();
     const pRefExample = useRef<HTMLParagraphElement>(null);
     const pRefMeaning = useRef<HTMLParagraphElement>(null);
@@ -38,6 +39,8 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
     const [totalCorrect, setTotalCorrect] = useState<number>(0);
     const [totalInCorrect, setTotalInCorrect] = useState<number>(0);
     const [isShowStat, setIsShowStat] = useState<boolean>(false);
+    const [disabledLearned, setDisabledLearned] = useState<boolean>(false);
+    const [disabledHard, setDisabledHard] = useState<boolean>(false);
 
     const imageUrl = `https://learn-english-words-app.herokuapp.com/${props.image}`;
     const audioMeaningUrl = `https://learn-english-words-app.herokuapp.com/${props.audioMeaning}`;
@@ -143,6 +146,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
         if (checked) {
             setColorText('#50C878');
             setTextLearned('Изучено');
+            setDisabledHard(true);
             totalLearnedWords += 1;
             setIsLearned(true);
 
@@ -170,6 +174,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
         } else {
             setColorText('');
             setTextLearned('Добавить в изученные');
+            setDisabledHard(false);
             totalLearnedWords -= 1;
             setIsLearned(false);
             const data = await Service.deleteUserWord({ userId, wordId }, token);
@@ -199,6 +204,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
         if (checked) {
             setColorText('#EB4C42');
             setTextHard('Убрать из сложных');
+            setDisabledLearned(true);
 
             const data = await Service.createUserWord({ userId, wordId }, token, {
                 difficulty: 'hard',
@@ -212,6 +218,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
         } else {
             setColorText('');
             setTextHard('Отметить как сложное');
+            setDisabledLearned(false);
             const data = await Service.deleteUserWord({ userId, wordId }, token);
             if (data === 401) {
                 setIsAuth(false);
@@ -265,6 +272,11 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
         initStatistic();
     }, [initStatistic]);
 
+    const deleteFromHard = (event: React.MouseEvent) => {
+        const { id } = event.target as HTMLElement;
+        callbackDeleteHard(id as string);
+    };
+
     return (
         <div className="col s12">
             <div className="border">
@@ -288,6 +300,18 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                             <div className="card-action">
                                 <div className="card-action_inner">
                                     <div className="checkbox-first">
+                                        {group === '7' && (
+                                            <i
+                                                style={{ cursor: 'pointer' }}
+                                                title="Удалить"
+                                                aria-hidden
+                                                id={props.id}
+                                                className="material-icons"
+                                                onClick={deleteFromHard}
+                                            >
+                                                delete
+                                            </i>
+                                        )}
                                         <label
                                             className="checkbox-first__label"
                                             style={{ display: isAuth && group !== '7' ? 'block' : 'none' }}
@@ -297,6 +321,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                                                 type="checkbox"
                                                 onChange={addWordToLearned}
                                                 className="checkbox-first__input"
+                                                disabled={disabledLearned}
                                             />
                                             <div className="checkbox">
                                                 <svg width="20px" height="20px" viewBox="0 0 20 20">
@@ -317,6 +342,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                                                 onChange={addWordToHard}
                                                 type="checkbox"
                                                 className="checkbox-first__input"
+                                                disabled={disabledHard}
                                             />
                                             <div className="checkbox">
                                                 <svg width="20px" height="20px" viewBox="0 0 20 20">
