@@ -58,9 +58,9 @@ export type DataCreateUserWordResponse = {
 
 export type DataAggregatedWords = {
     userId: string;
-    group?: string;
-    page?: string;
-    wordsPerPage?: string;
+    group?: string | number;
+    page?: string | number;
+    wordsPerPage?: string | number;
     filter: string;
 };
 
