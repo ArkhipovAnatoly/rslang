@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactPaginate from 'react-paginate';
-
 import MediaQuery from 'react-responsive';
-
 import { useNavigate, useParams } from 'react-router-dom';
 import Service, { DataWord } from '../../Service';
 import Footer from '../Home/Footer';
