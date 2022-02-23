@@ -62,25 +62,25 @@ const Menu = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuActiv
                     </ul>
                 </li>
                 <li>
-                            {isAuth ? (
-                                <NavLink to="/statistics">{localStorage.getItem('name')}</NavLink>
-                            ) : (
-                                <NavLink to="/authorization">Войти</NavLink>
-                            )}
-                        </li>
-                        <li>
-                            {isAuth && (
-                                <Link
-                                    to="/"
-                                    onClick={() => {
-                                        localStorage.clear();
-                                        setIsAuth(false);
-                                    }}
-                                >
-                                    Выйти
-                                </Link>
-                            )}
-                        </li>
+                    {isAuth ? (
+                        <NavLink to="/statistics">{localStorage.getItem('name')}</NavLink>
+                    ) : (
+                        <NavLink to="/authorization">Войти</NavLink>
+                    )}
+                </li>
+                <li>
+                    {isAuth && (
+                        <Link
+                            to="/"
+                            onClick={() => {
+                                localStorage.clear();
+                                setIsAuth(false);
+                            }}
+                        >
+                            Выйти
+                        </Link>
+                    )}
+                </li>
             </ul>
         </div>
     );

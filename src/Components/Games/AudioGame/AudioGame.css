@@ -266,7 +266,7 @@ td {
 
 @media screen and (min-width: 180px) and (max-width: 900px) {
     .game-content {
-         width: 500px;
+        width: 500px;
     }
     .groups {
         width: 40%;
