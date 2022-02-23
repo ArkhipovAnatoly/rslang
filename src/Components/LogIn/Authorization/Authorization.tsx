@@ -51,7 +51,6 @@ const Authorization = () => {
         setDisabled(true);
         setLoader(true);
         const responseLogin = (await Service.loginUser({ email, password })) as DataUserLoginResponse;
-
         setLoader(false);
         setDisabled(false);
         if (!responseLogin) {
@@ -60,9 +59,11 @@ const Authorization = () => {
         } else {
             setSuccess(true);
             setLoginStatusMessage(`Вы успешно авторизовались!`);
-            localStorage.setItem('token', responseLogin.token);
-            localStorage.setItem('userId', responseLogin.userId);
             localStorage.setItem('name', responseLogin.name);
+            localStorage.setItem('userId', responseLogin.userId);
+            localStorage.setItem('token', responseLogin.token);
+            localStorage.setItem('refreshToken', responseLogin.refreshToken);
+
             setTimeout(() => {
                 navigate('/');
             }, 1500);

@@ -67,9 +67,10 @@ const Registration = () => {
             setSuccess(true);
             setRegistrationStatusMessage(`Вы успешно зарегистрировались!`);
             const responseLogin = (await Service.loginUser({ email, password })) as DataUserLoginResponse;
+            localStorage.setItem('name', responseLogin.name);
             localStorage.setItem('userId', responseLogin.userId);
             localStorage.setItem('token', responseLogin.token);
-            localStorage.setItem('name', responseLogin.name);
+            localStorage.setItem('refreshToken', responseLogin.refreshToken);
             setTimeout(() => {
                 navigate('/');
             }, 1500);

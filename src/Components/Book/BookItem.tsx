@@ -53,12 +53,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             const token = localStorage.getItem('token') as string;
             const userId = localStorage.getItem('userId') as string;
             const word = (await Service.aggregatedWordsById({ userId, wordId }, token)) as DataAggregatedWordsById[];
-            if (typeof word === 'number') {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
-                return;
-            }
+
             if (word[0]?.userWord?.difficulty === 'hard' && checkBoxHard.current !== null) {
                 (checkBoxHard.current as HTMLInputElement).checked = true;
                 setTextHard('Убрать из сложных');
@@ -80,7 +75,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                 }
             }
         }
-    }, [wordId, isAuth, navigator]);
+    }, [wordId, isAuth]);
 
     useEffect(() => {
         setWordParams();
@@ -139,15 +134,11 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             setDisabledHard(true);
             setCount(count + 1);
 
-            const data = await Service.createUserWord({ userId, wordId }, token, {
+            await Service.createUserWord({ userId, wordId }, token, {
                 difficulty: 'learned',
                 optional: { guessedCount: '0', testFieldBoolean: true },
             });
-            if (typeof data === 'number') {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
-            }
+
             const learnedWordsUpdate = (learnedWords as number) + 1;
 
             setTimeout(async () => {
@@ -195,15 +186,10 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             setTextHard('Убрать из сложных');
             setDisabledLearned(true);
 
-            const data = await Service.createUserWord({ userId, wordId }, token, {
+            await Service.createUserWord({ userId, wordId }, token, {
                 difficulty: 'hard',
                 optional: { guessedCount: '0', testFieldBoolean: true },
             });
-            if (typeof data === 'number') {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
-            }
         } else {
             setColorText('');
             setTextHard('Отметить как сложное');
@@ -249,13 +235,9 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                     userId,
                     token
                 );
-            } else if (typeof responseStat === 'number' && responseStat === 401) {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
             }
         }
-    }, [isAuth, navigator]);
+    }, [isAuth]);
 
     useEffect(() => {
         initStatistic();

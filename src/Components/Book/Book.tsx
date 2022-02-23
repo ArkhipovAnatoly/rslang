@@ -83,18 +83,11 @@ const Book = () => {
                 } else {
                     setGroupInfo('Сложные слова');
                 }
-                if (typeof hardWords === 'number') {
-                    setIsAuth(false);
-                    localStorage.clear();
-                    navigator('/authorization');
-                    return;
-                }
-
                 setWords(hardWords);
                 setLoader(false);
             }
         },
-        [group, navigator]
+        [group]
     );
     useEffect(() => {
         if (isAuth) {
@@ -137,12 +130,6 @@ const Book = () => {
                     token
                 )) as DataWord[];
 
-                if (typeof learnedWords === 'number') {
-                    setIsAuth(false);
-                    localStorage.clear();
-                    navigator('/authorization');
-                    return;
-                }
                 const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
 
                 if (learnedWordsFiltered.length === 20) {
@@ -159,7 +146,7 @@ const Book = () => {
         } else {
             setWords([]);
         }
-    }, [group, page, isAuth, navigator, setIsPageLearned, setTotalCountLearned]);
+    }, [group, page, isAuth, setIsPageLearned, setTotalCountLearned]);
 
     useEffect(() => {
         fetchPartialWords();
