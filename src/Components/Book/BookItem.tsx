@@ -19,13 +19,16 @@ type DictionaryItemProps = {
     textExampleTranslate: string;
     group: string;
     page: string;
-    callback: (color: string) => void;
+    callbackTotalLearned: (count: number) => void;
     callbackDeleteHard: (wordId: string) => void;
+    totalLearned: number;
 };
-let totalLearnedWords = 0;
+
 const player = new Audio('');
 const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
-    const { id: wordId, group, callback, callbackDeleteHard } = props;
+    const { id: wordId, group, callbackTotalLearned, callbackDeleteHard, totalLearned } = props;
+
+    const [count, setCount] = useState<number>(totalLearned);
     const navigator = useNavigate();
     const pRefExample = useRef<HTMLParagraphElement>(null);
     const pRefMeaning = useRef<HTMLParagraphElement>(null);
@@ -35,13 +38,11 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
     const [textLearned, setTextLearned] = useState<string>('Добавить в изученные');
     const [textHard, setTextHard] = useState<string>('Добавить в сложные');
     const [isAuth, setIsAuth] = useState<boolean>(false);
-    const [isLearned, setIsLearned] = useState<boolean>(false);
     const [totalCorrect, setTotalCorrect] = useState<number>(0);
     const [totalInCorrect, setTotalInCorrect] = useState<number>(0);
     const [isShowStat, setIsShowStat] = useState<boolean>(false);
     const [disabledLearned, setDisabledLearned] = useState<boolean>(false);
     const [disabledHard, setDisabledHard] = useState<boolean>(false);
-
     const imageUrl = `https://learn-english-words-app.herokuapp.com/${props.image}`;
     const audioMeaningUrl = `https://learn-english-words-app.herokuapp.com/${props.audioMeaning}`;
     const audioExampleUrl = `https://learn-english-words-app.herokuapp.com/${props.audioExample}`;
@@ -67,11 +68,6 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
                 (checkBoxLearned.current as HTMLInputElement).checked = true;
                 setTextLearned('Изучено');
                 setColorText('#50C878');
-                setIsLearned(true);
-                if (totalLearnedWords === 20) {
-                    totalLearnedWords = 0;
-                }
-                totalLearnedWords += 1;
             }
 
             if (word[0]?.userWord?.optional.inGame) {
@@ -91,14 +87,8 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
     }, [setWordParams]);
 
     useEffect(() => {
-        if (isLearned) {
-            if (totalLearnedWords === 20) {
-                callback('green');
-            }
-        } else {
-            callback('');
-        }
-    }, [isLearned, callback]);
+        callbackTotalLearned(count);
+    }, [count, callbackTotalLearned]);
 
     const handlerAudio = () => {
         let track: number = 0;
@@ -147,8 +137,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             setColorText('#50C878');
             setTextLearned('Изучено');
             setDisabledHard(true);
-            totalLearnedWords += 1;
-            setIsLearned(true);
+            setCount(count + 1);
 
             const data = await Service.createUserWord({ userId, wordId }, token, {
                 difficulty: 'learned',
@@ -175,8 +164,8 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             setColorText('');
             setTextLearned('Добавить в изученные');
             setDisabledHard(false);
-            totalLearnedWords -= 1;
-            setIsLearned(false);
+            setCount(count - 1);
+
             const data = await Service.deleteUserWord({ userId, wordId }, token);
             if (data === 401) {
                 setIsAuth(false);

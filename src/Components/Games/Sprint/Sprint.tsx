@@ -7,6 +7,7 @@ import Menu from '../../Menu/Menu';
 import Service, { DataAggregatedWordsById, DataStat, DataWord } from '../../../Service';
 import shuffle from '../../../Utils/shuffleArray';
 import getRandomNumber from '../../../Utils/random';
+import { useGlobalContext } from '../../../GlobalContext';
 
 /* let dataStat: DataStat = {
     learnedWords: 0,
@@ -26,6 +27,10 @@ let answersInRow = 0;
 const Sprint = () => {
     const navigator = useNavigate();
     const { group, page } = useParams();
+    const { isPageLearned } = useGlobalContext();
+    if (isPageLearned) {
+        navigator(`/book/${group}/${page}/pageExplored`);
+    }
     const [words, setWords] = useState<DataWord[]>([]);
     const [showMain, setShowMain] = useState(true);
     const [showAnswer, setShowAnswer] = useState(false);
@@ -49,11 +54,6 @@ const Sprint = () => {
     const [key, setKey] = useState(0);
     const [guessedWords, setGuessedWords] = useState<DataWord[]>([]);
     const [notGuessedWords, setNotGuessedWords] = useState<DataWord[]>([]);
-    let [learns] = useState<string| null>('');
-
-    const getLocalStorage = () => {
-        learns = localStorage.getItem('pageLearn');
-    }
 
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
@@ -80,11 +80,6 @@ const Sprint = () => {
     const fetchPartialWords = useCallback(async () => {
         let wordsPartial: DataWord[] = [];
 
-        getLocalStorage();
-        if(learns === 'true') {
-            navigator(`/book/${group}/${page}/pageExplored`);
-        }
-
         if (group && page) {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
         } else {
@@ -97,9 +92,9 @@ const Sprint = () => {
             const learnedWords = (await Service.aggregatedWords(
                 {
                     userId,
-                    group: '',
-                    page: '',
-                    wordsPerPage: '20',
+                    group: 0,
+                    page: 0,
+                    wordsPerPage: 20,
                     filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
                 },
                 token
@@ -124,9 +119,9 @@ const Sprint = () => {
                 const allLearned = (await Service.aggregatedWords(
                     {
                         userId,
-                        group: '',
-                        page: '',
-                        wordsPerPage: '',
+                        group: 0,
+                        page: 0,
+                        wordsPerPage: 20,
                         filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
                     },
                     token

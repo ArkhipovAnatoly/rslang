@@ -6,10 +6,17 @@ import Service, { DataAggregatedWordsById, DataStat, DataWord } from '../../../S
 import Menu from '../../Menu/Menu';
 import shuffle from '../../../Utils/shuffleArray';
 import getRandomNumber from '../../../Utils/random';
+import { useGlobalContext } from '../../../GlobalContext';
+import { DataParams } from '../../Book/Book';
 
 let answersInRow = 0;
 const AudioGame = () => {
+    const { isPageLearned } = useGlobalContext();
+    const { page: p, group: g } = useParams<DataParams>();
     const navigator = useNavigate();
+    if (isPageLearned) {
+        navigator(`/book/${g}/${p}/pageExplored`);
+    }
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
     const [showMain, setShowMain] = useState(true);
@@ -39,11 +46,6 @@ const AudioGame = () => {
     const [menuActive, setMenuActive] = useState<boolean>(false);
     const [audioUrl, setAudioUrl] = useState<string>('');
     const [classResult, setClassResult] = useState<string>('');
-    let [learns] = useState<string| null>('');
-
-    const getLocalStorage = () => {
-        learns = localStorage.getItem('pageLearn');
-    }
 
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
@@ -58,7 +60,7 @@ const AudioGame = () => {
 
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
-        
+
         if (!dataset.group) {
             return;
         }
@@ -69,11 +71,6 @@ const AudioGame = () => {
 
     const fetchPartialWords = useCallback(async () => {
         let wordsPartial: DataWord[] = [];
-
-        getLocalStorage();
-        if(learns === 'true') {
-            navigator(`/book/${group}/${page}/pageExplored`);
-        }
 
         if (group && page) {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
@@ -89,7 +86,7 @@ const AudioGame = () => {
                     userId,
                     group: '',
                     page: '',
-                    wordsPerPage: '',
+                    wordsPerPage: '3600',
                     filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
                 },
                 token
@@ -102,9 +99,6 @@ const AudioGame = () => {
                 return;
             }
             const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
-            // if (learnedWordsFiltered.length === 20) {
-            //     navigator('/pageExplored');
-            // }
 
             learnedWordsFiltered.forEach((v) => {
                 wordsPartial.forEach((k, i) => {
@@ -120,7 +114,7 @@ const AudioGame = () => {
                         userId,
                         group: '',
                         page: '',
-                        wordsPerPage: '',
+                        wordsPerPage: '3600',
                         filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
                     },
                     token

@@ -10,13 +10,16 @@ import PreLoaderProgress from '../Preloader/PreLoaderProgress';
 import BookItem from './BookItem';
 import Menu from '../Menu/Menu';
 import Header from '../Home/Header';
+import { useGlobalContext } from '../../GlobalContext';
 
-type DataParams = {
+export type DataParams = {
     group: string;
     page: string;
 };
 
 const Book = () => {
+    const { setIsPageLearned } = useGlobalContext();
+    const [totalCountLearned, setTotalCountLearned] = useState<number>(0);
     const { group, page } = useParams<DataParams>();
     const navigator = useNavigate();
     const [forcePage, setForcePage] = useState<number>(0);
@@ -31,8 +34,6 @@ const Book = () => {
     const [colorLearnedPage, setColorLearnedPage] = useState<string>('');
     const [activePaginationClass, setActivePaginationClass] = useState<string>('');
     const [menuActive, setMenuActive] = useState<boolean>(false);
-
-    let [learn] = useState<string>('');
 
     useMemo(() => {
         switch (group) {
@@ -63,10 +64,6 @@ const Book = () => {
         }
     }, [group]);
 
-    const setLocalStorage = () => {
-        localStorage.setItem('pageLearn', learn);
-    };
-
     const fetchHardWords = useCallback(
         async (userId: string, token: string) => {
             if (group === '7') {
@@ -78,7 +75,7 @@ const Book = () => {
                         userId,
                         group: '',
                         page: '',
-                        wordsPerPage: '20',
+                        wordsPerPage: '3600',
                         filter: `{"$and":[{"userWord.difficulty":"hard", "userWord.optional.testFieldBoolean":${true}}]}`,
                     },
                     token
@@ -94,6 +91,7 @@ const Book = () => {
                     navigator('/authorization');
                     return;
                 }
+
                 setWords(hardWords);
                 setLoader(false);
             }
@@ -103,7 +101,9 @@ const Book = () => {
     useEffect(() => {
         if (isAuth) {
             const token = localStorage.getItem('token') as string;
+
             const userId = localStorage.getItem('userId') as string;
+
             fetchHardWords(userId, token);
         }
     }, [isAuth, fetchHardWords]);
@@ -125,10 +125,43 @@ const Book = () => {
             const wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
             setWords(wordsPartial);
             setLoader(false);
+            if (isAuth && group && page) {
+                const token = localStorage.getItem('token') as string;
+                const userId = localStorage.getItem('userId') as string;
+                const learnedWords = (await Service.aggregatedWords(
+                    {
+                        userId,
+                        group: '',
+                        page: '',
+                        wordsPerPage: '3600',
+                        filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
+                    },
+                    token
+                )) as DataWord[];
+
+                if (typeof learnedWords === 'number') {
+                    setIsAuth(false);
+                    localStorage.clear();
+                    navigator('/authorization');
+                    return;
+                }
+                const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
+
+                if (learnedWordsFiltered.length === 20) {
+                    setIsPageLearned(true);
+                    setColorLearnedPage('green');
+                    setActivePaginationClass('active learned');
+                } else {
+                    setIsPageLearned(false);
+                    setColorLearnedPage('');
+                    setActivePaginationClass('active');
+                }
+                setTotalCountLearned(learnedWordsFiltered.length);
+            }
         } else {
             setWords([]);
         }
-    }, [group, page]);
+    }, [group, page, isAuth, navigator, setIsPageLearned, setTotalCountLearned]);
 
     useEffect(() => {
         fetchPartialWords();
@@ -180,10 +213,6 @@ const Book = () => {
         showUpButton();
     }, [showUpButton]);
 
-    // const pageLerned = () => {
-    //     navigator(`/book/${group}/${page}/pageExplored`);
-    // }
-
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
         if (!dataset.group) return;
@@ -233,20 +262,18 @@ const Book = () => {
     window.addEventListener('scroll', scrollCalc);
 
     const setColorPage = useCallback(
-        (color: string) => {
-            if (color !== '') {
-                setColorLearnedPage(color);
+        (count: number) => {
+            if (count === 20) {
+                setIsPageLearned(true);
+                setColorLearnedPage('green');
                 setActivePaginationClass('active learned');
-                learn = 'true';
-                setLocalStorage();
             } else {
+                setIsPageLearned(false);
                 setColorLearnedPage('');
                 setActivePaginationClass('active');
-                learn = 'false';
-                setLocalStorage();
             }
         },
-        [setColorLearnedPage]
+        [setColorLearnedPage, setIsPageLearned]
     );
 
     const deleteHard = async (wordId: string) => {
@@ -382,8 +409,9 @@ const Book = () => {
                                 textExampleTranslate={word.textExampleTranslate}
                                 group={group as string}
                                 page={page as string}
-                                callback={setColorPage}
+                                callbackTotalLearned={setColorPage}
                                 callbackDeleteHard={deleteHard}
+                                totalLearned={totalCountLearned}
                             />
                         ))}
                     </article>
