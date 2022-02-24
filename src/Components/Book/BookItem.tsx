@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Service, { DataAggregatedWordsById, DataStat } from '../../Service';
 import './Book.css';
 
@@ -25,11 +24,11 @@ type DictionaryItemProps = {
 };
 
 const player = new Audio('');
+
 const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
     const { id: wordId, group, callbackTotalLearned, callbackDeleteHard, totalLearned } = props;
 
     const [count, setCount] = useState<number>(totalLearned);
-    const navigator = useNavigate();
     const pRefExample = useRef<HTMLParagraphElement>(null);
     const pRefMeaning = useRef<HTMLParagraphElement>(null);
     const checkBoxHard = useRef<HTMLInputElement>(null);
@@ -56,11 +55,13 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
 
             if (word[0]?.userWord?.difficulty === 'hard' && checkBoxHard.current !== null) {
                 (checkBoxHard.current as HTMLInputElement).checked = true;
+                (checkBoxLearned.current as HTMLInputElement).disabled = true;
                 setTextHard('Убрать из сложных');
                 setColorText('#EB4C42');
             }
             if (word[0]?.userWord?.difficulty === 'learned' && checkBoxLearned.current !== null) {
                 (checkBoxLearned.current as HTMLInputElement).checked = true;
+                (checkBoxHard.current as HTMLInputElement).disabled = true;
                 setTextLearned('Изучено');
                 setColorText('#50C878');
             }
@@ -127,19 +128,21 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
         const userId = localStorage.getItem('userId') as string;
         const responseStat = (await Service.getUserStat(userId, token)) as DataStat;
         const { learnedWords, optional } = responseStat;
-
+        let currentTotal: number = totalLearned;
         if (checked) {
             setColorText('#50C878');
             setTextLearned('Изучено');
             setDisabledHard(true);
-            setCount(count + 1);
+            currentTotal += 1;
+
+            setCount(currentTotal);
 
             await Service.createUserWord({ userId, wordId }, token, {
                 difficulty: 'learned',
                 optional: { guessedCount: '0', testFieldBoolean: true },
             });
 
-            const learnedWordsUpdate = (learnedWords as number) + 1;
+            const learnedWordsUpdate = learnedWords + 1;
 
             setTimeout(async () => {
                 await Service.updateUserStat(
@@ -155,15 +158,10 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             setColorText('');
             setTextLearned('Добавить в изученные');
             setDisabledHard(false);
-            setCount(count - 1);
-
-            const data = await Service.deleteUserWord({ userId, wordId }, token);
-            if (data === 401) {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
-            }
-            const learnedWordsUpdate = (learnedWords as number) - 1;
+            currentTotal -= 1;
+            setCount(currentTotal);
+            await Service.deleteUserWord({ userId, wordId }, token);
+            const learnedWordsUpdate = learnedWords - 1;
             setTimeout(async () => {
                 await Service.updateUserStat(
                     {
@@ -185,7 +183,6 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             setColorText('#EB4C42');
             setTextHard('Убрать из сложных');
             setDisabledLearned(true);
-
             await Service.createUserWord({ userId, wordId }, token, {
                 difficulty: 'hard',
                 optional: { guessedCount: '0', testFieldBoolean: true },
@@ -194,12 +191,7 @@ const DictionaryItem = ({ ...props }: DictionaryItemProps) => {
             setColorText('');
             setTextHard('Отметить как сложное');
             setDisabledLearned(false);
-            const data = await Service.deleteUserWord({ userId, wordId }, token);
-            if (data === 401) {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
-            }
+            await Service.deleteUserWord({ userId, wordId }, token);
         }
     };
     useEffect(() => {

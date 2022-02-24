@@ -30,7 +30,7 @@ const Book = () => {
     const [levelInfo, setLevelInfo] = useState<string>('Beginner');
     const [textColor, setTextColor] = useState<string>('');
     const [colorLearnedPage, setColorLearnedPage] = useState<string>('');
-    const [activePaginationClass, setActivePaginationClass] = useState<string>('');
+    const [activePaginationClass, setActivePaginationClass] = useState<string>('active');
     const [menuActive, setMenuActive] = useState<boolean>(false);
 
     useMemo(() => {
@@ -66,7 +66,6 @@ const Book = () => {
         async (userId: string, token: string) => {
             if (group === '7') {
                 setGroupInfo('');
-
                 setLoader(true);
                 const hardWords = (await Service.aggregatedWords(
                     {
@@ -115,7 +114,6 @@ const Book = () => {
             setLoader(true);
             const wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
             setWords(wordsPartial);
-            setLoader(false);
             if (isAuth && group && page) {
                 const token = localStorage.getItem('token') as string;
                 const userId = localStorage.getItem('userId') as string;
@@ -131,7 +129,7 @@ const Book = () => {
                 )) as DataWord[];
 
                 const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
-
+            
                 if (learnedWordsFiltered.length === 20) {
                     setIsPageLearned(true);
                     setColorLearnedPage('green');
@@ -142,6 +140,7 @@ const Book = () => {
                     setActivePaginationClass('active');
                 }
                 setTotalCountLearned(learnedWordsFiltered.length);
+                setLoader(false);
             }
         } else {
             setWords([]);
@@ -248,6 +247,7 @@ const Book = () => {
 
     const setColorPage = useCallback(
         (count: number) => {
+            setTotalCountLearned(count);
             if (count === 20) {
                 setIsPageLearned(true);
                 setColorLearnedPage('green');
@@ -268,12 +268,7 @@ const Book = () => {
         if (wordsFiltered.length === 0) {
             setGroupInfo('Здесь пока ничего нет...');
         }
-        const data = await Service.deleteUserWord({ userId, wordId }, token);
-        if (data === 401) {
-            setIsAuth(false);
-            localStorage.clear();
-            navigator('/authorization');
-        }
+        await Service.deleteUserWord({ userId, wordId }, token);
         setWords(wordsFiltered);
     };
 
