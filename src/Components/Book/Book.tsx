@@ -140,8 +140,8 @@ const Book = () => {
                     setActivePaginationClass('active');
                 }
                 setTotalCountLearned(learnedWordsFiltered.length);
-                setLoader(false);
             }
+            setLoader(false);
         } else {
             setWords([]);
         }
