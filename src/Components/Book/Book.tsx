@@ -129,7 +129,7 @@ const Book = () => {
                 )) as DataWord[];
 
                 const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
-            
+
                 if (learnedWordsFiltered.length === 20) {
                     setIsPageLearned(true);
                     setColorLearnedPage('green');
