@@ -7,6 +7,7 @@ import Menu from '../../Menu/Menu';
 import Service, { DataAggregatedWordsById, DataStat, DataWord } from '../../../Service';
 import shuffle from '../../../Utils/shuffleArray';
 import getRandomNumber from '../../../Utils/random';
+import { useGlobalContext } from '../../../GlobalContext';
 
 /* let dataStat: DataStat = {
     learnedWords: 0,
@@ -26,6 +27,10 @@ let answersInRow = 0;
 const Sprint = () => {
     const navigator = useNavigate();
     const { group, page } = useParams();
+    const { isPageLearned } = useGlobalContext();
+    if (isPageLearned) {
+        navigator(`/book/${group}/${page}/pageExplored`);
+    }
     const [words, setWords] = useState<DataWord[]>([]);
     const [showMain, setShowMain] = useState(true);
     const [showAnswer, setShowAnswer] = useState(false);
@@ -49,11 +54,6 @@ const Sprint = () => {
     const [key, setKey] = useState(0);
     const [guessedWords, setGuessedWords] = useState<DataWord[]>([]);
     const [notGuessedWords, setNotGuessedWords] = useState<DataWord[]>([]);
-    let [learns] = useState<string| null>('');
-
-    const getLocalStorage = () => {
-        learns = localStorage.getItem('pageLearn');
-    }
 
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
@@ -80,11 +80,6 @@ const Sprint = () => {
     const fetchPartialWords = useCallback(async () => {
         let wordsPartial: DataWord[] = [];
 
-        getLocalStorage();
-        if(learns === 'true') {
-            navigator(`/book/${group}/${page}/pageExplored`);
-        }
-
         if (group && page) {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
         } else {
@@ -97,19 +92,14 @@ const Sprint = () => {
             const learnedWords = (await Service.aggregatedWords(
                 {
                     userId,
-                    group: '',
-                    page: '',
-                    wordsPerPage: '20',
+                    group: 0,
+                    page: 0,
+                    wordsPerPage: 20,
                     filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
                 },
                 token
             )) as DataWord[];
-            if (typeof learnedWords === 'number') {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
-                return;
-            }
+
             const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
 
             learnedWordsFiltered.forEach((v) => {
@@ -126,7 +116,7 @@ const Sprint = () => {
                         userId,
                         group: '',
                         page: '',
-                        wordsPerPage: '',
+                        wordsPerPage: '3600',
                         filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
                     },
                     token
@@ -147,7 +137,7 @@ const Sprint = () => {
         }
         const shuffledWords = shuffle(wordsPartial);
         setWords(shuffledWords);
-    }, [currentPage, group, page, currentGroup, isAuth, navigator]);
+    }, [currentPage, group, page, currentGroup, isAuth]);
 
     useEffect(() => {
         fetchPartialWords();
@@ -203,11 +193,6 @@ const Sprint = () => {
                     { userId, wordId },
                     token
                 )) as DataAggregatedWordsById[];
-                if (typeof word === 'number') {
-                    setIsAuth(false);
-                    localStorage.clear();
-                    navigator('/authorization');
-                }
 
                 let responseStat = (await Service.getUserStat(userId, token)) as DataStat;
                 delete responseStat.id;
@@ -289,7 +274,7 @@ const Sprint = () => {
                 }
             }
         },
-        [isAuth, navigator]
+        [isAuth]
     );
 
     const createIncorrectWord = useCallback(
@@ -301,11 +286,7 @@ const Sprint = () => {
                     { userId, wordId },
                     token
                 )) as DataAggregatedWordsById[];
-                if (typeof word === 'number') {
-                    setIsAuth(false);
-                    localStorage.clear();
-                    navigator('/authorization');
-                }
+
                 let responseStat = (await Service.getUserStat(userId, token)) as DataStat;
                 delete responseStat.id;
                 let { optional } = responseStat;
@@ -355,7 +336,7 @@ const Sprint = () => {
                 }
             }
         },
-        [isAuth, navigator]
+        [isAuth]
     );
 
     const checkAnswer = useCallback(
@@ -524,13 +505,9 @@ const Sprint = () => {
                     userId,
                     token
                 );
-            } else if (typeof responseStat === 'number' && responseStat === 401) {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
             }
         }
-    }, [isAuth, navigator]);
+    }, [isAuth]);
 
     useEffect(() => {
         initStatistic();

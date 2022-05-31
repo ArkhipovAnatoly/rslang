@@ -58,9 +58,9 @@ export type DataCreateUserWordResponse = {
 
 export type DataAggregatedWords = {
     userId: string;
-    group?: string;
-    page?: string;
-    wordsPerPage?: string;
+    group?: string | number;
+    page?: string | number;
+    wordsPerPage?: string | number;
     filter: string;
 };
 
@@ -131,6 +131,36 @@ class Service {
         return undefined;
     }
 
+    public static async getNewUserToken(userId: string, refreshToken: string): Promise<number | undefined> {
+        try {
+            const rawResponse = await fetch(`${this.baseUrl}/users/${userId}/tokens`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${refreshToken}`,
+                    Accept: 'application/json',
+                },
+            });
+
+            if (rawResponse.status === 200) {
+                const data = (await rawResponse.json()) as DataUserLoginResponse;
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('refreshToken', data.refreshToken);
+                const day = new Date().getDay().toString();
+                const h = new Date().getHours() + 4;
+                const m = new Date().getMinutes();
+                const s = new Date().getSeconds();
+                const expireTokenTime = new Date(0, 0, 0, h, m, s, 0).toLocaleTimeString();
+                localStorage.setItem('expireTokenTime', expireTokenTime);
+                localStorage.setItem('day', day);
+            }
+
+            return rawResponse.status;
+        } catch (error) {
+            console.log(error);
+        }
+        return undefined;
+    }
+
     public static async getWords(group: number, page: number): Promise<DataWord[] | undefined> {
         try {
             const rawResponse = await fetch(`${this.baseUrl}/words?group=${group}&page=${page}`);
@@ -158,10 +188,6 @@ class Service {
                 },
                 body: JSON.stringify(word),
             });
-            if (rawResponse.status === 401) {
-                return rawResponse.status;
-            }
-
             const content = await rawResponse.json();
             return content;
         } catch (error) {
@@ -186,9 +212,6 @@ class Service {
                 },
                 body: JSON.stringify(word),
             });
-            if (rawResponse.status === 401) {
-                return rawResponse.status;
-            }
 
             const content = await rawResponse.json();
             return content;
@@ -211,9 +234,7 @@ class Service {
                     Accept: 'application/json',
                 },
             });
-            if (rawResponse.status === 401) {
-                return rawResponse.status;
-            }
+
             const content = await rawResponse.json();
             return content;
         } catch (error) {
@@ -222,21 +243,16 @@ class Service {
         return undefined;
     }
 
-    public static async deleteUserWord(word: DataUserWord, token: string): Promise<number | undefined> {
+    public static async deleteUserWord(word: DataUserWord, token: string) {
         const { userId, wordId } = word;
         try {
-            const rawResponse = await fetch(
-                `${this.baseUrl}/users/${userId}/words/${wordId}`,
-
-                {
-                    method: 'DELETE',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: 'application/json',
-                    },
-                }
-            );
-            return rawResponse.status;
+            await fetch(`${this.baseUrl}/users/${userId}/words/${wordId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            });
         } catch (error) {
             console.log(error);
         }
@@ -259,9 +275,7 @@ class Service {
                     },
                 }
             );
-            if (rawResponse.status === 401) {
-                return rawResponse.status;
-            }
+
             const content: DataAggregatedWordsResponse[] = await rawResponse.json();
             return content[0].paginatedResults;
         } catch (error) {
@@ -283,9 +297,6 @@ class Service {
                     Accept: 'application/json',
                 },
             });
-            if (rawResponse.status === 401) {
-                return rawResponse.status;
-            }
             const content = await rawResponse.json();
             return content;
         } catch (error) {
@@ -303,7 +314,8 @@ class Service {
                     Accept: 'application/json',
                 },
             });
-            if (rawResponse.status === 401 || rawResponse.status === 404) {
+
+            if (rawResponse.status === 404) {
                 return rawResponse.status;
             }
             const content = await rawResponse.json();
@@ -329,9 +341,6 @@ class Service {
                 },
                 body: JSON.stringify(statData),
             });
-            if (rawResponse.status === 401) {
-                return rawResponse.status;
-            }
             const content = await rawResponse.json();
             return content;
         } catch (error) {

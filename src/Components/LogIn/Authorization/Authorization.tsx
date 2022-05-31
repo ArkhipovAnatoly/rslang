@@ -1,9 +1,11 @@
 import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useGlobalContext } from '../../../GlobalContext';
 import Service, { DataUserLoginResponse } from '../../../Service';
 import PreLoaderCircle from '../../Preloader/PreLoaderCircle';
 
 const Authorization = () => {
+    const {setIsAuth} = useGlobalContext();
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [disabled, setDisabled] = useState<boolean>(true);
@@ -45,29 +47,43 @@ const Authorization = () => {
             setDisabled(true);
         }
     };
+
+    function setExpireTokenTime() {
+        const day = new Date().getDay().toString();
+        const h = new Date().getHours() + 4;
+        const m = new Date().getMinutes();
+        const s = new Date().getSeconds();
+        const expireTokenTime = new Date(0, 0, 0, h, m, s, 0).toLocaleTimeString();
+        localStorage.setItem('expireTokenTime', expireTokenTime);
+        localStorage.setItem('day', day);
+    }
     const submitHandler = async (event: React.FormEvent) => {
         event.preventDefault();
         setLoginStatusMessage('');
         setDisabled(true);
         setLoader(true);
         const responseLogin = (await Service.loginUser({ email, password })) as DataUserLoginResponse;
-
         setLoader(false);
         setDisabled(false);
         if (!responseLogin) {
             setSuccess(false);
+            setIsAuth(false);
             setLoginStatusMessage(`Неверный Email или пароль!`);
         } else {
             setSuccess(true);
+            setIsAuth(true);
             setLoginStatusMessage(`Вы успешно авторизовались!`);
-            localStorage.setItem('token', responseLogin.token);
-            localStorage.setItem('userId', responseLogin.userId);
             localStorage.setItem('name', responseLogin.name);
+            localStorage.setItem('userId', responseLogin.userId);
+            localStorage.setItem('token', responseLogin.token);
+            localStorage.setItem('refreshToken', responseLogin.refreshToken);
+            setExpireTokenTime();
             setTimeout(() => {
                 navigate('/');
             }, 1500);
         }
     };
+
     return (
         <div className="wrapper-form" aria-hidden onClick={closeFormHandler}>
             <section id="content" className="content">

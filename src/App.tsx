@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-
+import { useCallback, useEffect, useState } from 'react';
 import './App.css';
 import './Components/LogIn/LogIn.css';
-import { GlobalContextProvider } from './GlobalContext';
+
 import Authorization from './Components/LogIn/Authorization/Authorization';
 import Registration from './Components/LogIn/Registration/Registration';
 import Book from './Components/Book/Book';
@@ -16,8 +16,35 @@ import StatInfo from './Components/Home/About/StatInfo';
 import GameInfo from './Components/Home/About/GameInfo';
 import Error from './Components/Errors/Error';
 import PageExplored from './Components/Games/PageExplored';
+import { GlobalContextProvider } from './GlobalContext';
+import Service from './Service';
 
 function App() {
+    const [timeCurrent, setCurrentTime] = useState<string>('');
+
+    const currentTime = useCallback(() => {
+        const h = new Date().getHours();
+        const m = new Date().getMinutes();
+        const s = new Date().getSeconds();
+        const dat = new Date(0, 0, 0, h, m, s, 0);
+        setCurrentTime(dat.toLocaleTimeString());
+    }, []);
+
+    useEffect(() => {
+        if (localStorage.getItem('expireTokenTime') !== null) {
+            const expireTokenTime = localStorage.getItem('expireTokenTime');
+            if (timeCurrent === expireTokenTime) {
+                const userId = localStorage.getItem('userId') as string;
+                const refreshToken = localStorage.getItem('refreshToken') as string;
+                Service.getNewUserToken(userId, refreshToken);
+            }
+        }
+    }, [timeCurrent, currentTime]);
+
+    useEffect(() => {
+        setInterval(currentTime, 1000);
+    }, [currentTime]);
+
     return (
         <Router>
             <GlobalContextProvider>

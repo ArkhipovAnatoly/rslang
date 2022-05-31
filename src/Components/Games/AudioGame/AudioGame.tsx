@@ -6,10 +6,17 @@ import Service, { DataAggregatedWordsById, DataStat, DataWord } from '../../../S
 import Menu from '../../Menu/Menu';
 import shuffle from '../../../Utils/shuffleArray';
 import getRandomNumber from '../../../Utils/random';
+import { useGlobalContext } from '../../../GlobalContext';
+import { DataParams } from '../../Book/Book';
 
 let answersInRow = 0;
 const AudioGame = () => {
+    const { isPageLearned } = useGlobalContext();
+    const { page: p, group: g } = useParams<DataParams>();
     const navigator = useNavigate();
+    if (isPageLearned) {
+        navigator(`/book/${g}/${p}/pageExplored`);
+    }
     const { group, page } = useParams();
     const [words, setWords] = useState<DataWord[]>([]);
     const [showMain, setShowMain] = useState(true);
@@ -39,11 +46,6 @@ const AudioGame = () => {
     const [menuActive, setMenuActive] = useState<boolean>(false);
     const [audioUrl, setAudioUrl] = useState<string>('');
     const [classResult, setClassResult] = useState<string>('');
-    let [learns] = useState<string| null>('');
-
-    const getLocalStorage = () => {
-        learns = localStorage.getItem('pageLearn');
-    }
 
     useEffect(() => {
         const token = localStorage.getItem('token') as string;
@@ -58,7 +60,7 @@ const AudioGame = () => {
 
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
-        
+
         if (!dataset.group) {
             return;
         }
@@ -69,11 +71,6 @@ const AudioGame = () => {
 
     const fetchPartialWords = useCallback(async () => {
         let wordsPartial: DataWord[] = [];
-
-        getLocalStorage();
-        if(learns === 'true') {
-            navigator(`/book/${group}/${page}/pageExplored`);
-        }
 
         if (group && page) {
             wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
@@ -89,22 +86,13 @@ const AudioGame = () => {
                     userId,
                     group: '',
                     page: '',
-                    wordsPerPage: '',
+                    wordsPerPage: '3600',
                     filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
                 },
                 token
             )) as DataWord[];
 
-            if (typeof learnedWords === 'number') {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
-                return;
-            }
             const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
-            // if (learnedWordsFiltered.length === 20) {
-            //     navigator('/pageExplored');
-            // }
 
             learnedWordsFiltered.forEach((v) => {
                 wordsPartial.forEach((k, i) => {
@@ -120,7 +108,7 @@ const AudioGame = () => {
                         userId,
                         group: '',
                         page: '',
-                        wordsPerPage: '',
+                        wordsPerPage: '3600',
                         filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
                     },
                     token
@@ -144,7 +132,7 @@ const AudioGame = () => {
 
         setWords(shuffledWords);
         setWordLength(wordsPartial.length);
-    }, [currentPage, group, page, currentGroup, isAuth, navigator]);
+    }, [currentPage, group, page, currentGroup, isAuth]);
 
     useEffect(() => {
         fetchPartialWords();
@@ -191,11 +179,6 @@ const AudioGame = () => {
                     { userId, wordId },
                     token
                 )) as DataAggregatedWordsById[];
-                if (typeof word === 'number') {
-                    setIsAuth(false);
-                    localStorage.clear();
-                    navigator('/authorization');
-                }
 
                 let responseStat = (await Service.getUserStat(userId, token)) as DataStat;
                 delete responseStat.id;
@@ -221,19 +204,6 @@ const AudioGame = () => {
                     await Service.updateUserStat(dataStatUpdate, userId, token);
                 }, 100);
 
-                /*                 let { optional } = dataStat;
-                const totalQuestionsAudioGame = dataStat.optional.totalQuestionsAudioGame + 1;
-                let { wordsInRowAudioGame } = dataStat.optional;
-
-                if (answersInRow > wordsInRowAudioGame) {
-                    wordsInRowAudioGame = answersInRow;
-                }
-                const totalCorrectAnswersAudioGame = dataStat.optional.totalCorrectAnswersAudioGame + 1;
-
-                optional = { ...optional, totalCorrectAnswersAudioGame, wordsInRowAudioGame, totalQuestionsAudioGame };
-                let dataStatUpdate = { ...dataStat, optional };
-                setDataStat(dataStatUpdate); */
-
                 if (!word[0]?.userWord) {
                     await Service.createUserWord({ userId, wordId }, token, {
                         difficulty: 'answered',
@@ -245,10 +215,6 @@ const AudioGame = () => {
                     setTimeout(async () => {
                         await Service.updateUserStat(dataStatUpdate, userId, token);
                     }, 100);
-                    /*          const newWordsAudioGame = dataStat.optional.newWordsAudioGame + 1;
-                    optional = { ...optional, newWordsAudioGame };
-                    dataStatUpdate = { ...dataStat, optional };
-                    setDataStat(dataStatUpdate); */
                 } else {
                     let guessedCount: number = +word[0].userWord.optional.guessedCount || 0;
                     const notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
@@ -266,9 +232,6 @@ const AudioGame = () => {
                         setTimeout(async () => {
                             await Service.updateUserStat(dataStatUpdate, userId, token);
                         }, 100);
-                        /*                const learnedWordsUpdate = dataStat.learnedWords + 1;
-                        dataStatUpdate = { ...dataStat, learnedWords: learnedWordsUpdate };
-                        setDataStat(dataStatUpdate); */
                     } else if (
                         word[0].userWord.difficulty === 'answered' &&
                         guessedCount >= 3 &&
@@ -286,9 +249,6 @@ const AudioGame = () => {
                         setTimeout(async () => {
                             await Service.updateUserStat(dataStatUpdate, userId, token);
                         }, 100);
-                        /*        const learnedWordsUpdate = dataStat.learnedWords + 1;
-                        dataStatUpdate = { ...dataStat, learnedWords: learnedWordsUpdate };
-                        setDataStat(dataStatUpdate); */
                     } else {
                         const optionalUserWord = word[0]?.userWord.optional;
                         await Service.updateUserWord({ userId, wordId }, token, {
@@ -299,7 +259,7 @@ const AudioGame = () => {
                 }
             }
         },
-        [isAuth, navigator]
+        [isAuth]
     );
 
     const createIncorrectWord = useCallback(
@@ -311,16 +271,7 @@ const AudioGame = () => {
                     { userId, wordId },
                     token
                 )) as DataAggregatedWordsById[];
-                if (typeof word === 'number') {
-                    setIsAuth(false);
-                    localStorage.clear();
-                    navigator('/authorization');
-                }
-                /*                let { optional } = dataStat;
-                const wordsInRowAudioGame = 0;
-                optional = { ...optional, wordsInRowAudioGame };
-                let dataStatUpdate = { ...dataStat, optional };
-                setDataStat(dataStatUpdate); */
+
                 let responseStat = (await Service.getUserStat(userId, token)) as DataStat;
                 delete responseStat.id;
                 let { optional } = responseStat;
@@ -344,10 +295,6 @@ const AudioGame = () => {
                         optional: { notGuessedCount: '1', inGame: true, testFieldBoolean: true },
                     });
 
-                    /*       const newWordsAudioGame = dataStat.optional.newWordsAudioGame + 1;
-                    optional = { ...optional, newWordsAudioGame };
-                    dataStatUpdate = { ...dataStat, optional };
-                    setDataStat(dataStatUpdate); */
                     const newWordsAudioGame = optional.newWordsAudioGame + 1;
                     optional = { ...optional, newWordsAudioGame };
                     dataStatUpdate = { ...responseStat, optional };
@@ -363,8 +310,6 @@ const AudioGame = () => {
                         setTimeout(async () => {
                             await Service.updateUserStat(dataStatUpdate, userId, token);
                         }, 100);
-                        /*      const learnedWordsUpdate = dataStat.learnedWords - 1;
-                        dataStatUpdate = { ...dataStat, learnedWords: learnedWordsUpdate }; */
                     }
                     let notGuessedCount: number = +word[0].userWord.optional.notGuessedCount || 0;
                     const optionalWord = word[0].userWord.optional;
@@ -376,7 +321,7 @@ const AudioGame = () => {
                 }
             }
         },
-        [isAuth, navigator]
+        [isAuth]
     );
 
     const checkAnswer = useCallback(
@@ -579,13 +524,9 @@ const AudioGame = () => {
                     userId,
                     token
                 );
-            } else if (typeof responseStat === 'number' && responseStat === 401) {
-                setIsAuth(false);
-                localStorage.clear();
-                navigator('/authorization');
             }
         }
-    }, [isAuth, navigator]);
+    }, [isAuth]);
 
     useEffect(() => {
         initStatistic();

@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import ReactPaginate from 'react-paginate';
-
 import MediaQuery from 'react-responsive';
-
 import { useNavigate, useParams } from 'react-router-dom';
 import Service, { DataWord } from '../../Service';
 import Footer from '../Home/Footer';
@@ -10,13 +8,16 @@ import PreLoaderProgress from '../Preloader/PreLoaderProgress';
 import BookItem from './BookItem';
 import Menu from '../Menu/Menu';
 import Header from '../Home/Header';
+import { useGlobalContext } from '../../GlobalContext';
 
-type DataParams = {
+export type DataParams = {
     group: string;
     page: string;
 };
 
 const Book = () => {
+    const { setIsPageLearned } = useGlobalContext();
+    const [totalCountLearned, setTotalCountLearned] = useState<number>(0);
     const { group, page } = useParams<DataParams>();
     const navigator = useNavigate();
     const [forcePage, setForcePage] = useState<number>(0);
@@ -29,9 +30,8 @@ const Book = () => {
     const [levelInfo, setLevelInfo] = useState<string>('Beginner');
     const [textColor, setTextColor] = useState<string>('');
     const [colorLearnedPage, setColorLearnedPage] = useState<string>('');
-    const [activePaginationClass, setActivePaginationClass] = useState<string>('');
+    const [activePaginationClass, setActivePaginationClass] = useState<string>('active');
     const [menuActive, setMenuActive] = useState<boolean>(false);
-    let [learn] = useState<string>('');
 
     useMemo(() => {
         switch (group) {
@@ -55,46 +55,45 @@ const Book = () => {
                 break;
             case '7':
                 setTextColor('violet');
+
                 break;
             default:
                 break;
         }
     }, [group]);
 
-    const setLocalStorage = () => {
-        localStorage.setItem('pageLearn', learn);
-    }
-
     const fetchHardWords = useCallback(
         async (userId: string, token: string) => {
             if (group === '7') {
+                setGroupInfo('');
                 setLoader(true);
                 const hardWords = (await Service.aggregatedWords(
                     {
                         userId,
                         group: '',
                         page: '',
-                        wordsPerPage: '20',
+                        wordsPerPage: '3600',
                         filter: `{"$and":[{"userWord.difficulty":"hard", "userWord.optional.testFieldBoolean":${true}}]}`,
                     },
                     token
                 )) as DataWord[];
-                if (typeof hardWords === 'number') {
-                    setIsAuth(false);
-                    localStorage.clear();
-                    navigator('/authorization');
-                    return;
+                if (hardWords.length === 0) {
+                    setGroupInfo('Здесь пока ничего нет...');
+                } else {
+                    setGroupInfo('Сложные слова');
                 }
                 setWords(hardWords);
                 setLoader(false);
             }
         },
-        [group, navigator]
+        [group]
     );
     useEffect(() => {
         if (isAuth) {
             const token = localStorage.getItem('token') as string;
+
             const userId = localStorage.getItem('userId') as string;
+
             fetchHardWords(userId, token);
         }
     }, [isAuth, fetchHardWords]);
@@ -111,12 +110,42 @@ const Book = () => {
     }, [page]);
 
     const fetchPartialWords = useCallback(async () => {
-        setLoader(true);
+        if (group !== '7') {
+            setLoader(true);
+            const wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
+            setWords(wordsPartial);
+            if (isAuth && group && page) {
+                const token = localStorage.getItem('token') as string;
+                const userId = localStorage.getItem('userId') as string;
+                const learnedWords = (await Service.aggregatedWords(
+                    {
+                        userId,
+                        group: '',
+                        page: '',
+                        wordsPerPage: '3600',
+                        filter: `{"$and":[{"userWord.difficulty":"learned", "userWord.optional.testFieldBoolean":${true}}]}`,
+                    },
+                    token
+                )) as DataWord[];
 
-        const wordsPartial = (await Service.getWords(+(group as string) - 1, +(page as string) - 1)) as DataWord[];
-        setWords(wordsPartial);
-        setLoader(false);
-    }, [group, page]);
+                const learnedWordsFiltered = learnedWords.filter((v) => v.group === +group - 1 && v.page === +page - 1);
+
+                if (learnedWordsFiltered.length === 20) {
+                    setIsPageLearned(true);
+                    setColorLearnedPage('green');
+                    setActivePaginationClass('active learned');
+                } else {
+                    setIsPageLearned(false);
+                    setColorLearnedPage('');
+                    setActivePaginationClass('active');
+                }
+                setTotalCountLearned(learnedWordsFiltered.length);
+            }
+            setLoader(false);
+        } else {
+            setWords([]);
+        }
+    }, [group, page, isAuth, setIsPageLearned, setTotalCountLearned]);
 
     useEffect(() => {
         fetchPartialWords();
@@ -149,8 +178,8 @@ const Book = () => {
                 setLevelInfo('Proficiency');
                 break;
             case '7':
-                setGroupInfo('Сложные слова');
                 setLevelInfo('');
+                setGroupInfo('');
                 break;
             default:
                 break;
@@ -167,10 +196,6 @@ const Book = () => {
     useEffect(() => {
         showUpButton();
     }, [showUpButton]);
-
-    // const pageLerned = () => {
-    //     navigator(`/book/${group}/${page}/pageExplored`);
-    // }
 
     const handlerGroup = (event: React.MouseEvent) => {
         const { dataset } = event.target as HTMLDivElement;
@@ -221,21 +246,31 @@ const Book = () => {
     window.addEventListener('scroll', scrollCalc);
 
     const setColorPage = useCallback(
-        (color: string) => {
-            if (color !== '') {
-                setColorLearnedPage(color);
+        (count: number) => {
+            setTotalCountLearned(count);
+            if (count === 20) {
+                setIsPageLearned(true);
+                setColorLearnedPage('green');
                 setActivePaginationClass('active learned');
-                learn = "true";
-                setLocalStorage();
             } else {
+                setIsPageLearned(false);
                 setColorLearnedPage('');
                 setActivePaginationClass('active');
-                learn = "false";
-                setLocalStorage();
             }
         },
-        [setColorLearnedPage]
+        [setColorLearnedPage, setIsPageLearned]
     );
+
+    const deleteHard = async (wordId: string) => {
+        const token = localStorage.getItem('token') as string;
+        const userId = localStorage.getItem('userId') as string;
+        const wordsFiltered = words.filter((w) => w._id !== wordId);
+        if (wordsFiltered.length === 0) {
+            setGroupInfo('Здесь пока ничего нет...');
+        }
+        await Service.deleteUserWord({ userId, wordId }, token);
+        setWords(wordsFiltered);
+    };
 
     return (
         <div id="wrapper">
@@ -326,7 +361,7 @@ const Book = () => {
                 </div>
                 <section className="open-book">
                     <h2 style={{ color: textColor }} className="chapter-title">
-                        {words.length ? groupInfo : 'Здесь пока ничего нет...'}
+                        {groupInfo}
                     </h2>
                     <MediaQuery minWidth={800}>
                         <h2
@@ -354,7 +389,9 @@ const Book = () => {
                                 textExampleTranslate={word.textExampleTranslate}
                                 group={group as string}
                                 page={page as string}
-                                callback={setColorPage}
+                                callbackTotalLearned={setColorPage}
+                                callbackDeleteHard={deleteHard}
+                                totalLearned={totalCountLearned}
                             />
                         ))}
                     </article>

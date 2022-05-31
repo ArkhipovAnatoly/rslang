@@ -63,12 +63,15 @@ const Home = () => {
                             <figure id="featuredpost">
                                 <figcaption>
                                     <h2 className="heading">Видео-презентация</h2>
-                                    <p className="shortintro">
-                                       Как мы создавали красоту &hellip;
-                                    </p>
+                                    <p className="shortintro">Как мы создавали красоту &hellip;</p>
                                     <p className="link">
-                                        <a className="btn" href="https://youtu.be/Vu7K78JLfg8" target="_blank" rel="noopener noreferrer">
-                                        Смотреть &raquo;
+                                        <a
+                                            className="btn"
+                                            href="https://youtu.be/Vu7K78JLfg8"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Смотреть &raquo;
                                         </a>
                                     </p>
                                 </figcaption>

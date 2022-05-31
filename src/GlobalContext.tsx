@@ -1,18 +1,31 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
 
 export type GlobalContent = {
-    userId: string;
-    setUserId: (c: string) => void;
+    isPageLearned: boolean;
+    setIsPageLearned: (c: boolean) => void;
+    totalPagesLearned: number;
+    setTotalPagesLearned: (c: React.SetStateAction<number>) => void;
+    isAuth: boolean;
+    setIsAuth: (c: boolean) => void;
 };
 
 const GlobalContext: React.Context<GlobalContent> = createContext<GlobalContent>({
-    userId: '',
-    setUserId: () => {},
+    isPageLearned: false,
+    totalPagesLearned: 0,
+    setIsPageLearned: () => {},
+    setTotalPagesLearned: () => {},
+    isAuth: false,
+    setIsAuth: () => {},
 });
 
 export const GlobalContextProvider: React.FC = ({ children }) => {
-    const [userId, setUserId] = useState<string>('');
-    const context = useMemo(() => ({ userId, setUserId }), [userId]);
+    const [isPageLearned, setIsPageLearned] = useState<boolean>(false);
+    const [isAuth, setIsAuth] = useState<boolean>(false);
+    const [totalPagesLearned, setTotalPagesLearned] = useState<number>(0);
+    const context = useMemo(
+        () => ({ isPageLearned, setIsPageLearned, totalPagesLearned, setTotalPagesLearned, isAuth, setIsAuth }),
+        [isPageLearned, totalPagesLearned, isAuth]
+    );
     return <GlobalContext.Provider value={context}>{children}</GlobalContext.Provider>;
 };
 
