@@ -543,6 +543,9 @@ nav .nav-wrapper {
 .cat-name {
     margin-left: 800px;
 }
+.pagination li.active {
+    background-color: blue;
+}
 
 .pagination li.active.learned {
     background-color: green;

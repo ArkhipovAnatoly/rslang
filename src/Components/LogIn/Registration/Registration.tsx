@@ -1,10 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useGlobalContext } from '../../../GlobalContext';
 import Service, { DataUserCreateResponse, DataUserLoginResponse } from '../../../Service';
 import PreLoaderCircle from '../../Preloader/PreLoaderCircle';
 
 const Registration = () => {
     const navigate = useNavigate();
+    const {setIsAuth} = useGlobalContext();
     const [name, setName] = useState<string>('');
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -51,6 +53,16 @@ const Registration = () => {
             setDisabled(true);
         }
     };
+
+    function setExpireTokenTime() {
+        const day = new Date().getDay().toString();
+        const h = new Date().getHours() + 4;
+        const m = new Date().getMinutes();
+        const s = new Date().getSeconds();
+        const expireTokenTime = new Date(0, 0, 0, h, m, s, 0).toLocaleTimeString();
+        localStorage.setItem('expireTokenTime', expireTokenTime);
+        localStorage.setItem('day', day);
+    }
     const submitHandler = async (event: React.FormEvent) => {
         event.preventDefault();
         setRegistrationStatusMessage('');
@@ -62,15 +74,18 @@ const Registration = () => {
         setDisabled(false);
         if (!responseRegistration) {
             setSuccess(false);
+            setIsAuth(false);
             setRegistrationStatusMessage(`Пользователь с ${email} уже зарегистрирован!`);
         } else {
             setSuccess(true);
+            setIsAuth(true);
             setRegistrationStatusMessage(`Вы успешно зарегистрировались!`);
             const responseLogin = (await Service.loginUser({ email, password })) as DataUserLoginResponse;
             localStorage.setItem('name', responseLogin.name);
             localStorage.setItem('userId', responseLogin.userId);
             localStorage.setItem('token', responseLogin.token);
             localStorage.setItem('refreshToken', responseLogin.refreshToken);
+            setExpireTokenTime();
             setTimeout(() => {
                 navigate('/');
             }, 1500);

@@ -1,20 +1,25 @@
 import './Home.css';
 import { Link, NavLink, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
+import { useGlobalContext } from '../../GlobalContext';
 
 const Header = ({ menuActive, setMenuActive }: { menuActive: boolean; setMenuActive: (value: boolean) => void }) => {
     const { group, page } = useParams();
-    const [isAuth, setIsAuth] = useState<Boolean>(false);
+    const { isAuth, setIsAuth } = useGlobalContext();
 
-    useEffect(() => {
-        const token = localStorage.getItem('token') as string;
-        const userId = localStorage.getItem('userId') as string;
-        if (token !== null && userId !== null) {
+    const checkToken = useCallback(async () => {
+        if (localStorage.getItem('userId') !== null) {
             setIsAuth(true);
-        } else {
-            setIsAuth(false);
+            /*        const userId = localStorage.getItem('userId') as string;
+            const refreshToken = localStorage.getItem('refreshToken') as string;
+            Service.getNewUserToken(userId, refreshToken); */
         }
     }, []);
+
+    useEffect(() => {
+        checkToken();
+    }, [checkToken]);
+
     return (
         <div className="wrapper row1">
             <div id="header" className="clear">
