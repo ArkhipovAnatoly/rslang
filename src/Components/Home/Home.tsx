@@ -18,7 +18,7 @@ const Home = () => {
                         <article className="one_third first">
                             <h3 className="heading">Словарь</h3>
                             <ul className="nospace">
-                                <li>Граммотная сортировка слов: </li>
+                                <li>Грамотная сортировка слов: </li>
                                 <li>-по уровню сложности</li>
                                 <li>-по изученности</li>
                                 <li>Транскрипция</li>
